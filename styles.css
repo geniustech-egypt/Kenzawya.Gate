@@ -2,7 +2,7 @@
 :root {
     --primary-color: #4a90e2;
     --secondary-color: #f0f2f5;
-    --accent-color: #f5a623;
+    --accent-color: #033679ce;
     --text-color: #333;
     --light-text-color: #666;
     --background-color: #e6f7ff;
@@ -1112,3 +1112,4 @@ mark {
 .contact-icon:hover[data-tooltip]::after {
     opacity: 1;
 }
+
