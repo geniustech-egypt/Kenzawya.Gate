@@ -1089,4 +1089,26 @@ mark {
     font-size: 0.9em;
     color: #f80606;
     font-weight: normal;
+
+}
+.contact-icon[data-tooltip]::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: -40px; 
+    right: 50%;
+    transform: translateX(50%);
+    background: #333;
+    color: #fff;
+    font-size: 12px;   /* حجم الخط أصغر وموحد */
+    padding: 4px 6px;  /* حواف أصغر تناسب حجم النص */
+    border-radius: 5px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+    z-index: 99;
+}
+
+.contact-icon:hover[data-tooltip]::after {
+    opacity: 1;
 }
