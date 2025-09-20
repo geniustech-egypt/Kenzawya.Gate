@@ -1195,3 +1195,21 @@ mark {
 }
 /* --- نهاية التعديل --- */
 
+/* حركة خاصة بالموبايل للإنفو بار */
+@media (max-width: 600px) {
+    .marquee {
+        animation: moveTextMobile 40s linear infinite;
+    }
+
+    @keyframes moveTextMobile {
+        from {
+            transform: translateX(-15%); /* يبدأ مختفي من أقصى اليسار */
+        }
+        to {
+            transform: translateX(100%);  /* يتحرك لحد أقصى اليمين */
+        }
+    }
+}
+
+
+
