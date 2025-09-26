@@ -1,1135 +1,0 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-  <title>خدمات أخرى | بوابة الكنزاوية</title>
-  <meta name="description" content="دليل الخدمات المهنية (كهرباء سيارات، ميكانيكا، سباكة، تكييف، ألوميتال، ستائر، نجارة، أنابيب) حول كمبوند كنز والمناطق المجاورة مع التقييمات."/>
-  <link href="../styles.css" rel="stylesheet"/>
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet"/>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet"/>
-  <script src="../app.js" type="module"></script>
-  <style>
-        .header {
-            position: fixed;
-            top: 0;
-            right: 0;
-            left: 0;
-            width: 100%;
-            z-index: 1000;
-            background: #4a90e2;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-            padding: 16px 0 8px 0;
-        }
-        .logo h1 {
-            margin: 0;
-            font-size: 2.1rem;
-            color: #f9fdff;
-            font-weight: bold;
-        }
-        .logo p {
-            margin: 0;
-            color: #f9fdff;
-            font-size: 1.1rem;
-        }
-        .main-content {
-            max-width: 950px;
-            margin: 0 auto;
-            padding-top: 75px;
-            padding-bottom: 40px;
-        }
-        footer {
-            position: fixed;
-            bottom: 0;
-            right: 0;
-            left: 0;
-            width: 100%;
-            z-index: 999;
-            background-color: #dee8f0;
-            color: #007bff;
-            font-size: 0.7em;
-            height: 25px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            border-radius: 0;
-            line-height: 1;
-            text-align: center;
-            box-shadow: 0 -2px 8px rgba(0,0,0,0.04);
-        }
-        .section-card {
-            background: linear-gradient(120deg,#e6f7ff 70%,#f0f2f5 100%);
-            margin-top: 25px;
-            box-shadow: 0 8px 32px rgba(74,144,226,0.11);
-        }
-        .services-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(305px, 1fr));
-            gap: 22px;
-            margin-top: 30px;
-        }
-        .service-card {
-            background-color: #fff;
-            border-radius: 16px;
-            box-shadow: 0 5px 18px rgba(0,0,0,0.07);
-            padding: 18px 22px 14px 22px;
-            transition: box-shadow 0.2s;
-            position: relative;
-            overflow:hidden;
-        }
-        .service-card:hover {
-            box-shadow: 0 8px 32px rgba(74,144,226,0.16);
-        }
-        .service-title {
-            font-size: 1.15em;
-            font-weight: bold;
-            color: #2567a1;
-            margin-bottom: 3px;
-        }
-        .service-address {
-            color: #888;
-            font-size: 0.97em;
-            margin-bottom: 3px;
-        }
-        .service-phone {
-            font-size: 1.03em;
-            color: #007bff;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 7px;
-            margin-bottom: 9px;
-        }
-        .average-rating {
-            margin: 10px 0 8px 0;
-            font-weight: bold;
-            color: #ff9800;
-            font-size: 1.07em;
-        }
-        .old-likes-info {
-            color: #777;
-            font-size: 0.92em;
-            margin-bottom: 5px;
-        }
-        .label {
-            background: #4a90e2;
-            color: #fff;
-            border-radius: 4px;
-            font-size: 0.9em;
-            padding: 2px 7px;
-            margin-left: 5px;
-        }
-        @media (max-width:600px) {
-            .services-list {
-                grid-template-columns: 1fr;
-            }
-            .section-card {
-                padding: 18px 6px 8px 6px;
-            }
-  .header{
-    padding:10px 0 6px;
-  }
-  .logo h1{
-    font-size:1.55rem;
-  }
-  .logo p{
-    font-size:0.9rem;
-  }
-}
-                /* ---- إصلاح خروج محتوى الهواتف والبادجات (حل A) ---- */
-        .service-card { overflow:hidden; }
-
-        .service-phone {
-            display:flex;
-            flex-wrap:wrap;
-            align-items:center;
-            gap:6px 8px;
-            line-height:1.4;
-        }
-        .service-phone a {
-            color:#007bff;
-            text-decoration:none;
-            font-weight:600;
-            direction:ltr;
-            unicode-bidi:plaintext;
-            white-space:nowrap;
-            font-size:0.95em;
-        }
-        .service-phone a:hover { text-decoration:underline; }
-
-        /* استبدال السلاش النصي */
-        .service-phone a:not(:last-of-type)::after {
-            content:" /";
-            margin:0 2px;
-            color:#555;
-            font-weight:400;
-        }
-
-        .service-phone .label {
-            background:#4a90e2;
-            color:#fff;
-            border-radius:6px;
-            padding:3px 8px 4px;
-            font-size:0.75rem;
-            line-height:1.2;
-            display:inline-flex;
-            align-items:center;
-            white-space:nowrap;
-            margin:2px 0;
-            order:2;
-        }
-        .service-phone .label:first-of-type {
-            flex-basis:100%;
-            margin-top:4px;
-        }
-        .service-phone .label:first-of-type + .label {
-            flex-basis:100%;
-        }
-        .service-phone a[target="_blank"] {
-            background:#0d7d2a;
-            color:#fff;
-            padding:4px 10px;
-            border-radius:6px;
-            font-size:0.72rem;
-            font-weight:600;
-            white-space:nowrap;
-            order:3;
-            text-decoration:none;
-        }
-        .service-phone a[target="_blank"]:hover {
-            background:#0a5c20;
-        }
-    </style>
-</head>
-<body data-page="other_services">
-<header class="header">
-  <div class="logo">
-    <h1>بوابة الكنزاوية</h1>
-    <p>دليل الخدمات الأخرى</p>
-  </div>
-  <div style="width:100%;display:flex;justify-content:flex-start;align-items:center;padding-right:35px;margin-top:2px;">
-    <a href="../index.html" class="icon-btn" data-tooltip="العودة للصفحة الرئيسية"
-       style="background:rgba(255,255,255,.2);color:#fff;font-size:2rem;margin-right:10px;">
-      <i class="fas fa-home"></i>
-    </a>
-  </div>
-</header>
-
-<main class="main-content">
-  <section class="section-card">
-            <h2 style="font-size:1.6rem;margin-bottom:7px;">
-      <i class="fa-solid fa-screwdriver-wrench" style="color:#4a90e2;margin-left:8px;"></i>
-      خدمات أخرى
-    </h2>
-    <p style="color:#555;margin:0 0 18px;font-size:1.01em;line-height:1.55;text-align:center;">
-      مهنيون وفنيون في مجالات متعددة (ميكانيكا، كهرباء، سباكة، تكييف، ألوميتال، نجارة وغيرها). شارك تقييمك وتجربتك لدعم جودة الخدمات.
-    </p>
-
-    <div class="services-list">
-
-      <!-- 1 جمال كهربائي سيارات -->
-      <div class="service-card">
-        <div class="service-title">جمال - كهربائي سيارات</div>
-        <div class="service-address">شارع المنتزة</div>
-        <div class="service-phone"><i class="fa-solid fa-phone-volume"></i><a href="tel:01033464647">01033464647</a></div>
-        <div class="old-likes-info" id="old-likes-654">
-          👍 <span class="like-count">0</span> | 👎 <span class="dislike-count">0</span>
-          <small style="display:block;color:#888;">هذا التقييم بنظام الإعجاب/عدم الإعجاب (قديم)</small>
-        </div>
-        <div class="star-rating-comment" data-service-id="654">
-          <div class="star-rating"><span class="star" data-value="1">★</span><span class="star" data-value="2">★</span><span class="star" data-value="3">★</span><span class="star" data-value="4">★</span><span class="star" data-value="5">★</span></div>
-          <textarea class="comment-text" placeholder="اكتب تعليقك عن المحل..."></textarea>
-          <button class="submit-rating">إرسال التقييم</button><div class="all-comments"></div>
-        </div>
-      </div>
-
-      <!-- 2 ابو علي ميكانيكي سيارات -->
-      <div class="service-card">
-        <div class="service-title">ابو علي - ميكانيكي سيارات</div>
-        <div class="service-address">ميكانيكي سيارات</div>
-        <div class="service-phone"><i class="fa-solid fa-phone-volume"></i><a href="tel:01221352910">01221352910</a><a href="tel:01143221675">01143221675</a></div>
-        <div class="old-likes-info" id="old-likes-655">
-          👍 <span class="like-count">0</span> | 👎 <span class="dislike-count">0</span>
-          <small style="display:block;color:#888;">هذا التقييم بنظام الإعجاب/عدم الإعجاب (قديم)</small>
-        </div>
-        <div class="star-rating-comment" data-service-id="655">
-          <div class="star-rating"><span class="star" data-value="1">★</span><span class="star" data-value="2">★</span><span class="star" data-value="3">★</span><span class="star" data-value="4">★</span><span class="star" data-value="5">★</span></div>
-          <textarea class="comment-text" placeholder="اكتب تعليقك عن المحل..."></textarea>
-          <button class="submit-rating">إرسال التقييم</button><div class="all-comments"></div>
-        </div>
-      </div>
-
-      <!-- 3 محمد ميكانيكي سيارات (بدون old likes) -->
-      <div class="service-card">
-        <div class="service-title">محمد - ميكانيكي سيارات</div>
-        <div class="service-address">مساكن دهشور</div>
-        <div class="service-phone"><i class="fa-solid fa-phone-volume"></i><a href="tel:01159821171">01159821171</a></div>
-        <div class="star-rating-comment" data-service-id="700">
-          <div class="star-rating"><span class="star" data-value="1">★</span><span class="star" data-value="2">★</span><span class="star" data-value="3">★</span><span class="star" data-value="4">★</span><span class="star" data-value="5">★</span></div>
-          <textarea class="comment-text" placeholder="اكتب تعليقك عن المحل..."></textarea>
-          <button class="submit-rating">إرسال التقييم</button><div class="all-comments"></div>
-        </div>
-      </div>
-
-      <!-- 4 فرغلي ميكانيكي سيارات بداية -->
-      <div class="service-card">
-        <div class="service-title">فرغلي - ميكانيكي سيارات</div>
-        <div class="service-address">بداية</div>
-        <div class="service-phone"><i class="fa-solid fa-phone-volume"></i><a href="tel:01025460708">01025460708</a></div>
-        <div class="old-likes-info" id="old-likes-656">
-          👍 <span class="like-count">0</span> | 👎 <span class="dislike-count">0</span>
-          <small style="display:block;color:#888;">هذا التقييم بنظام الإعجاب/عدم الإعجاب (قديم)</small>
-        </div>
-        <div class="star-rating-comment" data-service-id="656">
-          <div class="star-rating"><span class="star" data-value="1">★</span><span class="star" data-value="2">★</span><span class="star" data-value="3">★</span><span class="star" data-value="4">★</span><span class="star" data-value="5">★</span></div>
-          <textarea class="comment-text" placeholder="اكتب تعليقك عن المحل..."></textarea>
-          <button class="submit-rating">إرسال التقييم</button><div class="all-comments"></div>
-        </div>
-      </div>
-
-      <!-- 5 محمد كهربائي -->
-      <div class="service-card">
-        <div class="service-title">محمد - كهربائي</div>
-        <div class="service-address">كهربائي</div>
-        <div class="service-phone"><i class="fa-solid fa-phone-volume"></i><a href="tel:01009132952">01009132952</a></div>
-        <div class="old-likes-info" id="old-likes-657">
-          👍 <span class="like-count">0</span> | 👎 <span class="dislike-count">0</span>
-          <small style="display:block;color:#888;">هذا التقييم بنظام الإعجاب/عدم الإعجاب (قديم)</small>
-        </div>
-        <div class="star-rating-comment" data-service-id="657">
-          <div class="star-rating"><span class="star" data-value="1">★</span><span class="star" data-value="2">★</span><span class="star" data-value="3">★</span><span class="star" data-value="4">★</span><span class="star" data-value="5">★</span></div>
-          <textarea class="comment-text" placeholder="اكتب تعليقك عن المحل..."></textarea>
-          <button class="submit-rating">إرسال التقييم</button><div class="all-comments"></div>
-        </div>
-      </div>
-
-      <!-- 6 ابو رحيم سباك -->
-      <div class="service-card">
-        <div class="service-title">ابو رحيم - سباك</div>
-        <div class="service-address">سباكة عامة</div>
-        <div class="service-phone"><i class="fa-solid fa-phone-volume"></i><a href="tel:01144184413">01144184413</a></div>
-        <div class="old-likes-info" id="old-likes-658">
-          👍 <span class="like-count">0</span> | 👎 <span class="dislike-count">0</span>
-          <small style="display:block;color:#888;">هذا التقييم بنظام الإعجاب/عدم الإعجاب (قديم)</small>
-        </div>
-        <div class="star-rating-comment" data-service-id="658">
-          <div class="star-rating"><span class="star" data-value="1">★</span><span class="star" data-value="2">★</span><span class="star" data-value="3">★</span><span class="star" data-value="4">★</span><span class="star" data-value="5">★</span></div>
-          <textarea class="comment-text" placeholder="اكتب تعليقك عن المحل..."></textarea>
-          <button class="submit-rating">إرسال التقييم</button><div class="all-comments"></div>
-        </div>
-      </div>
-
-      <!-- 7 مصطفي رزق سباك -->
-      <div class="service-card">
-        <div class="service-title">مصطفي رزق - سباك</div>
-        <div class="service-address">سباكة عامة</div>
-        <div class="service-phone"><i class="fa-solid fa-phone-volume"></i><a href="tel:01114120032">01114120032</a></div>
-        <div class="old-likes-info" id="old-likes-659">
-          👍 <span class="like-count">0</span> | 👎 <span class="dislike-count">0</span>
-          <small style="display:block;color:#888;">هذا التقييم بنظام الإعجاب/عدم الإعجاب (قديم)</small>
-        </div>
-        <div class="star-rating-comment" data-service-id="659">
-          <div class="star-rating"><span class="star" data-value="1">★</span><span class="star" data-value="2">★</span><span class="star" data-value="3">★</span><span class="star" data-value="4">★</span><span class="star" data-value="5">★</span></div>
-          <textarea class="comment-text" placeholder="اكتب تعليقك عن المحل..."></textarea>
-          <button class="submit-rating">إرسال التقييم</button><div class="all-comments"></div>
-        </div>
-      </div>
-
-      <!-- 8 إبراهيم سباك -->
-      <div class="service-card">
-        <div class="service-title">إبراهيم - سباك</div>
-        <div class="service-address">سباكة عامة</div>
-        <div class="service-phone"><i class="fa-solid fa-phone-volume"></i><a href="tel:01001546753">01001546753</a></div>
-        <div class="old-likes-info" id="old-likes-668">
-          👍 <span class="like-count">0</span> | 👎 <span class="dislike-count">0</span>
-          <small style="display:block;color:#888;">هذا التقييم بنظام الإعجاب/عدم الإعجاب (قديم)</small>
-        </div>
-        <div class="star-rating-comment" data-service-id="668">
-          <div class="star-rating"><span class="star" data-value="1">★</span><span class="star" data-value="2">★</span><span class="star" data-value="3">★</span><span class="star" data-value="4">★</span><span class="star" data-value="5">★</span></div>
-          <textarea class="comment-text" placeholder="اكتب تعليقك عن المحل..."></textarea>
-          <button class="submit-rating">إرسال التقييم</button><div class="all-comments"></div>
-        </div>
-      </div>
-
-      <!-- 9 م. هشام الجيزاوي تكييف -->
-      <div class="service-card">
-        <div class="service-title">م.هشام الجيزاوي - صيانة وتركيب تكييف</div>
-        <div class="service-address">صيانة وتركيب تكييف</div>
-        <div class="service-phone"><i class="fa-solid fa-phone-volume"></i><a href="tel:01065140000">01065140000</a></div>
-        <div class="star-rating-comment" data-service-id="697">
-          <div class="star-rating"><span class="star" data-value="1">★</span><span class="star" data-value="2">★</span><span class="star" data-value="3">★</span><span class="star" data-value="4">★</span><span class="star" data-value="5">★</span></div>
-          <textarea class="comment-text" placeholder="اكتب تعليقك عن الخدمة..."></textarea>
-          <button class="submit-rating">إرسال التقييم</button><div class="all-comments"></div>
-        </div>
-      </div>
-
-      <!-- 10 م.مصطفى تكييف -->
-      <div class="service-card">
-        <div class="service-title">م.مصطفي - صيانة وتركيب تكييف</div>
-        <div class="service-address">صيانة وتركيب تكييف</div>
-        <div class="service-phone"><i class="fa-solid fa-phone-volume"></i><a href="tel:01101022212">01101022212</a></div>
-        <div class="star-rating-comment" data-service-id="698">
-          <div class="star-rating"><span class="star" data-value="1">★</span><span class="star" data-value="2">★</span><span class="star" data-value="3">★</span><span class="star" data-value="4">★</span><span class="star" data-value="5">★</span></div>
-          <textarea class="comment-text" placeholder="اكتب تعليقك عن الخدمة..."></textarea>
-          <button class="submit-rating">إرسال التقييم</button><div class="all-comments"></div>
-        </div>
-      </div>
-
-      <!-- 11 حسن كهربائي سيارات ممتاز -->
-      <div class="service-card">
-        <div class="service-title">حسن - كهربائي سيارات ممتاز</div>
-        <div class="service-address">شارع الوفاء والأمل بالهرم</div>
-        <div class="service-phone"><i class="fa-solid fa-phone-volume"></i><a href="tel:01222740771">01222740771</a></div>
-        <div class="star-rating-comment" data-service-id="699">
-          <div class="star-rating"><span class="star" data-value="1">★</span><span class="star" data-value="2">★</span><span class="star" data-value="3">★</span><span class="star" data-value="4">★</span><span class="star" data-value="5">★</span></div>
-          <textarea class="comment-text" placeholder="اكتب تعليقك عن الخدمة..."></textarea>
-          <button class="submit-rating">إرسال التقييم</button><div class="all-comments"></div>
-        </div>
-      </div>
-
-      <!-- 12 ورشة الاسطي أشرف -->
-      <div class="service-card">
-        <div class="service-title">ورشة الاسطي اشرف - ميكانيكي سيارات</div>
-        <div class="service-address">سنتر 8 مساكن دهشور</div>
-        <div class="service-phone"><i class="fa-solid fa-phone-volume"></i><a href="tel:01069528680">01069528680</a><a href="tel:01011445430">01011445430</a></div>
-        <div class="star-rating-comment" data-service-id="704">
-          <div class="star-rating"><span class="star" data-value="1">★</span><span class="star" data-value="2">★</span><span class="star" data-value="3">★</span><span class="star" data-value="4">★</span><span class="star" data-value="5">★</span></div>
-          <textarea class="comment-text" placeholder="اكتب تعليقك عن الورشة..."></textarea>
-          <button class="submit-rating">إرسال التقييم</button><div class="all-comments"></div>
-        </div>
-      </div>
-
-      <!-- 13 ربيع تغيير أنابيب -->
-      <div class="service-card">
-        <div class="service-title">ربيع - تغيير انابيب بوتاجاز</div>
-        <div class="service-address">تغيير أنابيب البوتاجاز</div>
-        <div class="service-phone"><i class="fa-solid fa-phone-volume"></i><a href="tel:01020668654">01020668654</a></div>
-        <div class="old-likes-info" id="old-likes-660">
-          👍 <span class="like-count">0</span> | 👎 <span class="dislike-count">0</span>
-          <small style="display:block;color:#888;">هذا التقييم بنظام الإعجاب/عدم الإعجاب (قديم)</small>
-        </div>
-        <div class="star-rating-comment" data-service-id="660">
-          <div class="star-rating"><span class="star" data-value="1">★</span><span class="star" data-value="2">★</span><span class="star" data-value="3">★</span><span class="star" data-value="4">★</span><span class="star" data-value="5">★</span></div>
-          <textarea class="comment-text" placeholder="اكتب تعليقك عن المحل..."></textarea>
-          <button class="submit-rating">إرسال التقييم</button><div class="all-comments"></div>
-        </div>
-      </div>
-
-      <!-- 14 شركة أنابيب البوتاجاز -->
-      <div class="service-card">
-        <div class="service-title">شركة انابيب البوتاجاز</div>
-        <div class="service-address">خدمة أنابيب البوتاجاز</div>
-        <div class="service-phone"><i class="fa-solid fa-phone-volume"></i><a href="tel:19492">19492</a></div>
-        <div class="old-likes-info" id="old-likes-661">
-          👍 <span class="like-count">0</span> | 👎 <span class="dislike-count">0</span>
-          <small style="display:block;color:#888;">هذا التقييم بنظام الإعجاب/عدم الإعجاب (قديم)</small>
-        </div>
-        <div class="star-rating-comment" data-service-id="661">
-          <div class="star-rating"><span class="star" data-value="1">★</span><span class="star" data-value="2">★</span><span class="star" data-value="3">★</span><span class="star" data-value="4">★</span><span class="star" data-value="5">★</span></div>
-          <textarea class="comment-text" placeholder="اكتب تعليقك عن المحل..."></textarea>
-          <button class="submit-rating">إرسال التقييم</button><div class="all-comments"></div>
-        </div>
-      </div>
-
-      <!-- 15 علي نجار عفش -->
-      <div class="service-card">
-        <div class="service-title">علي - نجار عفش</div>
-        <div class="service-address">نجارة أثاث</div>
-        <div class="service-phone"><i class="fa-solid fa-phone-volume"></i><a href="tel:01149772501">01149772501</a></div>
-        <div class="old-likes-info" id="old-likes-662">
-          👍 <span class="like-count">0</span> | 👎 <span class="dislike-count">0</span>
-          <small style="display:block;color:#888;">هذا التقييم بنظام الإعجاب/عدم الإعجاب (قديم)</small>
-        </div>
-        <div class="star-rating-comment" data-service-id="662">
-          <div class="star-rating"><span class="star" data-value="1">★</span><span class="star" data-value="2">★</span><span class="star" data-value="3">★</span><span class="star" data-value="4">★</span><span class="star" data-value="5">★</span></div>
-          <textarea class="comment-text" placeholder="اكتب تعليقك عن المحل..."></textarea>
-          <button class="submit-rating">إرسال التقييم</button><div class="all-comments"></div>
-        </div>
-      </div>
-
-      <!-- 16 احمد ستائر مدينة الفردوس -->
-      <div class="service-card">
-        <div class="service-title">احمد - ستائر مدينة الفردوس</div>
-        <div class="service-address">ستائر - مدينة الفردوس</div>
-        <div class="service-phone"><i class="fa-solid fa-phone-volume"></i><a href="tel:01127916024">01127916024</a></div>
-        <div class="old-likes-info" id="old-likes-663">
-          👍 <span class="like-count">0</span> | 👎 <span class="dislike-count">0</span>
-          <small style="display:block;color:#888;">هذا التقييم بنظام الإعجاب/عدم الإعجاب (قديم)</small>
-        </div>
-        <div class="star-rating-comment" data-service-id="663">
-          <div class="star-rating"><span class="star" data-value="1">★</span><span class="star" data-value="2">★</span><span class="star" data-value="3">★</span><span class="star" data-value="4">★</span><span class="star" data-value="5">★</span></div>
-          <textarea class="comment-text" placeholder="اكتب تعليقك عن المحل..."></textarea>
-          <button class="submit-rating">إرسال التقييم</button><div class="all-comments"></div>
-        </div>
-      </div>
-
-      <!-- 17 اسلام تصليح ثلاجات -->
-      <div class="service-card">
-        <div class="service-title">اسلام - تصليح ثلاجات ومكيفات</div>
-        <div class="service-address">تصليح ثلاجات ومكيفات</div>
-        <div class="service-phone"><i class="fa-solid fa-phone-volume"></i><a href="tel:01111271295">01111271295</a></div>
-        <div class="old-likes-info" id="old-likes-686">
-          👍 <span class="like-count">0</span> | 👎 <span class="dislike-count">0</span>
-          <small style="display:block;color:#888;">هذا التقييم بنظام الإعجاب/عدم الإعجاب (قديم)</small>
-        </div>
-        <div class="star-rating-comment" data-service-id="686">
-          <div class="star-rating"><span class="star" data-value="1">★</span><span class="star" data-value="2">★</span><span class="star" data-value="3">★</span><span class="star" data-value="4">★</span><span class="star" data-value="5">★</span></div>
-          <textarea class="comment-text" placeholder="اكتب تعليقك عن المحل..."></textarea>
-          <button class="submit-rating">إرسال التقييم</button><div class="all-comments"></div>
-        </div>
-      </div>
-
-      <!-- 18 محمود الوميتال -->
-      <div class="service-card">
-        <div class="service-title">محمود - تركيب وصيانة الوميتال وزجاج</div>
-        <div class="service-address">تركيب وصيانة ألوميتال وزجاج</div>
-        <div class="service-phone"><i class="fa-solid fa-phone-volume"></i><a href="tel:01116963450">01116963450</a><a href="tel:01065171119">01065171119</a></div>
-        <div class="old-likes-info" id="old-likes-675">
-          👍 <span class="like-count">0</span> | 👎 <span class="dislike-count">0</span>
-          <small style="display:block;color:#888;">هذا التقييم بنظام الإعجاب/عدم الإعجاب (قديم)</small>
-        </div>
-        <div class="star-rating-comment" data-service-id="675">
-          <div class="star-rating"><span class="star" data-value="1">★</span><span class="star" data-value="2">★</span><span class="star" data-value="3">★</span><span class="star" data-value="4">★</span><span class="star" data-value="5">★</span></div>
-          <textarea class="comment-text" placeholder="اكتب تعليقك عن المحل..."></textarea>
-          <button class="submit-rating">إرسال التقييم</button><div class="all-comments"></div>
-        </div>
-      </div>
-
-      <!-- 19 م. علي هارون مهندس تشطيبات -->
-      <div class="service-card">
-        <div class="service-title">م. علي هارون - مهندس تشطيبات</div>
-        <div class="service-address">مهندس تشطيبات</div>
-        <div class="service-phone"><i class="fa-solid fa-phone-volume"></i><a href="tel:01111455503">01111455503</a></div>
-        <div class="star-rating-comment" data-service-id="693">
-          <div class="star-rating"><span class="star" data-value="1">★</span><span class="star" data-value="2">★</span><span class="star" data-value="3">★</span><span class="star" data-value="4">★</span><span class="star" data-value="5">★</span></div>
-          <textarea class="comment-text" placeholder="اكتب تعليقك عن المهندس..."></textarea>
-          <button class="submit-rating">إرسال التقييم</button><div class="all-comments"></div>
-        </div>
-      </div>
-      <!-- م. محمد مجدي -->
-<div class="service-card">
-  <div class="service-title">م. محمد مجدي - مهندس تشطيبات</div>
-  <div class="service-address">مهندس تشطيبات</div>
-  <div class="service-phone"><i class="fa-solid fa-phone-volume"></i><a href="tel:01156875577">01156875577</a></div>
-  <div class="star-rating-comment" data-service-id="694">
-    <div class="star-rating">
-      <span class="star" data-value="1">★</span><span class="star" data-value="2">★</span>
-      <span class="star" data-value="3">★</span><span class="star" data-value="4">★</span><span class="star" data-value="5">★</span>
-    </div>
-    <textarea class="comment-text" placeholder="اكتب تعليقك عن المهندس..."></textarea>
-    <button class="submit-rating">إرسال التقييم</button><div class="all-comments"></div>
-  </div>
-</div>
-
-<!-- م. هيثم الجيوشي -->
-<div class="service-card">
-  <div class="service-title">م. هيثم الجيوشي - مهندس تشطيبات</div>
-  <div class="service-address">مهندس تشطيبات</div>
-  <div class="service-phone"><i class="fa-solid fa-phone-volume"></i><a href="tel:01091634248">01091634248</a></div>
-  <div class="star-rating-comment" data-service-id="701">
-    <div class="star-rating">
-      <span class="star" data-value="1">★</span><span class="star" data-value="2">★</span>
-      <span class="star" data-value="3">★</span><span class="star" data-value="4">★</span><span class="star" data-value="5">★</span>
-    </div>
-    <textarea class="comment-text" placeholder="اكتب تعليقك عن المهندس..."></textarea>
-    <button class="submit-rating">إرسال التقييم</button><div class="all-comments"></div>
-  </div>
-</div>
-
-<!-- عبير ممرضة -->
-<div class="service-card">
-  <div class="service-title">عبير - ممرضة منزلية للنساء فقط</div>
-  <div class="service-address">خدمة تمريض منزلي للنساء</div>
-  <div class="service-phone"><i class="fa-solid fa-phone-volume"></i><a href="tel:01029701888">01029701888</a></div>
-  <div class="star-rating-comment" data-service-id="703">
-    <div class="star-rating">
-      <span class="star" data-value="1">★</span><span class="star" data-value="2">★</span>
-      <span class="star" data-value="3">★</span><span class="star" data-value="4">★</span><span class="star" data-value="5">★</span>
-    </div>
-    <textarea class="comment-text" placeholder="اكتب تعليقك عن الخدمة..."></textarea>
-    <button class="submit-rating">إرسال التقييم</button><div class="all-comments"></div>
-  </div>
-</div>
-
-<!-- سحر رشاد تنظيف -->
-<div class="service-card">
-  <div class="service-title">سحر رشاد - خدمة تنظيف منازل</div>
-  <div class="service-address">تنظيف منازل</div>
-  <div class="service-phone"><i class="fa-solid fa-phone-volume"></i><a href="tel:01127501366">01127501366</a></div>
-  <div class="old-likes-info" id="old-likes-664">
-    👍 <span class="like-count">0</span> | 👎 <span class="dislike-count">0</span>
-    <small style="display:block;color:#888;">هذا التقييم بنظام الإعجاب/عدم الإعجاب (قديم)</small>
-  </div>
-  <div class="star-rating-comment" data-service-id="664">
-    <div class="star-rating">
-      <span class="star" data-value="1">★</span><span class="star" data-value="2">★</span>
-      <span class="star" data-value="3">★</span><span class="star" data-value="4">★</span><span class="star" data-value="5">★</span>
-    </div>
-    <textarea class="comment-text" placeholder="اكتب تعليقك عن الخدمة..."></textarea>
-    <button class="submit-rating">إرسال التقييم</button><div class="all-comments"></div>
-  </div>
-</div>
-
-<!-- عفاف تنظيف -->
-<div class="service-card">
-  <div class="service-title">عفاف - خدمة تنظيف منازل</div>
-  <div class="service-address">تنظيف منازل</div>
-  <div class="service-phone"><i class="fa-solid fa-phone-volume"></i><a href="tel:01224502990">01224502990</a></div>
-  <div class="old-likes-info" id="old-likes-665">
-    👍 <span class="like-count">0</span> | 👎 <span class="dislike-count">0</span>
-    <small style="display:block;color:#888;">هذا التقييم بنظام الإعجاب/عدم الإعجاب (قديم)</small>
-  </div>
-  <div class="star-rating-comment" data-service-id="665">
-    <div class="star-rating">
-      <span class="star" data-value="1">★</span><span class="star" data-value="2">★</span>
-      <span class="star" data-value="3">★</span><span class="star" data-value="4">★</span><span class="star" data-value="5">★</span>
-    </div>
-    <textarea class="comment-text" placeholder="اكتب تعليقك عن الخدمة..."></textarea>
-    <button class="submit-rating">إرسال التقييم</button><div class="all-comments"></div>
-  </div>
-</div>
-
-<!-- نورا تنظيف -->
-<div class="service-card">
-  <div class="service-title">نورا - خدمة تنظيف منازل</div>
-  <div class="service-address">تنظيف منازل</div>
-  <div class="service-phone"><i class="fa-solid fa-phone-volume"></i><a href="tel:01070208310">01070208310</a></div>
-  <div class="old-likes-info" id="old-likes-666">
-    👍 <span class="like-count">0</span> | 👎 <span class="dislike-count">0</span>
-    <small style="display:block;color:#888;">هذا التقييم بنظام الإعجاب/عدم الإعجاب (قديم)</small>
-  </div>
-  <div class="star-rating-comment" data-service-id="666">
-    <div class="star-rating">
-      <span class="star" data-value="1">★</span><span class="star" data-value="2">★</span>
-      <span class="star" data-value="3">★</span><span class="star" data-value="4">★</span><span class="star" data-value="5">★</span>
-    </div>
-    <textarea class="comment-text" placeholder="اكتب تعليقك عن الخدمة..."></textarea>
-    <button class="submit-rating">إرسال التقييم</button><div class="all-comments"></div>
-  </div>
-</div>
-
-<!-- ناديه أم فارس تنظيف -->
-<div class="service-card">
-  <div class="service-title">ناديه ام فارس - خدمة تنظيف منازل</div>
-  <div class="service-address">تنظيف منازل</div>
-  <div class="service-phone"><i class="fa-solid fa-phone-volume"></i><a href="tel:01147352747">01147352747</a></div>
-  <div class="old-likes-info" id="old-likes-676">
-    👍 <span class="like-count">0</span> | 👎 <span class="dislike-count">0</span>
-    <small style="display:block;color:#888;">هذا التقييم بنظام الإعجاب/عدم الإعجاب (قديم)</small>
-  </div>
-  <div class="star-rating-comment" data-service-id="676">
-    <div class="star-rating">
-      <span class="star" data-value="1">★</span><span class="star" data-value="2">★</span>
-      <span class="star" data-value="3">★</span><span class="star" data-value="4">★</span><span class="star" data-value="5">★</span>
-    </div>
-    <textarea class="comment-text" placeholder="اكتب تعليقك عن الخدمة..."></textarea>
-    <button class="submit-rating">إرسال التقييم</button><div class="all-comments"></div>
-  </div>
-</div>
-
-<!-- العالمية نقل عفش -->
-<div class="service-card">
-  <div class="service-title">العالمية - شركة نقل عفش</div>
-  <div class="service-address">نقل أثاث</div>
-  <div class="service-phone"><i class="fa-solid fa-phone-volume"></i><a href="tel:01153421500">01153421500</a></div>
-  <div class="old-likes-info" id="old-likes-667">
-    👍 <span class="like-count">0</span> | 👎 <span class="dislike-count">0</span>
-    <small style="display:block;color:#888;">هذا التقييم بنظام الإعجاب/عدم الإعجاب (قديم)</small>
-  </div>
-  <div class="star-rating-comment" data-service-id="667">
-    <div class="star-rating">
-      <span class="star" data-value="1">★</span><span class="star" data-value="2">★</span>
-      <span class="star" data-value="3">★</span><span class="star" data-value="4">★</span><span class="star" data-value="5">★</span>
-    </div>
-    <textarea class="comment-text" placeholder="اكتب تعليقك عن الخدمة..."></textarea>
-    <button class="submit-rating">إرسال التقييم</button><div class="all-comments"></div>
-  </div>
-</div>
-
-<!-- ماستر كاي -->
-<div class="service-card">
-  <div class="service-title">ماستر كاي - عمل نسخ مفاتيح وشفرات الاسانسير</div>
-  <div class="service-address">مول البنفسج 1</div>
-  <div class="service-phone"><i class="fa-solid fa-phone-volume"></i><a href="tel:01100327878">01100327878</a></div>
-  <div class="old-likes-info" id="old-likes-669">
-    👍 <span class="like-count">0</span> | 👎 <span class="dislike-count">0</span>
-    <small style="display:block;color:#888;">هذا التقييم بنظام الإعجاب/عدم الإعجاب (قديم)</small>
-  </div>
-  <div class="star-rating-comment" data-service-id="669">
-    <div class="star-rating">
-      <span class="star" data-value="1">★</span><span class="star" data-value="2">★</span>
-      <span class="star" data-value="3">★</span><span class="star" data-value="4">★</span><span class="star" data-value="5">★</span>
-    </div>
-    <textarea class="comment-text" placeholder="اكتب تعليقك عن الخدمة..."></textarea>
-    <button class="submit-rating">إرسال التقييم</button><div class="all-comments"></div>
-  </div>
-</div>
-
-<!-- المتميز لأكسسوارات السيارات -->
-<div class="service-card">
-  <div class="service-title">المتميز لأكسسوارات السيارات</div>
-  <div class="service-address">إكسسوارات وتصليح (سنتر لوك / إنذار / زجاج / مرايا / كالون الشنطة) - مول كواترو شارع المنتزة</div>
-  <div class="service-phone"><i class="fa-solid fa-phone-volume"></i><a href="tel:01000223965">01000223965</a><a href="tel:01125553610">01125553610</a></div>
-  <div class="old-likes-info" id="old-likes-685">
-    👍 <span class="like-count">0</span> | 👎 <span class="dislike-count">0</span>
-    <small style="display:block;color:#888;">هذا التقييم بنظام الإعجاب/عدم الإعجاب (قديم)</small>
-  </div>
-  <div class="star-rating-comment" data-service-id="685">
-    <div class="star-rating">
-      <span class="star" data-value="1">★</span><span class="star" data-value="2">★</span>
-      <span class="star" data-value="3">★</span><span class="star" data-value="4">★</span><span class="star" data-value="5">★</span>
-    </div>
-    <textarea class="comment-text" placeholder="اكتب تعليقك عن الخدمة..."></textarea>
-    <button class="submit-rating">إرسال التقييم</button><div class="all-comments"></div>
-  </div>
-</div>
-
-<!-- مركز بروفيشنال مغسلة -->
-<div class="service-card">
-  <div class="service-title">مركز بروفيشنال - مغسلة سيارات</div>
-  <div class="service-address">مول الصناعات الصغيرة - شارع المنتزة - خلف عصائر فرغلي</div>
-  <div class="service-phone"><i class="fa-solid fa-phone-volume"></i><a href="tel:01009010043">01009010043</a></div>
-  <div class="old-likes-info" id="old-likes-670">
-    👍 <span class="like-count">0</span> | 👎 <span class="dislike-count">0</span>
-    <small style="display:block;color:#888;">هذا التقييم بنظام الإعجاب/عدم الإعجاب (قديم)</small>
-  </div>
-  <div class="star-rating-comment" data-service-id="670">
-    <div class="star-rating">
-      <span class="star" data-value="1">★</span><span class="star" data-value="2">★</span>
-      <span class="star" data-value="3">★</span><span class="star" data-value="4">★</span><span class="star" data-value="5">★</span>
-    </div>
-    <textarea class="comment-text" placeholder="اكتب تعليقك عن الخدمة..."></textarea>
-    <button class="submit-rating">إرسال التقييم</button><div class="all-comments"></div>
-  </div>
-</div>
-
-<!-- مركز القدس -->
-<div class="service-card">
-  <div class="service-title">مركز القدس - اصلاح اطارات و بطاريات السيارة</div>
-  <div class="service-address">مول الدولية - شارع المنتزة</div>
-  <div class="service-phone"><i class="fa-solid fa-phone-volume"></i><a href="tel:01032244426">01032244426</a></div>
-  <div class="old-likes-info" id="old-likes-677">
-    👍 <span class="like-count">0</span> | 👎 <span class="dislike-count">0</span>
-    <small style="display:block;color:#888;">هذا التقييم بنظام الإعجاب/عدم الإعجاب (قديم)</small>
-  </div>
-  <div class="star-rating-comment" data-service-id="677">
-    <div class="star-rating">
-      <span class="star" data-value="1">★</span><span class="star" data-value="2">★</span>
-      <span class="star" data-value="3">★</span><span class="star" data-value="4">★</span><span class="star" data-value="5">★</span>
-    </div>
-    <textarea class="comment-text" placeholder="اكتب تعليقك عن الخدمة..."></textarea>
-    <button class="submit-rating">إرسال التقييم</button><div class="all-comments"></div>
-  </div>
-</div>
-
-<!-- أضواء أكتوبر -->
-<div class="service-card">
-  <div class="service-title">اضواء اكتوبر - خامات ومستلزمات كهرباء</div>
-  <div class="service-address">مول قرطبة - طريق الحي الإيطالي - كمبوند قرطبة سيتي</div>
-  <div class="service-phone"><i class="fa-solid fa-phone-volume"></i><a href="tel:01010003155">01010003155</a></div>
-  <div class="old-likes-info" id="old-likes-671">
-    👍 <span class="like-count">0</span> | 👎 <span class="dislike-count">0</span>
-    <small style="display:block;color:#888;">هذا التقييم بنظام الإعجاب/عدم الإعجاب (قديم)</small>
-  </div>
-  <div class="star-rating-comment" data-service-id="671">
-    <div class="star-rating">
-      <span class="star" data-value="1">★</span><span class="star" data-value="2">★</span>
-      <span class="star" data-value="3">★</span><span class="star" data-value="4">★</span><span class="star" data-value="5">★</span>
-    </div>
-    <textarea class="comment-text" placeholder="اكتب تعليقك عن المحل..."></textarea>
-    <button class="submit-rating">إرسال التقييم</button><div class="all-comments"></div>
-  </div>
-</div>
-
-<!-- محل البنيان -->
-<div class="service-card">
-  <div class="service-title">محل البنيان - خامات ومستلزمات حدايد وبويات وكهرباء</div>
-  <div class="service-address">مول يوتوبيا - كمبوند يوتوبيا</div>
-  <div class="service-phone"><i class="fa-solid fa-phone-volume"></i><a href="tel:01050003039">01050003039</a></div>
-  <div class="old-likes-info" id="old-likes-672">
-    👍 <span class="like-count">0</span> | 👎 <span class="dislike-count">0</span>
-    <small style="display:block;color:#888;">هذا التقييم بنظام الإعجاب/عدم الإعجاب (قديم)</small>
-  </div>
-  <div class="star-rating-comment" data-service-id="672">
-    <div class="star-rating">
-      <span class="star" data-value="1">★</span><span class="star" data-value="2">★</span>
-      <span class="star" data-value="3">★</span><span class="star" data-value="4">★</span><span class="star" data-value="5">★</span>
-    </div>
-    <textarea class="comment-text" placeholder="اكتب تعليقك عن المحل..."></textarea>
-    <button class="submit-rating">إرسال التقييم</button><div class="all-comments"></div>
-  </div>
-</div>
-
-<!-- محل الوكيل -->
-<div class="service-card">
-  <div class="service-title">محل الوكيل - خامات ومستلزمات سباكة وكهرباء</div>
-  <div class="service-address">مول الصناعات الصغيرة - كمبوند المنتزة</div>
-  <div class="service-phone"><i class="fa-solid fa-phone-volume"></i><a href="tel:01033772525">01033772525</a></div>
-  <div class="old-likes-info" id="old-likes-673">
-    👍 <span class="like-count">0</span> | 👎 <span class="dislike-count">0</span>
-    <small style="display:block;color:#888;">هذا التقييم بنظام الإعجاب/عدم الإعجاب (قديم)</small>
-  </div>
-  <div class="star-rating-comment" data-service-id="673">
-    <div class="star-rating">
-      <span class="star" data-value="1">★</span><span class="star" data-value="2">★</span>
-      <span class="star" data-value="3">★</span><span class="star" data-value="4">★</span><span class="star" data-value="5">★</span>
-    </div>
-    <textarea class="comment-text" placeholder="اكتب تعليقك عن المحل..."></textarea>
-    <button class="submit-rating">إرسال التقييم</button><div class="all-comments"></div>
-  </div>
-</div>
-<!-- معرض الإمام -->
-<div class="service-card">
-  <div class="service-title">معرض الامام - خامات ومستلزمات سباكة وصحي</div>
-  <div class="service-address">مول البنفسج 2 - الدور الثالث - مساكن دهشور</div>
-  <div class="service-phone"><i class="fa-solid fa-phone-volume"></i><a href="tel:01033356550">01033356550</a></div>
-  <div class="old-likes-info" id="old-likes-678">
-    👍 <span class="like-count">0</span> | 👎 <span class="dislike-count">0</span>
-    <small style="display:block;color:#888;">هذا التقييم بنظام الإعجاب/عدم الإعجاب (قديم)</small>
-  </div>
-  <div class="star-rating-comment" data-service-id="678">
-    <div class="star-rating">
-      <span class="star" data-value="1">★</span><span class="star" data-value="2">★</span>
-      <span class="star" data-value="3">★</span><span class="star" data-value="4">★</span><span class="star" data-value="5">★</span>
-    </div>
-    <textarea class="comment-text" placeholder="اكتب تعليقك عن المحل..."></textarea>
-    <button class="submit-rating">إرسال التقييم</button><div class="all-comments"></div>
-  </div>
-</div>
-
-<!-- مؤسسة النور -->
-<div class="service-card">
-  <div class="service-title">مؤسسة النور - خامات ومستلزمات كهرباء وسباكة وبويات</div>
-  <div class="service-address">مول البنفسج 2 - الدور الأرضي - مساكن دهشور</div>
-  <div class="service-phone"><i class="fa-solid fa-phone-volume"></i><a href="tel:01022240781">01022240781</a></div>
-  <div class="old-likes-info" id="old-likes-679">
-    👍 <span class="like-count">0</span> | 👎 <span class="dislike-count">0</span>
-    <small style="display:block;color:#888;">هذا التقييم بنظام الإعجاب/عدم الإعجاب (قديم)</small>
-  </div>
-  <div class="star-rating-comment" data-service-id="679">
-    <div class="star-rating">
-      <span class="star" data-value="1">★</span><span class="star" data-value="2">★</span>
-      <span class="star" data-value="3">★</span><span class="star" data-value="4">★</span><span class="star" data-value="5">★</span>
-    </div>
-    <textarea class="comment-text" placeholder="اكتب تعليقك عن المحل..."></textarea>
-    <button class="submit-rating">إرسال التقييم</button><div class="all-comments"></div>
-  </div>
-</div>
-
-<!-- معرض القائد -->
-<div class="service-card">
-  <div class="service-title">معرض القائد - حدايد وبويات</div>
-  <div class="service-address">مول الجوهرة</div>
-  <div class="service-phone"><i class="fa-solid fa-phone-volume"></i><a href="tel:01099618877">01099618877</a></div>
-  <div class="old-likes-info" id="old-likes-680">
-    👍 <span class="like-count">0</span> | 👎 <span class="dislike-count">0</span>
-    <small style="display:block;color:#888;">هذا التقييم بنظام الإعجاب/عدم الإعجاب (قديم)</small>
-  </div>
-  <div class="star-rating-comment" data-service-id="680">
-    <div class="star-rating">
-      <span class="star" data-value="1">★</span><span class="star" data-value="2">★</span>
-      <span class="star" data-value="3">★</span><span class="star" data-value="4">★</span><span class="star" data-value="5">★</span>
-    </div>
-    <textarea class="comment-text" placeholder="اكتب تعليقك عن المحل..."></textarea>
-    <button class="submit-rating">إرسال التقييم</button><div class="all-comments"></div>
-  </div>
-</div>
-
-<!-- ابو مروان مستلزمات حيوانات -->
-<div class="service-card">
-  <div class="service-title">ابو مروان - بيع مستلزمات حيوانات</div>
-  <div class="service-address">مول البنفسج</div>
-  <div class="service-phone"><i class="fa-solid fa-phone-volume"></i><a href="tel:01061516413">01061516413</a></div>
-  <div class="old-likes-info" id="old-likes-651">
-    👍 <span class="like-count">0</span> | 👎 <span class="dislike-count">0</span>
-    <small style="display:block;color:#888;">هذا التقييم بنظام الإعجاب/عدم الإعجاب (قديم)</small>
-  </div>
-  <div class="star-rating-comment" data-service-id="651">
-    <div class="star-rating">
-      <span class="star" data-value="1">★</span><span class="star" data-value="2">★</span>
-      <span class="star" data-value="3">★</span><span class="star" data-value="4">★</span><span class="star" data-value="5">★</span>
-    </div>
-    <textarea class="comment-text" placeholder="اكتب تعليقك عن المحل..."></textarea>
-    <button class="submit-rating">إرسال التقييم</button><div class="all-comments"></div>
-  </div>
-</div>
-
-<!-- بن ديب محمصة -->
-<div class="service-card">
-  <div class="service-title">بن ديب - محمصة بن</div>
-  <div class="service-address">مول اللوتس - بجوار خير زمان</div>
-  <div class="service-phone"><i class="fa-solid fa-phone-volume"></i><a href="tel:01554141600">01554141600</a></div>
-  <div class="old-likes-info" id="old-likes-687">
-    👍 <span class="like-count">0</span> | 👎 <span class="dislike-count">0</span>
-    <small style="display:block;color:#888;">هذا التقييم بنظام الإعجاب/عدم الإعجاب (قديم)</small>
-  </div>
-  <div class="star-rating-comment" data-service-id="687">
-    <div class="star-rating">
-      <span class="star" data-value="1">★</span><span class="star" data-value="2">★</span>
-      <span class="star" data-value="3">★</span><span class="star" data-value="4">★</span><span class="star" data-value="5">★</span>
-    </div>
-    <textarea class="comment-text" placeholder="اكتب تعليقك عن المحل..."></textarea>
-    <button class="submit-rating">إرسال التقييم</button><div class="all-comments"></div>
-  </div>
-</div>
-
-<!-- الفردوس كلينيك -->
-<div class="service-card">
-  <div class="service-title">الفردوس كلينيك - عيادة بيطرية</div>
-  <div class="service-address">مول رويال فالي - بعد الحي الإيطالي</div>
-  <div class="service-phone"><i class="fa-solid fa-phone-volume"></i><a href="tel:01065949868">01065949868</a></div>
-  <div class="old-likes-info" id="old-likes-652">
-    👍 <span class="like-count">0</span> | 👎 <span class="dislike-count">0</span>
-    <small style="display:block;color:#888;">هذا التقييم بنظام الإعجاب/عدم الإعجاب (قديم)</small>
-  </div>
-  <div class="star-rating-comment" data-service-id="652">
-    <div class="star-rating">
-      <span class="star" data-value="1">★</span><span class="star" data-value="2">★</span>
-      <span class="star" data-value="3">★</span><span class="star" data-value="4">★</span><span class="star" data-value="5">★</span>
-    </div>
-    <textarea class="comment-text" placeholder="اكتب تعليقك عن المحل..."></textarea>
-    <button class="submit-rating">إرسال التقييم</button><div class="all-comments"></div>
-  </div>
-</div>
-
-<!-- بيتسيانو كلينيك -->
-<div class="service-card">
-  <div class="service-title">بيتسيانو كلينيك - عيادة بيطرية</div>
-  <div class="service-address">مول الدولية - شارع المنتزة</div>
-  <div class="service-phone"><i class="fa-solid fa-phone-volume"></i><a href="tel:01002665934">01002665934</a></div>
-  <div class="old-likes-info" id="old-likes-653">
-    👍 <span class="like-count">0</span> | 👎 <span class="dislike-count">0</span>
-    <small style="display:block;color:#888;">هذا التقييم بنظام الإعجاب/عدم الإعجاب (قديم)</small>
-  </div>
-  <div class="star-rating-comment" data-service-id="653">
-    <div class="star-rating">
-      <span class="star" data-value="1">★</span><span class="star" data-value="2">★</span>
-      <span class="star" data-value="3">★</span><span class="star" data-value="4">★</span><span class="star" data-value="5">★</span>
-    </div>
-    <textarea class="comment-text" placeholder="اكتب تعليقك عن المحل..."></textarea>
-    <button class="submit-rating">إرسال التقييم</button><div class="all-comments"></div>
-  </div>
-</div>
-
-<!-- LOTUS PET Clinic -->
-<div class="service-card">
-  <div class="service-title">LOTUS PET Clinic - عيادة بيطرية شاملة</div>
-  <div class="service-address">داخل مول اللوتس - بجوار خير زمان</div>
-  <div class="service-phone"><i class="fa-solid fa-phone-volume"></i><a href="tel:01019222520">01019222520</a></div>
-  <div class="star-rating-comment" data-service-id="695">
-    <div class="star-rating">
-      <span class="star" data-value="1">★</span><span class="star" data-value="2">★</span>
-      <span class="star" data-value="3">★</span><span class="star" data-value="4">★</span><span class="star" data-value="5">★</span>
-    </div>
-    <textarea class="comment-text" placeholder="اكتب تعليقك عن المحل..."></textarea>
-    <button class="submit-rating">إرسال التقييم</button><div class="all-comments"></div>
-  </div>
-</div>
-<!-- ROCK 'N' DOG Pet Clinic -->
-<div class="service-card">
-  <div class="service-title">ROCK 'N' DOG Pet Clinic - عيادة بيطرية</div>
-  <div class="service-address">مول دجلة جاردنز الخلفي - أعلى صيدلية أحمد ماهر - بجوار قطونيل</div>
-  <div class="service-phone"><i class="fa-solid fa-phone-volume"></i><a href="tel:01125321519">01125321519</a></div>
-  <div class="star-rating-comment" data-service-id="696">
-    <div class="star-rating">
-      <span class="star" data-value="1">★</span><span class="star" data-value="2">★</span>
-      <span class="star" data-value="3">★</span><span class="star" data-value="4">★</span><span class="star" data-value="5">★</span>
-    </div>
-    <textarea class="comment-text" placeholder="اكتب تعليقك عن المحل..."></textarea>
-    <button class="submit-rating">إرسال التقييم</button><div class="all-comments"></div>
-  </div>
-</div>
-<!-- بيت الحلاقة العالمي و بودا -->
-<div class="service-card">
-  <div class="service-title">بيت الحلاقة "العالمي و بودا" - حلاق رجالي</div>
-  <div class="service-address">مول جولف كورنر - الدور الثاني - كمبوند جولف ريزيدنس</div>
-  <div class="service-phone"><i class="fa-solid fa-phone-volume"></i><a href="tel:01024124701">01024124701</a></div>
-  <div class="old-likes-info" id="old-likes-674">
-    👍 <span class="like-count">0</span> | 👎 <span class="dislike-count">0</span>
-    <small style="display:block;color:#888;">هذا التقييم بنظام الإعجاب/عدم الإعجاب (قديم)</small>
-  </div>
-  <div class="star-rating-comment" data-service-id="674">
-    <div class="star-rating">
-      <span class="star" data-value="1">★</span><span class="star" data-value="2">★</span>
-      <span class="star" data-value="3">★</span><span class="star" data-value="4">★</span><span class="star" data-value="5">★</span>
-    </div>
-    <textarea class="comment-text" placeholder="اكتب تعليقك عن المحل..."></textarea>
-    <button class="submit-rating">إرسال التقييم</button><div class="all-comments"></div>
-  </div>
-</div>
-<!-- صالون EL Safty -->
-<div class="service-card">
-  <div class="service-title">صالون حلاقة EL Safty - حلاق رجالي</div>
-  <div class="service-address">مول بيزنس بارك (بيتا سابقاً) - الدور الثاني - فوق كافيه وناس</div>
-  <div class="service-phone"><i class="fa-solid fa-phone-volume"></i><a href="tel:01062277511">01062277511</a></div>
-  <div class="old-likes-info" id="old-likes-681">
-    👍 <span class="like-count">0</span> | 👎 <span class="dislike-count">0</span>
-    <small style="display:block;color:#888;">هذا التقييم بنظام الإعجاب/عدم الإعجاب (قديم)</small>
-  </div>
-  <div class="star-rating-comment" data-service-id="681">
-    <div class="star-rating">
-      <span class="star" data-value="1">★</span><span class="star" data-value="2">★</span>
-      <span class="star" data-value="3">★</span><span class="star" data-value="4">★</span><span class="star" data-value="5">★</span>
-    </div>
-    <textarea class="comment-text" placeholder="اكتب تعليقك عن المحل..."></textarea>
-    <button class="submit-rating">إرسال التقييم</button><div class="all-comments"></div>
-  </div>
-</div>
-<!-- صالون فريندز -->
-<div class="service-card">
-  <div class="service-title">صالون حلاقة فريندز - حلاق رجالي</div>
-  <div class="service-address">مول الجوهرة - الدور الثاني</div>
-  <div class="service-phone"><i class="fa-solid fa-phone-volume"></i><a href="tel:01110351130">01110351130</a></div>
-  <div class="star-rating-comment" data-service-id="691">
-    <div class="star-rating">
-      <span class="star" data-value="1">★</span><span class="star" data-value="2">★</span>
-      <span class="star" data-value="3">★</span><span class="star" data-value="4">★</span><span class="star" data-value="5">★</span>
-    </div>
-    <textarea class="comment-text" placeholder="اكتب تعليقك عن المحل..."></textarea>
-    <button class="submit-rating">إرسال التقييم</button><div class="all-comments"></div>
-  </div>
-</div>
-<!-- صالون مودرن كت -->
-<div class="service-card">
-  <div class="service-title">صالون حلاقة مودرن كت - حلاق رجالي</div>
-  <div class="service-address">مول الجوهرة - الدور الثاني</div>
-  <div class="service-phone"><i class="fa-solid fa-phone-volume"></i><a href="tel:01102601191">01102601191</a></div>
-  <div class="star-rating-comment" data-service-id="692">
-    <div class="star-rating">
-      <span class="star" data-value="1">★</span><span class="star" data-value="2">★</span>
-      <span class="star" data-value="3">★</span><span class="star" data-value="4">★</span><span class="star" data-value="5">★</span>
-    </div>
-    <textarea class="comment-text" placeholder="اكتب تعليقك عن المحل..."></textarea>
-    <button class="submit-rating">إرسال التقييم</button><div class="all-comments"></div>
-  </div>
-</div>
-<!-- كوافير لامور -->
-<div class="service-card">
-  <div class="service-title">كوافير لامور - كوافير وبيوتي سنتر حريمي</div>
-  <div class="service-address">دجلة جاردنز</div>
-  <div class="service-phone"><i class="fa-solid fa-phone-volume"></i><a href="tel:01004759669">01004759669</a></div>
-  <div class="old-likes-info" id="old-likes-682">
-    👍 <span class="like-count">0</span> | 👎 <span class="dislike-count">0</span>
-    <small style="display:block;color:#888;">هذا التقييم بنظام الإعجاب/عدم الإعجاب (قديم)</small>
-  </div>
-  <div class="star-rating-comment" data-service-id="682">
-    <div class="star-rating">
-      <span class="star" data-value="1">★</span><span class="star" data-value="2">★</span>
-      <span class="star" data-value="3">★</span><span class="star" data-value="4">★</span><span class="star" data-value="5">★</span>
-    </div>
-    <textarea class="comment-text" placeholder="اكتب تعليقك عن المحل..."></textarea>
-    <button class="submit-rating">إرسال التقييم</button><div class="all-comments"></div>
-  </div>
-</div>
-<!-- منظفات المصطفى -->
-<div class="service-card">
-  <div class="service-title">منظفات المصطفي</div>
-  <div class="service-address">مول الصناعات - شارع المنتزة</div>
-  <div class="service-phone"><i class="fa-solid fa-phone-volume"></i><a href="tel:01096099086">01096099086</a><a href="tel:01151272770">01151272770</a></div>
-  <div class="old-likes-info" id="old-likes-683">
-    👍 <span class="like-count">0</span> | 👎 <span class="dislike-count">0</span>
-    <small style="display:block;color:#888;">هذا التقييم بنظام الإعجاب/عدم الإعجاب (قديم)</small>
-  </div>
-  <div class="star-rating-comment" data-service-id="683">
-    <div class="star-rating">
-      <span class="star" data-value="1">★</span><span class="star" data-value="2">★</span>
-      <span class="star" data-value="3">★</span><span class="star" data-value="4">★</span><span class="star" data-value="5">★</span>
-    </div>
-    <textarea class="comment-text" placeholder="اكتب تعليقك عن المحل..."></textarea>
-    <button class="submit-rating">إرسال التقييم</button><div class="all-comments"></div>
-  </div>
-</div>
-<!-- كوداك اكسبريس -->
-<div class="service-card">
-  <div class="service-title">كوداك اكسبريس - تصوير فوتوغرافي</div>
-  <div class="service-address">شارع المنتزة - مول الصناعات - الدور الأخير</div>
-  <div class="service-phone"><i class="fa-solid fa-phone-volume"></i><a href="tel:01070024195">01070024195</a></div>
-  <div class="old-likes-info" id="old-likes-684">
-    👍 <span class="like-count">0</span> | 👎 <span class="dislike-count">0</span>
-    <small style="display:block;color:#888;">هذا التقييم بنظام الإعجاب/عدم الإعجاب (قديم)</small>
-  </div>
-  <div class="star-rating-comment" data-service-id="684">
-    <div class="star-rating">
-      <span class="star" data-value="1">★</span><span class="star" data-value="2">★</span>
-      <span class="star" data-value="3">★</span><span class="star" data-value="4">★</span><span class="star" data-value="5">★</span>
-    </div>
-    <textarea class="comment-text" placeholder="اكتب تعليقك عن المحل..."></textarea>
-    <button class="submit-rating">إرسال التقييم</button><div class="all-comments"></div>
-  </div>
-</div>
-<!-- ستوديو تصوير كوداك -->
-<div class="service-card">
-  <div class="service-title">ستوديو تصوير كوداك</div>
-  <div class="service-address">مول بيتا - الدور الثاني</div>
-  <div class="service-phone"><i class="fa-solid fa-phone-volume"></i><a href="tel:01055030733">01055030733</a></div>
-  <div class="star-rating-comment" data-service-id="702">
-    <div class="star-rating">
-      <span class="star" data-value="1">★</span><span class="star" data-value="2">★</span>
-      <span class="star" data-value="3">★</span><span class="star" data-value="4">★</span><span class="star" data-value="5">★</span>
-    </div>
-    <textarea class="comment-text" placeholder="اكتب تعليقك عن المحل..."></textarea>
-    <button class="submit-rating">إرسال التقييم</button><div class="all-comments"></div>
-  </div>
-</div>
-<!-- ترزي الجوهرة -->
-<div class="service-card">
-  <div class="service-title">ترزي الجوهرة (ابو حمادة)</div>
-  <div class="service-address">مول الجوهرة - الدور الأول - فوق صيدلية يحيى</div>
-  <div class="service-phone"><i class="fa-solid fa-phone-volume"></i><a href="tel:01097403504">01097403504</a><a href="tel:01144483206">01144483206</a></div>
-  <div class="old-likes-info" id="old-likes-688">
-    👍 <span class="like-count">0</span> | 👎 <span class="dislike-count">0</span>
-    <small style="display:block;color:#888;">هذا التقييم بنظام الإعجاب/عدم الإعجاب (قديم)</small>
-  </div>
-  <div class="star-rating-comment" data-service-id="688">
-    <div class="star-rating">
-      <span class="star" data-value="1">★</span><span class="star" data-value="2">★</span>
-      <span class="star" data-value="3">★</span><span class="star" data-value="4">★</span><span class="star" data-value="5">★</span>
-    </div>
-    <textarea class="comment-text" placeholder="اكتب تعليقك عن المحل..."></textarea>
-    <button class="submit-rating">إرسال التقييم</button><div class="all-comments"></div>
-  </div>
-</div>
-<!-- ترزي مصر -->
-<div class="service-card">
-  <div class="service-title">ترزي مصر (عم حمدي)</div>
-  <div class="service-address">مول الصناعات الصغيرة - شارع المنتزة - الدور الأول فوق مطعم نعمة</div>
-  <div class="service-phone"><i class="fa-solid fa-phone-volume"></i><a href="tel:01003362080">01003362080</a></div>
-  <div class="old-likes-info" id="old-likes-690">
-    👍 <span class="like-count">0</span> | 👎 <span class="dislike-count">0</span>
-    <small style="display:block;color:#888;">هذا التقييم بنظام الإعجاب/عدم الإعجاب (قديم)</small>
-  </div>
-  <div class="star-rating-comment" data-service-id="690">
-    <div class="star-rating">
-      <span class="star" data-value="1">★</span><span class="star" data-value="2">★</span>
-      <span class="star" data-value="3">★</span><span class="star" data-value="4">★</span><span class="star" data-value="5">★</span>
-    </div>
-    <textarea class="comment-text" placeholder="اكتب تعليقك عن المحل..."></textarea>
-    <button class="submit-rating">إرسال التقييم</button><div class="all-comments"></div>
-  </div>
-</div>
-<!-- Best Office -->
-<div class="service-card">
-  <div class="service-title">Best Office - أجهزة كمبيوتر وكاميرات مراقبة وإنتركم</div>
-  <div class="service-address">مول المنتزة - الدور الأول - كمبوند المنتزة</div>
-  <div class="service-phone"><i class="fa-solid fa-phone-volume"></i><a href="tel:01275705444">01275705444</a><a href="tel:01123242020">01123242020</a></div>
-  <div class="old-likes-info" id="old-likes-689">
-    👍 <span class="like-count">0</span> | 👎 <span class="dislike-count">0</span>
-    <small style="display:block;color:#888;">هذا التقييم بنظام الإعجاب/عدم الإعجاب (قديم)</small>
-  </div>
-  <div class="star-rating-comment" data-service-id="689">
-    <div class="star-rating">
-      <span class="star" data-value="1">★</span><span class="star" data-value="2">★</span>
-      <span class="star" data-value="3">★</span><span class="star" data-value="4">★</span><span class="star" data-value="5">★</span>
-    </div>
-    <textarea class="comment-text" placeholder="اكتب تعليقك عن المحل..."></textarea>
-    <button class="submit-rating">إرسال التقييم</button><div class="all-comments"></div>
-  </div>
-</div>
-</div>
-</section>
-</main>
-<footer dir="rtl">
-  <p>Copyright © 2024 GENIUS Tech All Rights Reserved</p>
-</footer>
-</body>
-</html>

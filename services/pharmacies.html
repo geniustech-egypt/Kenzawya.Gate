@@ -1,597 +1,0 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-  <title>صيدليات | بوابة الكنزاوية</title>
-  <meta name="description" content="دليل الصيدليات حول كمبوند كنز والمناطق المجاورة مع تقييمات وتعليقات السكان."/>
-  <link href="../styles.css" rel="stylesheet"/>
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet"/>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet"/>
-  <script src="../app.js" type="module"></script>
-  <style>
-        .header {
-            position: fixed;
-            top: 0;
-            right: 0;
-            left: 0;
-            width: 100%;
-            z-index: 1000;
-            background: #4a90e2;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-            padding: 16px 0 8px 0;
-        }
-        .logo h1 {
-            margin: 0;
-            font-size: 2.1rem;
-            color: #f9fdff;
-            font-weight: bold;
-        }
-        .logo p {
-            margin: 0;
-            color: #f9fdff;
-            font-size: 1.1rem;
-        }
-        .main-content {
-            max-width: 950px;
-            margin: 0 auto;
-            padding-top: 75px;
-            padding-bottom: 40px;
-        }
-        footer {
-            position: fixed;
-            bottom: 0;
-            right: 0;
-            left: 0;
-            width: 100%;
-            z-index: 999;
-            background-color: #dee8f0;
-            color: #007bff;
-            font-size: 0.7em;
-            height: 25px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            border-radius: 0;
-            line-height: 1;
-            text-align: center;
-            box-shadow: 0 -2px 8px rgba(0,0,0,0.04);
-        }
-        .section-card {
-            background: linear-gradient(120deg,#e6f7ff 70%,#f0f2f5 100%);
-            margin-top: 25px;
-            box-shadow: 0 8px 32px rgba(74,144,226,0.11);
-        }
-        .services-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(305px, 1fr));
-            gap: 22px;
-            margin-top: 30px;
-        }
-        .service-card {
-            background-color: #fff;
-            border-radius: 16px;
-            box-shadow: 0 5px 18px rgba(0,0,0,0.07);
-            padding: 18px 22px 14px 22px;
-            transition: box-shadow 0.2s;
-            position: relative;
-            overflow:hidden;
-        }
-        .service-card:hover {
-            box-shadow: 0 8px 32px rgba(74,144,226,0.16);
-        }
-        .service-title {
-            font-size: 1.15em;
-            font-weight: bold;
-            color: #2567a1;
-            margin-bottom: 3px;
-        }
-        .service-address {
-            color: #888;
-            font-size: 0.97em;
-            margin-bottom: 3px;
-        }
-        .service-phone {
-            font-size: 1.03em;
-            color: #007bff;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 7px;
-            margin-bottom: 9px;
-        }
-        .average-rating {
-            margin: 10px 0 8px 0;
-            font-weight: bold;
-            color: #ff9800;
-            font-size: 1.07em;
-        }
-        .old-likes-info {
-            color: #777;
-            font-size: 0.92em;
-            margin-bottom: 5px;
-        }
-        .label {
-            background: #4a90e2;
-            color: #fff;
-            border-radius: 4px;
-            font-size: 0.9em;
-            padding: 2px 7px;
-            margin-left: 5px;
-        }
-        @media (max-width:600px) {
-            .services-list {
-                grid-template-columns: 1fr;
-            }
-            .section-card {
-                padding: 18px 6px 8px 6px;
-            }
-  .header{
-    padding:10px 0 6px;
-  }
-  .logo h1{
-    font-size:1.55rem;
-  }
-  .logo p{
-    font-size:0.9rem;
-  }
-}
-                /* ---- إصلاح خروج محتوى الهواتف والبادجات (حل A) ---- */
-        .service-card { overflow:hidden; }
-
-        .service-phone {
-            display:flex;
-            flex-wrap:wrap;
-            align-items:center;
-            gap:6px 8px;
-            line-height:1.4;
-        }
-        .service-phone a {
-            color:#007bff;
-            text-decoration:none;
-            font-weight:600;
-            direction:ltr;
-            unicode-bidi:plaintext;
-            white-space:nowrap;
-            font-size:0.95em;
-        }
-        .service-phone a:hover { text-decoration:underline; }
-
-        /* استبدال السلاش النصي */
-        .service-phone a:not(:last-of-type)::after {
-            content:" /";
-            margin:0 2px;
-            color:#555;
-            font-weight:400;
-        }
-
-        .service-phone .label {
-            background:#4a90e2;
-            color:#fff;
-            border-radius:6px;
-            padding:3px 8px 4px;
-            font-size:0.75rem;
-            line-height:1.2;
-            display:inline-flex;
-            align-items:center;
-            white-space:nowrap;
-            margin:2px 0;
-            order:2;
-        }
-        .service-phone .label:first-of-type {
-            flex-basis:100%;
-            margin-top:4px;
-        }
-        .service-phone .label:first-of-type + .label {
-            flex-basis:100%;
-        }
-        .service-phone a[target="_blank"] {
-            background:#0d7d2a;
-            color:#fff;
-            padding:4px 10px;
-            border-radius:6px;
-            font-size:0.72rem;
-            font-weight:600;
-            white-space:nowrap;
-            order:3;
-            text-decoration:none;
-        }
-        .service-phone a[target="_blank"]:hover {
-            background:#0a5c20;
-        }
-    </style>
-</head>
-<body data-page="pharmacies">
-<header class="header">
-  <div class="logo">
-    <h1>بوابة الكنزاوية</h1>
-    <p>دليل الصيدليات</p>
-  </div>
-  <div style="width:100%;display:flex;justify-content:flex-start;align-items:center;padding-right:35px;margin-top:2px;">
-    <a href="../index.html" class="icon-btn" data-tooltip="العودة للصفحة الرئيسية"
-       style="background:rgba(255,255,255,.2);color:#fff;font-size:2rem;margin-right:10px;">
-      <i class="fas fa-home"></i>
-    </a>
-  </div>
-</header>
-
-<main class="main-content">
-  <section class="section-card">
-            <h2 style="font-size:1.6rem;margin-bottom:7px;">
-      <i class="fa-solid fa-prescription-bottle-medical" style="color:#4a90e2;margin-left:8px;"></i>
-      صيدليات
-    </h2>
-    <p style="color:#555;margin:0 0 18px;font-size:1.02em;line-height:1.55;text-align:center;">
-      دليل شامل للصيدليات حول الكمبوند: اطّلع على أرقام التواصل وشارك تقييمك وتجربتك.
-    </p>
-
-    <div class="services-list">
-
-      <!-- 1 صيدلية د. أحمد يحيي -->
-      <div class="service-card">
-        <div class="service-title">صيدلية د. أحمد يحيي </div>
-        <div class="service-address">مول الجوهرة</div>
-        <div class="service-phone">
-          <i class="fa-solid fa-phone-volume"></i><a href="tel:01007788156">01007788156</a>
-        </div>
-        <div class="old-likes-info" id="old-likes-76">
-          👍 <span class="like-count">0</span> | 👎 <span class="dislike-count">0</span>
-          <small style="display:block;color:#888;">هذا التقييم بنظام الإعجاب/عدم الإعجاب (قديم)</small>
-        </div>
-        <div class="star-rating-comment" data-service-id="76">
-          <div class="star-rating">
-            <span class="star" data-value="1">★</span><span class="star" data-value="2">★</span>
-            <span class="star" data-value="3">★</span><span class="star" data-value="4">★</span><span class="star" data-value="5">★</span>
-          </div>
-          <textarea class="comment-text" placeholder="اكتب تعليقك عن الصيدلية..."></textarea>
-          <button class="submit-rating">إرسال التقييم</button><div class="all-comments"></div>
-        </div>
-      </div>
-
-      <!-- 2 صيدلية روشتة و دوا (البنفسج 2) -->
-      <div class="service-card">
-        <div class="service-title">صيدلية روشتة و دوا </div>
-        <div class="service-address">مول البنفسج 2 - الدور الأرضي</div>
-        <div class="service-phone">
-          <i class="fa-solid fa-phone-volume"></i><a href="tel:01156788080">01156788080</a>
-        </div>
-        <div class="old-likes-info" id="old-likes-77">
-          👍 <span class="like-count">0</span> | 👎 <span class="dislike-count">0</span>
-          <small style="display:block;color:#888;">هذا التقييم بنظام الإعجاب/عدم الإعجاب (قديم)</small>
-        </div>
-        <div class="star-rating-comment" data-service-id="77">
-          <div class="star-rating">
-            <span class="star" data-value="1">★</span><span class="star" data-value="2">★</span>
-            <span class="star" data-value="3">★</span><span class="star" data-value="4">★</span><span class="star" data-value="5">★</span>
-          </div>
-          <textarea class="comment-text" placeholder="اكتب تعليقك عن الصيدلية..."></textarea>
-          <button class="submit-rating">إرسال التقييم</button><div class="all-comments"></div>
-        </div>
-      </div>
-
-      <!-- 3 صيدلية وايز -->
-      <div class="service-card">
-        <div class="service-title">صيدلية وايز </div>
-        <div class="service-address">مول كمبوند دجلة جاردنز</div>
-        <div class="service-phone">
-          <i class="fa-solid fa-phone-volume"></i>
-          <a href="tel:01050078506">01050078506</a><a href="tel:01068833555">01068833555</a>
-        </div>
-        <div class="old-likes-info" id="old-likes-78">
-          👍 <span class="like-count">0</span> | 👎 <span class="dislike-count">0</span>
-          <small style="display:block;color:#888;">هذا التقييم بنظام الإعجاب/عدم الإعجاب (قديم)</small>
-        </div>
-        <div class="star-rating-comment" data-service-id="78">
-          <div class="star-rating">
-            <span class="star" data-value="1">★</span><span class="star" data-value="2">★</span>
-            <span class="star" data-value="3">★</span><span class="star" data-value="4">★</span><span class="star" data-value="5">★</span>
-          </div>
-          <textarea class="comment-text" placeholder="اكتب تعليقك عن الصيدلية..."></textarea>
-          <button class="submit-rating">إرسال التقييم</button><div class="all-comments"></div>
-        </div>
-      </div>
-
-      <!-- 4 صيدلية أحمد ماهر -->
-      <div class="service-card">
-        <div class="service-title">صيدلية أحمد ماهر </div>
-        <div class="service-address">مول دجلة</div>
-        <div class="service-phone">
-          <i class="fa-solid fa-phone-volume"></i><a href="tel:01070055592">01070055592</a>
-        </div>
-        <div class="old-likes-info" id="old-likes-79">
-          👍 <span class="like-count">0</span> | 👎 <span class="dislike-count">0</span>
-          <small style="display:block;color:#888;">هذا التقييم بنظام الإعجاب/عدم الإعجاب (قديم)</small>
-        </div>
-        <div class="star-rating-comment" data-service-id="79">
-          <div class="star-rating">
-            <span class="star" data-value="1">★</span><span class="star" data-value="2">★</span>
-            <span class="star" data-value="3">★</span><span class="star" data-value="4">★</span><span class="star" data-value="5">★</span>
-          </div>
-          <textarea class="comment-text" placeholder="اكتب تعليقك عن الصيدلية..."></textarea>
-          <button class="submit-rating">إرسال التقييم</button><div class="all-comments"></div>
-        </div>
-      </div>
-
-      <!-- 5 صيدلية د. حنا بشري -->
-      <div class="service-card">
-        <div class="service-title">صيدلية د. حنا بشري </div>
-        <div class="service-address">مول دجلة جاردنز الخارجي - أول شارع المنتزة</div>
-        <div class="service-phone">
-          <i class="fa-solid fa-phone-volume"></i>
-          <a href="tel:01205516326">01205516326</a><a href="tel:01011636393">01011636393</a>
-        </div>
-        <div class="old-likes-info" id="old-likes-80">
-          👍 <span class="like-count">0</span> | 👎 <span class="dislike-count">0</span>
-          <small style="display:block;color:#888;">هذا التقييم بنظام الإعجاب/عدم الإعجاب (قديم)</small>
-        </div>
-        <div class="star-rating-comment" data-service-id="80">
-          <div class="star-rating">
-            <span class="star" data-value="1">★</span><span class="star" data-value="2">★</span>
-            <span class="star" data-value="3">★</span><span class="star" data-value="4">★</span><span class="star" data-value="5">★</span>
-          </div>
-          <textarea class="comment-text" placeholder="اكتب تعليقك عن الصيدلية..."></textarea>
-          <button class="submit-rating">إرسال التقييم</button><div class="all-comments"></div>
-        </div>
-      </div>
-
-      <!-- 6 صيدلية اللوتس -->
-      <div class="service-card">
-        <div class="service-title">صيدلية اللوتس </div>
-        <div class="service-address">بجوار كمبوند اللوتس</div>
-        <div class="service-phone">
-          <i class="fa-solid fa-phone-volume"></i>
-          <a href="tel:01100883334">01100883334</a><a href="tel:01070171115">01070171115</a>
-        </div>
-        <div class="old-likes-info" id="old-likes-81">
-          👍 <span class="like-count">0</span> | 👎 <span class="dislike-count">0</span>
-          <small style="display:block;color:#888;">هذا التقييم بنظام الإعجاب/عدم الإعجاب (قديم)</small>
-        </div>
-        <div class="star-rating-comment" data-service-id="81">
-          <div class="star-rating">
-            <span class="star" data-value="1">★</span><span class="star" data-value="2">★</span>
-            <span class="star" data-value="3">★</span><span class="star" data-value="4">★</span><span class="star" data-value="5">★</span>
-          </div>
-          <textarea class="comment-text" placeholder="اكتب تعليقك عن الصيدلية..."></textarea>
-          <button class="submit-rating">إرسال التقييم</button><div class="all-comments"></div>
-        </div>
-      </div>
-
-      <!-- 7 صيدلية يوتوبيا -->
-      <div class="service-card">
-        <div class="service-title">صيدلية يوتوبيا </div>
-        <div class="service-address">بجوار كمبوند يوتوبيا</div>
-        <div class="service-phone">
-          <i class="fa-solid fa-phone-volume"></i>
-          <a href="tel:01118666365">01118666365</a><a href="tel:01203999365">01203999365</a>
-        </div>
-        <div class="old-likes-info" id="old-likes-82">
-          👍 <span class="like-count">0</span> | 👎 <span class="dislike-count">0</span>
-          <small style="display:block;color:#888;">هذا التقييم بنظام الإعجاب/عدم الإعجاب (قديم)</small>
-        </div>
-        <div class="star-rating-comment" data-service-id="82">
-          <div class="star-rating">
-            <span class="star" data-value="1">★</span><span class="star" data-value="2">★</span>
-            <span class="star" data-value="3">★</span><span class="star" data-value="4">★</span><span class="star" data-value="5">★</span>
-          </div>
-          <textarea class="comment-text" placeholder="اكتب تعليقك عن الصيدلية..."></textarea>
-          <button class="submit-rating">إرسال التقييم</button><div class="all-comments"></div>
-        </div>
-      </div>
-
-      <!-- 8 صيدليات المصري -->
-      <div class="service-card">
-        <div class="service-title">صيدليات المصري </div>
-        <div class="service-address">مول الدولية - شارع المنتزة</div>
-        <div class="service-phone">
-          <i class="fa-solid fa-phone-volume"></i>
-          <a href="tel:01019992500">01019992500</a><a href="tel:0104688266">0104688266</a>
-        </div>
-        <div class="old-likes-info" id="old-likes-91">
-          👍 <span class="like-count">0</span> | 👎 <span class="dislike-count">0</span>
-          <small style="display:block;color:#888;">هذا التقييم بنظام الإعجاب/عدم الإعجاب (قديم)</small>
-        </div>
-        <div class="star-rating-comment" data-service-id="91">
-          <div class="star-rating">
-            <span class="star" data-value="1">★</span><span class="star" data-value="2">★</span>
-            <span class="star" data-value="3">★</span><span class="star" data-value="4">★</span><span class="star" data-value="5">★</span>
-          </div>
-          <textarea class="comment-text" placeholder="اكتب تعليقك عن الصيدلية..."></textarea>
-          <button class="submit-rating">إرسال التقييم</button><div class="all-comments"></div>
-        </div>
-      </div>
-
-      <!-- 9 صيدلية العزبي -->
-      <div class="service-card">
-        <div class="service-title">صيدلية العزبي </div>
-        <div class="service-address">مول بيتا</div>
-        <div class="service-phone">
-          <i class="fa-solid fa-phone-volume"></i><a href="tel:01080750749">01080750749</a>
-        </div>
-        <div class="old-likes-info" id="old-likes-83">
-          👍 <span class="like-count">0</span> | 👎 <span class="dislike-count">0</span>
-          <small style="display:block;color:#888;">هذا التقييم بنظام الإعجاب/عدم الإعجاب (قديم)</small>
-        </div>
-        <div class="star-rating-comment" data-service-id="83">
-          <div class="star-rating">
-            <span class="star" data-value="1">★</span><span class="star" data-value="2">★</span>
-            <span class="star" data-value="3">★</span><span class="star" data-value="4">★</span><span class="star" data-value="5">★</span>
-          </div>
-          <textarea class="comment-text" placeholder="اكتب تعليقك عن الصيدلية..."></textarea>
-          <button class="submit-rating">إرسال التقييم</button><div class="all-comments"></div>
-        </div>
-      </div>
-
-      <!-- 10 صيدلية أبو علي -->
-      <div class="service-card">
-        <div class="service-title">صيدلية أبو علي </div>
-        <div class="service-address">مول بيتا - الدور الأرضي</div>
-        <div class="service-phone">
-          <i class="fa-solid fa-phone-volume"></i>
-            <a href="tel:01124899000">01124899000</a><a href="tel:19141">19141</a>
-        </div>
-        <div class="old-likes-info" id="old-likes-90">
-          👍 <span class="like-count">0</span> | 👎 <span class="dislike-count">0</span>
-          <small style="display:block;color:#888;">هذا التقييم بنظام الإعجاب/عدم الإعجاب (قديم)</small>
-        </div>
-        <div class="star-rating-comment" data-service-id="90">
-          <div class="star-rating">
-            <span class="star" data-value="1">★</span><span class="star" data-value="2">★</span>
-            <span class="star" data-value="3">★</span><span class="star" data-value="4">★</span><span class="star" data-value="5">★</span>
-          </div>
-          <textarea class="comment-text" placeholder="اكتب تعليقك عن الصيدلية..."></textarea>
-          <button class="submit-rating">إرسال التقييم</button><div class="all-comments"></div>
-        </div>
-      </div>
-
-      <!-- 11 صيدلية المجد -->
-      <div class="service-card">
-        <div class="service-title">صيدلية المجد </div>
-        <div class="service-address">شارع المنتزة</div>
-        <div class="service-phone">
-          <i class="fa-solid fa-phone-volume"></i>
-            <a href="tel:01004006805">01004006805</a><a href="tel:16344">16344</a>
-        </div>
-        <div class="old-likes-info" id="old-likes-84">
-          👍 <span class="like-count">0</span> | 👎 <span class="dislike-count">0</span>
-          <small style="display:block;color:#888;">هذا التقييم بنظام الإعجاب/عدم الإعجاب (قديم)</small>
-        </div>
-        <div class="star-rating-comment" data-service-id="84">
-          <div class="star-rating">
-            <span class="star" data-value="1">★</span><span class="star" data-value="2">★</span>
-            <span class="star" data-value="3">★</span><span class="star" data-value="4">★</span><span class="star" data-value="5">★</span>
-          </div>
-          <textarea class="comment-text" placeholder="اكتب تعليقك عن الصيدلية..."></textarea>
-          <button class="submit-rating">إرسال التقييم</button><div class="all-comments"></div>
-        </div>
-      </div>
-
-      <!-- 12 صيدلية د. إسلام أشرف -->
-      <div class="service-card">
-        <div class="service-title">صيدلية د. إسلام أشرف </div>
-        <div class="service-address">طريق الحي الإيطالي - مول قرطبة</div>
-        <div class="service-phone">
-          <i class="fa-solid fa-phone-volume"></i><a href="tel:01067078993">01067078993</a>
-        </div>
-        <div class="old-likes-info" id="old-likes-85">
-          👍 <span class="like-count">0</span> | 👎 <span class="dislike-count">0</span>
-          <small style="display:block;color:#888;">هذا التقييم بنظام الإعجاب/عدم الإعجاب (قديم)</small>
-        </div>
-        <div class="star-rating-comment" data-service-id="85">
-          <div class="star-rating">
-            <span class="star" data-value="1">★</span><span class="star" data-value="2">★</span>
-            <span class="star" data-value="3">★</span><span class="star" data-value="4">★</span><span class="star" data-value="5">★</span>
-          </div>
-          <textarea class="comment-text" placeholder="اكتب تعليقك عن الصيدلية..."></textarea>
-          <button class="submit-rating">إرسال التقييم</button><div class="all-comments"></div>
-        </div>
-      </div>
-
-      <!-- 13 صيدلية د. دعاء فتحي -->
-      <div class="service-card">
-        <div class="service-title">صيدلية د. دعاء فتحي </div>
-        <div class="service-address">مول بيت المصرية - بجوار المغسلة</div>
-        <div class="service-phone">
-          <i class="fa-solid fa-phone-volume"></i><a href="tel:01091044635">01091044635</a>
-        </div>
-        <div class="old-likes-info" id="old-likes-86">
-          👍 <span class="like-count">0</span> | 👎 <span class="dislike-count">0</span>
-          <small style="display:block;color:#888;">هذا التقييم بنظام الإعجاب/عدم الإعجاب (قديم)</small>
-        </div>
-        <div class="star-rating-comment" data-service-id="86">
-          <div class="star-rating">
-            <span class="star" data-value="1">★</span><span class="star" data-value="2">★</span>
-            <span class="star" data-value="3">★</span><span class="star" data-value="4">★</span><span class="star" data-value="5">★</span>
-          </div>
-          <textarea class="comment-text" placeholder="اكتب تعليقك عن الصيدلية..."></textarea>
-          <button class="submit-rating">إرسال التقييم</button><div class="all-comments"></div>
-        </div>
-      </div>
-
-      <!-- 14 صيدلية علاج (سنتر 3) -->
-      <div class="service-card">
-        <div class="service-title">صيدلية علاج (سنتر 3) </div>
-        <div class="service-address">دهشور سنتر 3</div>
-        <div class="service-phone">
-          <i class="fa-solid fa-phone-volume"></i><a href="tel:01552168989">01552168989</a>
-        </div>
-        <div class="old-likes-info" id="old-likes-87">
-          👍 <span class="like-count">0</span> | 👎 <span class="dislike-count">0</span>
-          <small style="display:block;color:#888;">هذا التقييم بنظام الإعجاب/عدم الإعجاب (قديم)</small>
-        </div>
-        <div class="star-rating-comment" data-service-id="87">
-          <div class="star-rating">
-            <span class="star" data-value="1">★</span><span class="star" data-value="2">★</span>
-            <span class="star" data-value="3">★</span><span class="star" data-value="4">★</span><span class="star" data-value="5">★</span>
-          </div>
-          <textarea class="comment-text" placeholder="اكتب تعليقك عن الصيدلية..."></textarea>
-          <button class="submit-rating">إرسال التقييم</button><div class="all-comments"></div>
-        </div>
-      </div>
-
-      <!-- 15 صيدلية علاج (مول 6 عمارات الجيش) -->
-      <div class="service-card">
-        <div class="service-title">صيدلية علاج (مول 6 عمارات الجيش) </div>
-        <div class="service-address">دهشور - مول 6 عمارات الجيش</div>
-        <div class="service-phone">
-          <i class="fa-solid fa-phone-volume"></i><a href="tel:01111270026">01111270026</a>
-        </div>
-        <div class="old-likes-info" id="old-likes-88">
-          👍 <span class="like-count">0</span> | 👎 <span class="dislike-count">0</span>
-          <small style="display:block;color:#888;">هذا التقييم بنظام الإعجاب/عدم الإعجاب (قديم)</small>
-        </div>
-        <div class="star-rating-comment" data-service-id="88">
-          <div class="star-rating">
-            <span class="star" data-value="1">★</span><span class="star" data-value="2">★</span>
-            <span class="star" data-value="3">★</span><span class="star" data-value="4">★</span><span class="star" data-value="5">★</span>
-          </div>
-          <textarea class="comment-text" placeholder="اكتب تعليقك عن الصيدلية..."></textarea>
-          <button class="submit-rating">إرسال التقييم</button><div class="all-comments"></div>
-        </div>
-      </div>
-
-      <!-- 16 صيدلية روشتة و دوا (المصرية 1) -->
-      <div class="service-card">
-        <div class="service-title">صيدلية روشتة و دوا (المصرية 1) </div>
-        <div class="service-address">مول المصرية 1 - كمبوند بيت المصرية</div>
-        <div class="service-phone">
-          <i class="fa-solid fa-phone-volume"></i><a href="tel:01010595910">01010595910</a>
-        </div>
-        <div class="old-likes-info" id="old-likes-89">
-          👍 <span class="like-count">0</span> | 👎 <span class="dislike-count">0</span>
-          <small style="display:block;color:#888;">هذا التقييم بنظام الإعجاب/عدم الإعجاب (قديم)</small>
-        </div>
-        <div class="star-rating-comment" data-service-id="89">
-          <div class="star-rating">
-            <span class="star" data-value="1">★</span><span class="star" data-value="2">★</span>
-            <span class="star" data-value="3">★</span><span class="star" data-value="4">★</span><span class="star" data-value="5">★</span>
-          </div>
-          <textarea class="comment-text" placeholder="اكتب تعليقك عن الصيدلية..."></textarea>
-          <button class="submit-rating">إرسال التقييم</button><div class="all-comments"></div>
-        </div>
-      </div>
-
-      <!-- 17 صيدليات الفؤاد -->
-      <div class="service-card">
-        <div class="service-title">صيدليات الفؤاد </div>
-        <div class="service-address">مول دجلة جاردنز</div>
-        <div class="service-phone">
-          <i class="fa-solid fa-phone-volume"></i>
-            <a href="tel:01040355512">01040355512</a><a href="tel:01040355521">01040355521</a>
-        </div>
-        <div class="star-rating-comment" data-service-id="92">
-          <div class="star-rating">
-            <span class="star" data-value="1">★</span><span class="star" data-value="2">★</span>
-            <span class="star" data-value="3">★</span><span class="star" data-value="4">★</span><span class="star" data-value="5">★</span>
-          </div>
-          <textarea class="comment-text" placeholder="اكتب تعليقك عن الصيدلية..."></textarea>
-          <button class="submit-rating">إرسال التقييم</button><div class="all-comments"></div>
-        </div>
-      </div>
-    </div>
-  </section>
-</main>
-<footer dir="rtl">
-  <p>Copyright © 2024 GENIUS Tech All Rights Reserved</p>
-</footer>
-</body>
-</html>
