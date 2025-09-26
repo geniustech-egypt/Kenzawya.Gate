@@ -73,9 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let selectedRating = 0;
         let userRatingKey = null;
 
-        // أعطِ لكل بلوك id ليسهل الربط لاحقاً (ويستخدم في الهاش إن رغبت)
         if (!block.id) block.id = 'svc-' + serviceId;
-        // أضف نفس id أيضاً على الكارت الأب (لأننا سنخفيه/نظهره)
         const card = block.closest('.service-card');
         if (card && !card.id) card.id = 'card-' + serviceId;
 
@@ -113,6 +111,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
 
+// جلب تقييم المستخدم الحالي
         function fetchUserRating() {
             const ratingsRef = ref(database, `starRatings/${serviceId}`);
             userRatingKey = null;
@@ -123,50 +122,61 @@ document.addEventListener('DOMContentLoaded', () => {
                         if (data.deviceId === deviceId) {
                             userRatingKey = child.key;
                             selectedRating = data.rating;
-                            if (textarea) textarea.value = data.comment;
-                            stars.forEach(s => s.classList.toggle('selected', +s.dataset.value <= selectedRating));
+                            textarea.value = data.comment;
+                            stars.forEach(s => {
+                                if (parseInt(s.getAttribute('data-value')) <= selectedRating) {
+                                    s.classList.add('selected');
+                                } else {
+                                    s.classList.remove('selected');
+                                }
+                            });
                         }
                     });
                 } else {
                     selectedRating = 0;
-                    if (textarea) textarea.value = "";
+                    textarea.value = "";
                     stars.forEach(s => s.classList.remove('selected'));
                 }
             });
         }
         fetchUserRating();
 
-        submitBtn?.addEventListener('click', () => {
+        // عند الإرسال
+        submitBtn.addEventListener('click', () => {
             if (selectedRating === 0) {
                 alert("يرجى اختيار عدد النجوم أولاً");
                 return;
             }
-            const commentText = (textarea?.value || '').trim();
+            const commentText = textarea.value.trim();
             if (commentText.length < 2) {
                 alert("يرجى كتابة تعليق مناسب");
                 return;
             }
             const ratingsRef = ref(database, `starRatings/${serviceId}`);
-            const newRatingData = { deviceId, rating: selectedRating, comment: commentText, time: Date.now() };
+            const newRatingData = {
+                deviceId,
+                rating: selectedRating,
+                comment: commentText,
+                time: Date.now()
+            };
 
             if (userRatingKey) {
-                set(ref(database, `starRatings/${serviceId}/${userRatingKey}`), newRatingData)
-                    .then(() => alert("تم تعديل تقييمك بنجاح"))
-                    .catch(err => {
-                        console.error(err);
-                        alert("خطأ أثناء التعديل");
-                    });
+                const userRatingRef = ref(database, `starRatings/${serviceId}/${userRatingKey}`);
+                set(userRatingRef, newRatingData).then(() => {
+                    alert("تم تعديل تقييمك بنجاح");
+                }).catch(error => {
+                    console.error("خطأ في تعديل التقييم:", error);
+                    alert("حدث خطأ أثناء تعديل تقييمك. يرجى المحاولة مرة أخرى.");
+                });
             } else {
                 const newRatingRef = push(ratingsRef);
-                set(newRatingRef, newRatingData)
-                    .then(() => {
-                        alert("تم إضافة تقييمك بنجاح");
-                        fetchUserRating();
-                    })
-                    .catch(err => {
-                        console.error(err);
-                        alert("خطأ أثناء الإضافة");
-                    });
+                set(newRatingRef, newRatingData).then(() => {
+                    alert("تم إضافة تقييمك بنجاح");
+                    fetchUserRating();
+                }).catch(error => {
+                    console.error("خطأ في إضافة التقييم:", error);
+                    alert("حدث خطأ أثناء إضافة تقييمك. يرجى المحاولة مرة أخرى.");
+                });
             }
         });
 
@@ -217,8 +227,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     commentsDiv.appendChild(btn);
                 }
 
-                const sum = ratingsArr.reduce((a,b)=>a+b.rating,0);
-                const avg = ratingsArr.length ? (sum/ratingsArr.length).toFixed(1) : "0.0";
+                const sum = ratingsArr.reduce((a, b) => a + b.rating, 0);
+                const avg = ratingsArr.length > 0 ? (sum / ratingsArr.length).toFixed(1) : "0.0";
 
                 block.style.backgroundColor = '';
                 block.style.border = '';
@@ -546,7 +556,6 @@ document.addEventListener('DOMContentLoaded', () => {
             targetCard.style.animation = 'pulse 1.2s ease-in-out 2';
             setTimeout(()=>targetCard.scrollIntoView({behavior:'smooth', block:'start'}), 150);
 
-            // زر عرض الكل
             const showAllBtn = document.createElement('button');
             showAllBtn.textContent = 'عرض كل الخدمات';
             showAllBtn.style.cssText = `
@@ -562,12 +571,24 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
             showAllBtn.onclick = () => {
                 allCards.forEach(c=>{ c.style.display=''; c.style.outline=''; c.style.animation=''; });
-                // إزالة البارامتر من العنوان بدون إعادة تحميل
                 history.replaceState(null, '', location.pathname);
                 showAllBtn.remove();
             };
             targetCard.parentNode.insertBefore(showAllBtn, targetCard);
         }
+    })();
+
+    /* === تفعيل التنقّل عبر الأزرار الرئيسية في الوضع الجديد (NEW_ARCH) === */
+    (function enableMainButtonsNavigation(){
+        if (!NEW_ARCH) return; // في حالة البنية القديمة لا نحول السلوك
+        const mainButtons = document.querySelectorAll('.buttons button[data-link]');
+        if (!mainButtons.length) return;
+        mainButtons.forEach(btn=>{
+            btn.addEventListener('click', ()=>{
+                const url = btn.getAttribute('data-link');
+                if (url) window.location.href = url;
+            });
+        });
     })();
 
     /* ================= Utility Buttons (traffic) ================= */
