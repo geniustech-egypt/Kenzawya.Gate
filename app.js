@@ -327,7 +327,7 @@ document.addEventListener('DOMContentLoaded', () => {
         { url: 'services/restaurants.html'  , selector: '.service-card' },
         { url: 'services/clinics.html'      , selector: '.service-card' },
         { url: 'services/cleaning.html'     , selector: '.service-card' },
-        { url: 'services/Milk.html'         , selector: '.service-card' },
+        { url: 'services/milk.html'         , selector: '.service-card' },
         { url: 'services/grocery.html'      , selector: '.service-card' },
         { url: 'services/bookstore.html'    , selector: '.service-card' },
         { url: 'services/other_services.html',selector: '.service-card' },
