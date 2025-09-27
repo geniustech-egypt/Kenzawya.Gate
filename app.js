@@ -232,295 +232,431 @@ document.addEventListener('DOMContentLoaded', () => {
                 const avg = ratingsArr.length > 0 ? (sum / ratingsArr.length).toFixed(1) : "0.0";
 
                 // تظليل الكارت وإضافة أيقونة البلاك ليست
-                const card = block;
-                card.style.backgroundColor = '';
-                const existingIcon = card.querySelector('.blacklist-icon');
-                if (existingIcon) existingIcon.remove();
+const card = block;
+card.style.backgroundColor = '';
+card.style.border = '';
+card.style.color = '';
+const existingIcon = card.querySelector('.blacklist-icon');
+if (existingIcon) existingIcon.remove();
 
-                if (ratingsArr.length >= 1 && avg < 2) {
-                    card.style.backgroundColor = '#f7dadaff';
-                    card.style.border = '2px solid #ff0000';
-                    card.style.position = 'relative';
+if (avg < 2) {
+    if (ratingsArr.length >= 5) {
+        // أحمر قوي + كتابة داكنة
+        card.style.backgroundColor = '#ffcccc'; // أحمر قوي
+        card.style.border = '2px solid #ff0000';
+        card.style.color = '#222'; // كتابة داكنة
+    } else if (ratingsArr.length > 0) {
+        // أحمر فاتح جدًا + كتابة داكنة
+        card.style.backgroundColor = '#fff0f0'; // أحمر فاتح جدًا
+        card.style.border = '2px solid #ffb6b6';
+        card.style.color = '#444'; // كتابة داكنة
+    }
+    card.style.position = 'relative';
 
-                    const blacklistIcon = document.createElement('span');
-                    blacklistIcon.textContent = '🚫';
-                    blacklistIcon.className = 'blacklist-icon';
-                    blacklistIcon.style.position = 'absolute';
-                    blacklistIcon.style.top = '10px';
-                    blacklistIcon.style.right = '10px';
-                    blacklistIcon.style.fontSize = '24px';
-                    blacklistIcon.style.cursor = 'pointer';
-                    blacklistIcon.title = 'الخدمة مصنفة سيئة من المستخدمين';
+    // علامة ممنوع
+    const blacklistIcon = document.createElement('span');
+    blacklistIcon.textContent = '🚫';
+    blacklistIcon.className = 'blacklist-icon';
+    blacklistIcon.style.position = 'absolute';
+    blacklistIcon.style.top = '10px';
+    blacklistIcon.style.right = '10px';
+    blacklistIcon.style.fontSize = '24px';
+    blacklistIcon.style.cursor = 'pointer';
+    blacklistIcon.style.zIndex = '10';
+    blacklistIcon.title = 'الخدمة مصنفة سيئة من المستخدمين';
 
-                    card.appendChild(blacklistIcon);
-                } else {
-                    card.style.backgroundColor = '';
-                    card.style.border = '';
-                }
-                avgDiv.innerHTML = `
-                    متوسط التقييم: <span style="color:#ffc107;">${avg}</span> / 5
-                    <span style="font-size:18px;">
-                        ${'★'.repeat(Math.round(avg))}
-                        <span style="color:#bbb;">${'★'.repeat(5 - Math.round(avg))}</span>
-                    </span>
-                    <span style="font-size:12px; color:#666; margin-right:5px;">(${ratingsArr.length} تقييم)</span>
-                `;
-            } else {
-                avgDiv.innerHTML = `
-                    متوسط التقييم: <span style="color:#ffc107;">0.0</span> / 5
-                    <span style="font-size:16px;">
-                        <span style="color:#bbb;">★★★★★</span>
-                    </span>
-                    <span style="font-size:12px; color:#666; margin-right:5px;">(0 تقييم)</span>
-                `;
+    card.appendChild(blacklistIcon);
+} else {
+    card.style.backgroundColor = '';
+    card.style.border = '';
+    card.style.color = '';
+    // إزالة أيقونة البلاك ليست لو موجودة
+    const blacklistIcon = card.querySelector('.blacklist-icon');
+    if (blacklistIcon) blacklistIcon.remove();
+}
+
+avgDiv.innerHTML = `
+    متوسط التقييم: <span style="color:#ffc107;">${avg}</span> / 5
+    <span style="font-size:18px;">
+        ${'★'.repeat(Math.round(avg))}
+        <span style="color:#bbb;">${'★'.repeat(5 - Math.round(avg))}</span>
+    </span>
+    <span style="font-size:12px; color:#666; margin-right:5px;">(${ratingsArr.length} تقييم)</span>
+`;
             }
         });
     });
 
-    // عناصر البحث
-    const searchInput = document.getElementById('search-input');
+    /* ================= SEARCH (Legacy + New Architecture) ================= */
+    const searchInput  = document.getElementById('search-input');
     const searchButton = document.getElementById('search-button');
-    const serviceSections = document.querySelectorAll('.info');
-    const allListItems = document.querySelectorAll('.info li');
-    const allMainButtons = document.querySelectorAll('.buttons li');
-    const autocompleteResults = document.getElementById('autocomplete-results');
+    const autocompleteResults = document.getElementById('autocomplete-results') || (() => {
+        const div = document.createElement('div');
+        div.id = 'autocomplete-results';
+        document.body.appendChild(div);
+        return div;
+    })();
 
-    const noResultsMessage = document.createElement('div');
+    const serviceSections = document.querySelectorAll('.info');
+    const allListItems   = document.querySelectorAll('.info li');
+    const NEW_ARCH = serviceSections.length === 0;
+
+    let noResultsMessage = document.getElementById('no-results-message');
+    if (!noResultsMessage && searchInput) {
+        noResultsMessage = document.createElement('div');
     noResultsMessage.id = 'no-results-message';
     noResultsMessage.textContent = 'لا توجد نتائج مطابقة.';
     noResultsMessage.style.cssText = `
-        display: none;
-        text-align: center;
-        margin-top: 20px;
-        font-size: 1.2em;
-        color: #e74c3c;
-        font-weight: bold;
+            display:none;text-align:center;margin-top:20px;
+            font-size:1.2em;color:#e74c3c;font-weight:bold;
     `;
-    const searchContainer = document.querySelector('.search-container');
-    if (searchContainer) {
-        searchContainer.parentNode.insertBefore(noResultsMessage, searchContainer.nextSibling);
+        searchInput.parentNode.parentNode.insertAdjacentElement('afterend', noResultsMessage);
     }
 
-    // دالة لإعادة الصفحة إلى الحالة الافتراضية (إخفاء كل الأقسام)
-    function resetPageDisplay() {
-        serviceSections.forEach(section => {
-            section.style.display = 'none';
-        });
-        allMainButtons.forEach(button => button.style.display = 'block');
-        noResultsMessage.style.display = 'none';
-        autocompleteResults.style.display = 'none';
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+    function normalizeArabic(text){
+        if(!text) return '';
+        return text
+            .replace(/[أإآ]/g,'ا')
+            .replace(/ى/g,'ي')
+            .replace(/ة/g,'ه')
+            .replace(/َ|ً|ُ|ٌ|ِ|ٍ|ْ|ّ/g,'')
+            .trim()
+            .toLowerCase();
     }
 
-    // دالة موحدة للتنقل بين الأقسام
-    function navigateToSection(id) {
-        serviceSections.forEach(s => {
-            s.style.display = 'none';
-            s.querySelectorAll('li').forEach(li => li.style.display = 'list-item');
+    /* ====== الوضع القديم ====== */
+    function resetOldDisplay(){
+        serviceSections.forEach(sec => { sec.style.display='none'; sec.querySelectorAll('li').forEach(li=>li.style.display='list-item'); });
+        document.querySelectorAll('.buttons li').forEach(li=>li.style.display='block');
+        if (noResultsMessage) noResultsMessage.style.display='none';
+        autocompleteResults.style.display='none';
+    }
+    function navigateToSection(id){
+        serviceSections.forEach(sec=>{
+            sec.style.display='none';
+            sec.querySelectorAll('li').forEach(li=>li.style.display='list-item');
         });
-        allMainButtons.forEach(button => button.style.display = 'block');
-        noResultsMessage.style.display = 'none';
-        autocompleteResults.style.display = 'none';
-
+        document.querySelectorAll('.buttons li').forEach(li=>li.style.display='block');
+        if (noResultsMessage) noResultsMessage.style.display='none';
         const section = document.getElementById(id);
-        if (section) {
-            section.style.display = 'block';
-            section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        if (section){
+            section.style.display='block';
+            section.scrollIntoView({behavior:'smooth'});
         }
     }
-
-    // ربط الأزرار الرئيسية بوظيفة التنقل الجديدة
-    document.querySelectorAll('.buttons li button').forEach(button => {
-        button.addEventListener('click', () => {
-            const link = button.getAttribute('data-link');
-            const targetId = button.getAttribute('data-target');
-            // عند وجود الرابط انتقل إليه مباشرة
-            if (link) {
-                window.location.href = link;
-            } else if (targetId) {
-                navigateToSection(targetId);
-            }
+    if (!NEW_ARCH){
+        document.querySelectorAll('.buttons li button').forEach(btn=>{
+            btn.addEventListener('click', ()=>{
+                const target = btn.dataset.target;
+                if (target) navigateToSection(target);
+            });
         });
-    });
-
-    // دالة تطبيع النص العربي
-    function normalizeArabic(text) {
-        if (!text) return '';
-        let normalizedText = text.replace(/[أإآ]/g, 'ا');
-        normalizedText = normalizedText.replace(/ى/g, 'ي');
-        normalizedText = normalizedText.replace(/ة/g, 'ه');
-        normalizedText = normalizedText.replace(/َ|ً|ُ|ٌ|ِ|ٍ|ْ|ّ/g, '');
-        return normalizedText.trim().toLowerCase();
     }
 
-    // دالة البحث الفوري (Live Search)
-    function performLiveSearch() {
-        const searchTerm = normalizeArabic(searchInput.value);
-        autocompleteResults.innerHTML = '';
+    /* ====== الوضع الجديد (صفحات منفصلة) ====== */
+    const SERVICE_PAGES = [
+        { url: 'services/pharmacies.html'   , selector: '.service-card' },
+        { url: 'services/supermarket.html'  , selector: '.service-card' },
+        { url: 'services/vegetables.html'   , selector: '.service-card' },
+        { url: 'services/meat.html'         , selector: '.service-card' },
+        { url: 'services/restaurants.html'  , selector: '.service-card' },
+        { url: 'services/clinics.html'      , selector: '.service-card' },
+        { url: 'services/cleaning.html'     , selector: '.service-card' },
+        { url: 'services/milk.html'         , selector: '.service-card' },
+        { url: 'services/grocery.html'      , selector: '.service-card' },
+        { url: 'services/bookstore.html'    , selector: '.service-card' },
+        { url: 'services/other_services.html',selector: '.service-card' },
+        { url: 'services/general_services.html',selector: '.service-card' }
+    ];
 
-        if (searchTerm.length === 0) {
-            autocompleteResults.style.display = 'none';
-            resetPageDisplay();
+    let servicesData = [];
+    let pagesLoaded = false;
+
+    async function loadAllServices(){
+        if (pagesLoaded) return;
+        const parser = new DOMParser();
+        for (const p of SERVICE_PAGES){
+            try{
+                const res = await fetch(p.url);
+                if(!res.ok) continue;
+                const html = await res.text();
+                const doc = parser.parseFromString(html,'text/html');
+                const cards = doc.querySelectorAll(p.selector);
+                cards.forEach(card=>{
+                    const titleEl = card.querySelector('.service-title');
+                    const ratingBlock = card.querySelector('.star-rating-comment');
+                    const sid = ratingBlock?.getAttribute('data-service-id');
+                    if (!titleEl) return;
+                    const name = titleEl.textContent.trim();
+                    servicesData.push({
+                        nameOriginal: name,
+                        nameNorm: normalizeArabic(name),
+                        url: sid ? `${p.url}?id=${sid}` : p.url,
+                        serviceId: sid || null
+                    });
+                });
+            }catch(e){
+                console.warn('Failed to load', p.url, e);
+            }
+        }
+        pagesLoaded = true;
+    }
+    if (NEW_ARCH && searchInput){
+        loadAllServices();
+    }
+
+    function renderAutocomplete(matches){
+        autocompleteResults.innerHTML = '';
+        matches.forEach(m=>{
+            const div = document.createElement('div');
+            div.className = 'autocomplete-item';
+            div.textContent = m.nameOriginal;
+            div.onclick = ()=> { window.location.href = m.url; };
+            autocompleteResults.appendChild(div);
+        });
+        autocompleteResults.style.display = matches.length ? 'block':'none';
+    }
+
+    function liveSearchNew(){
+        const term = normalizeArabic(searchInput.value);
+        if (!term){
+            autocompleteResults.style.display='none';
             return;
         }
+        if (!pagesLoaded){
+            renderAutocomplete([{nameOriginal:'... جاري تحميل البيانات ...', url:'#', nameNorm:'', serviceId:null}]);
+            return;
+        }
+        const matches = servicesData.filter(s=>s.nameNorm.includes(term)).slice(0,40);
+        renderAutocomplete(matches);
+    }
 
-        const matches = [];
-        allListItems.forEach(item => {
-            const itemText = normalizeArabic(item.textContent);
-            if (itemText.includes(searchTerm)) {
-                const parentSection = item.closest('.info');
-                if (parentSection) {
-                    const sectionId = parentSection.id;
-                    let matchText = '';
-                    item.childNodes.forEach(node => {
-                        if (node.nodeType === Node.TEXT_NODE || (node.nodeType === Node.ELEMENT_NODE && node.tagName === 'A')) {
-                            matchText += node.textContent.trim() + ' ';
+    function fullSearchNew(){
+        const term = normalizeArabic(searchInput.value);
+        if (!term){
+            autocompleteResults.style.display='none';
+            return;
+        }
+        if (!pagesLoaded){
+            alert("البيانات لم تكتمل بعد، حاول بعد ثوانٍ.");
+            return;
+        }
+        const matches = servicesData.filter(s=>s.nameNorm.includes(term));
+        if (matches.length === 0){
+            autocompleteResults.innerHTML = '<div class="autocomplete-item" style="cursor:default;">لا توجد نتائج</div>';
+            autocompleteResults.style.display='block';
+            return;
+                }
+        if (matches.length === 1){
+            window.location.href = matches[0].url;
+            return;
+        }
+        renderAutocomplete(matches);
+    }
+
+    function highlightLocal(term){
+        if (!term) return;
+        const cards = document.querySelectorAll('.service-card .service-title');
+        let firstMatch = null;
+        cards.forEach(c=>{
+            const txt = normalizeArabic(c.textContent);
+            if (txt.includes(term)){
+                c.style.background = 'linear-gradient(90deg,#ffe9a8,#fff)';
+                if(!firstMatch) firstMatch = c;
+            } else {
+                c.style.background = '';
+            }
+        });
+        if (firstMatch){
+            firstMatch.scrollIntoView({behavior:'smooth', block:'center'});
+        }
+    }
+
+    if (searchInput && searchButton){
+        if (NEW_ARCH){
+            searchInput.addEventListener('input', ()=>{ liveSearchNew(); highlightLocal(normalizeArabic(searchInput.value)); });
+            searchInput.addEventListener('keypress', e=>{ if(e.key==='Enter'){ e.preventDefault(); fullSearchNew(); } });
+            searchButton.addEventListener('click', fullSearchNew);
+        } else {
+            function performLiveSearchOld(){
+                const term = normalizeArabic(searchInput.value);
+                autocompleteResults.innerHTML = '';
+                if (!term){
+                    autocompleteResults.style.display='none';
+                    resetOldDisplay();
+                    return;
+                }
+                const matches = [];
+                allListItems.forEach(li=>{
+                    const liTxt = normalizeArabic(li.textContent);
+                    if (liTxt.includes(term)){
+                        const sec = li.closest('.info');
+                        if (sec){
+                            matches.push({ text: li.textContent.trim(), id: sec.id });
+                        }
+                    }
+                });
+                const unique = [...new Map(matches.map(m=>[m.text,m])).values()];
+                unique.forEach(m=>{
+                    const el = document.createElement('div');
+                    el.className='autocomplete-item';
+                    el.textContent = m.text;
+                    el.onclick = ()=>{
+                        searchInput.value = m.text;
+                        navigateToSection(m.id);
+                        autocompleteResults.style.display='none';
+                    };
+                    autocompleteResults.appendChild(el);
+                });
+                autocompleteResults.style.display = unique.length ? 'block':'none';
+            }
+
+            function performFullSearchOld(){
+                const term = normalizeArabic(searchInput.value);
+                if (!term){
+                    resetOldDisplay();
+            return;
+        }
+                let found = false;
+                serviceSections.forEach(sec=>{
+                    let sectionHas = false;
+                    sec.querySelectorAll('li').forEach(li=>{
+                        const liTxt = normalizeArabic(li.textContent);
+                        if (liTxt.includes(term)){
+                            li.style.display='list-item';
+                            sectionHas = true;
+                        } else {
+                            li.style.display='none';
                         }
                     });
-                    matches.push({ text: matchText.trim(), id: sectionId });
-                }
-            }
-        });
-
-        if (matches.length > 0) {
-            const uniqueMatches = [...new Map(matches.map(item => [item.text, item])).values()];
-            uniqueMatches.forEach(match => {
-                const p = document.createElement('p');
-                p.textContent = match.text;
-                p.className = 'autocomplete-item';
-                p.style.cssText = `
-                    padding: 10px;
-                    cursor: pointer;
-                    border-bottom: 1px solid #eee;
-                `;
-                p.onmouseover = () => p.style.backgroundColor = '#f0f0f0';
-                p.onmouseout = () => p.style.backgroundColor = '#fff';
-                p.onclick = () => {
-                    searchInput.value = match.text;
-                    performFullSearch();
-                };
-                autocompleteResults.appendChild(p);
-            });
-            autocompleteResults.style.display = 'block';
-        } else {
-            autocompleteResults.style.display = 'none';
-        }
-    }
-
-    // دالة البحث الكامل (Full Search)
-    function performFullSearch() {
-        const searchTerm = normalizeArabic(searchInput.value);
-        let foundMatch = false;
-
-        serviceSections.forEach(section => {
-            section.style.display = 'none';
-            section.querySelectorAll('li').forEach(li => li.style.display = 'none');
-        });
-        allMainButtons.forEach(button => button.style.display = 'none');
-        noResultsMessage.style.display = 'none';
-        autocompleteResults.style.display = 'none';
-
-        if (searchTerm === '') {
-            resetPageDisplay();
-            return;
-        }
-
-        serviceSections.forEach(section => {
-            let sectionHasMatch = false;
-            const listItems = section.querySelectorAll('li');
-            listItems.forEach(item => {
-                const itemText = normalizeArabic(item.textContent);
-                if (itemText.includes(searchTerm)) {
-                    item.style.display = 'list-item';
-                    sectionHasMatch = true;
+                    if (sectionHas){
+                        sec.style.display='block';
+                        found = true;
+                    } else {
+                        sec.style.display='none';
+                    }
+                });
+                document.querySelectorAll('.buttons li').forEach(li=>li.style.display='none');
+                if (!found){
+                    if (noResultsMessage) noResultsMessage.style.display='block';
                 } else {
-                    item.style.display = 'none';
+                    const first = document.querySelector('.info[style*="block"]');
+                    first?.scrollIntoView({behavior:'smooth'});
                 }
-            });
-            if (sectionHasMatch) {
-                section.style.display = 'block';
-                foundMatch = true;
+                autocompleteResults.style.display='none';
+                }
+
+            searchInput.addEventListener('input', performLiveSearchOld);
+            searchInput.addEventListener('keypress', e=>{ if(e.key==='Enter'){ e.preventDefault(); performFullSearchOld(); } });
+            searchButton.addEventListener('click', performFullSearchOld);
+            }
+    }
+
+    document.addEventListener('click', (e)=>{
+        if (autocompleteResults && !autocompleteResults.contains(e.target) && e.target !== searchInput){
+            autocompleteResults.style.display='none';
+        }
+    });
+
+    /* ========= إظهار خدمة واحدة في الصفحات المنفصلة عند قدوم id ========= */
+    (function isolateServiceIfRequested(){
+        const params = new URLSearchParams(location.search);
+        const targetId = params.get('id');
+        if (!targetId) return;
+        const allCards = document.querySelectorAll('.service-card');
+        let targetCard = null;
+
+        allCards.forEach(card=>{
+            const rating = card.querySelector('.star-rating-comment');
+            const sid = rating?.getAttribute('data-service-id');
+            if (sid === targetId){
+                targetCard = card;
+            } else {
+                card.style.display = 'none';
             }
         });
 
-        if (!foundMatch) {
-            noResultsMessage.style.display = 'block';
-        } else {
-            const firstResultSection = document.querySelector('.info[style*="block"]');
-            if (firstResultSection) {
-                firstResultSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }
-        }
-    }
+        if (targetCard){
+            targetCard.style.outline = '3px solid #ffb400';
+            targetCard.style.animation = 'pulse 1.2s ease-in-out 2';
+            setTimeout(()=>targetCard.scrollIntoView({behavior:'smooth', block:'start'}), 150);
 
-    searchButton?.addEventListener('click', performFullSearch);
-    searchInput?.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            performFullSearch();
+            const showAllBtn = document.createElement('button');
+            showAllBtn.textContent = 'عرض كل الخدمات';
+            showAllBtn.style.cssText = `
+                margin:15px 0;
+                background:#4a90e2;
+                color:#fff;
+                border:none;
+                padding:10px 18px;
+                border-radius:8px;
+                cursor:pointer;
+                font-weight:600;
+                font-family:inherit;
+            `;
+            showAllBtn.onclick = () => {
+                allCards.forEach(c=>{ c.style.display=''; c.style.outline=''; c.style.animation=''; });
+                history.replaceState(null, '', location.pathname);
+                showAllBtn.remove();
+            };
+            targetCard.parentNode.insertBefore(showAllBtn, targetCard);
         }
-    });
-    searchInput?.addEventListener('input', performLiveSearch);
-    document.addEventListener('click', (e) => {
-        if (!searchInput?.contains(e.target)) {
-            autocompleteResults.style.display = 'none';
-        }
-    });
+    })();
 
-    const trafficButton = document.getElementById('traffic-button');
-    trafficButton?.addEventListener('click', ()=>{
+    /* === تفعيل التنقّل عبر الأزرار الرئيسية في الوضع الجديد (NEW_ARCH) === */
+    (function enableMainButtonsNavigation(){
+        if (!NEW_ARCH) return;
+        const mainButtons = document.querySelectorAll('.buttons button[data-link]');
+        if (!mainButtons.length) return;
+        mainButtons.forEach(btn=>{
+            btn.addEventListener('click', ()=>{
+                const url = btn.getAttribute('data-link');
+                if (url) window.location.href = url;
+            });
+        });
+    })();
+
+    /* ================= Utility Buttons (traffic) ================= */
+    document.getElementById('traffic-button')?.addEventListener('click', ()=>{
         const link = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent("كنز كمبوند، السادس من أكتوبر، الجيزة، مصر")}&travelmode=driving`;
         window.open(link,'_blank');
     });
 
-    const newsCard = document.getElementById('news-card');
-    const emergencyCard = document.getElementById('emergency-card');
-    const allCards = document.querySelectorAll('.floating-info-card');
-
-    function toggleCard(cardToShow) {
-        allCards.forEach(card => {
-            if (card === cardToShow) {
-                card.classList.toggle('show');
-            } else {
-                card.classList.remove('show');
-            }
+    /* ================= Floating Cards (news/emergency) ================= */
+    const allCardsFloat = document.querySelectorAll('.floating-info-card');
+    function toggleCard(card){
+        allCardsFloat.forEach(c=>{
+            if (c === card) c.classList.toggle('show'); else c.classList.remove('show');
         });
     }
-
-    document.getElementById('news-button')?.addEventListener('click', () => {
-        toggleCard(newsCard);
+    const newsCard = document.getElementById('news-card');
+    const emergencyCard = document.getElementById('emergency-card');
+    document.getElementById('news-button')?.addEventListener('click', ()=>toggleCard(newsCard));
+    document.getElementById('emergency-button')?.addEventListener('click', ()=>toggleCard(emergencyCard));
+    document.querySelectorAll('.close-btn').forEach(btn=>{
+        btn.addEventListener('click', ()=> btn.closest('.floating-info-card')?.classList.remove('show'));
     });
-
-    document.getElementById('emergency-button')?.addEventListener('click', () => {
-        toggleCard(emergencyCard);
-    });
-
-    document.querySelectorAll('.close-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            btn.closest('.floating-info-card').classList.remove('show');
-        });
-    });
-
-    document.addEventListener('click', (event) => {
-        if (!event.target.closest('.icon-with-card-container')) {
-            allCards.forEach(card => card.classList.remove('show'));
+    document.addEventListener('click', e=>{
+        if (!e.target.closest('.icon-with-card-container')){
+            allCardsFloat.forEach(c=>c.classList.remove('show'));
         }
     });
 
-    document.querySelectorAll('.accordion-header').forEach(button => {
-        button.addEventListener('click', () => {
-            const accordionContent = button.nextElementSibling;
-            button.classList.toggle('active');
-            accordionContent.style.maxHeight = button.classList.contains('active') ? accordionContent.scrollHeight + 'px' : 0;
+    /* ================= Accordion ================= */
+    document.querySelectorAll('.accordion-header').forEach(h=>{
+        h.addEventListener('click', ()=>{
+            const content = h.nextElementSibling;
+            h.classList.toggle('active');
+            content.style.maxHeight = h.classList.contains('active') ? content.scrollHeight + 'px' : 0;
         });
     });
 
+    /* ================= Slideshow (if exists) ================= */
     const slides = document.querySelectorAll('.image-slideshow .slide');
     let currentSlide = 0;
-
-    if (slides.length > 0) {
+    if (slides.length){
         slides[0].classList.add('active');
-        setInterval(() => {
+        setInterval(()=>{
             slides[currentSlide].classList.remove('active');
             currentSlide = (currentSlide + 1) % slides.length;
             slides[currentSlide].classList.add('active');
