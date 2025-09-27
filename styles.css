@@ -788,7 +788,7 @@ a:hover {
 .service-card .blacklist-icon {
     position: absolute;
     top: 8px;
-    left: 8px;
+    right: 8px; 
     font-size: 22px;
     color: #e60000;
     font-weight: bold;
@@ -1210,6 +1210,7 @@ mark {
         }
     }
 }
+
 
 
 
