@@ -1,80 +1,194 @@
-<div class="compound-news-card important">
-    <h3>تعليمات أمنية</h3>
-    <ul>
-        <li>
-            <p><strong>تذكير هام:</strong> يمنع استخدام الألعاب النارية داخل الكمبوند نهائياً</p>
-            <span class="news-date">1 يناير 2025</span>
-        </li>
-        <li>
-            <p>يُرجى من جميع السكان إبراز ال ID عند الدخول والخروج من البوابات الرئيسية وعدم السماح بدخول الزوار دون السن الا بتصريح من صاحب الوحدة شخصيا</p>
-            <span class="news-date">1 يونيو 2025</span>
-        </li>
-        <li>
-            <p>إستخدام الموافق العامة مقتصر علي الملاك فقط ودخول النادي لغير الملاك يكون بتصريح مسبق وبالشروط المتفق عليها</p>
-            <span class="news-date">1 يونيو 2025</span>
-        </li>
-        <li>
-            <p>يرجي عدم ترك اي مقتنيات شخصية في مداخل العمارات أو أمام أبواب الوحدات حيث أن الكمبوند ما زال به وحدات تحت التشطيب ويوجد به عمال وصنايعية</p>
-            <span class="news-date">15 يوليو 2025</span>
-        </li>
-    </ul>
-</div>
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>اخبار وتعليمات الكمبوند</title>
+  <script src="news-data.js"></script>
+  <style>
+    body { font-family:'Cairo',Arial,sans-serif; background:#f5f8fc; margin:0; }
+    .section-card { background:#fff; max-width:900px; margin:32px auto; border-radius:18px; box-shadow:0 4px 18px #e7eaf3; padding:24px; }
+    h2 { text-align:center; margin-bottom:2em; color:#234; }
+    .news-tabs { display:flex; justify-content:center; gap:8px; margin-bottom:1.7em; flex-wrap:wrap;}
+    .news-tab { background: #e3e8f3; border: none; border-radius: 7px 7px 0 0; padding: 0.7em 1.3em; font-size: 1em; font-weight: bold; cursor: pointer; color: #234; transition: background 0.2s, color 0.2s;}
+    .news-tab.active { background: #234; color: #fff; box-shadow: 0 -2px 8px #b2c6e9;}
+    .carousel-title { text-align:center; margin-bottom:0.7em; font-size:1.2em; font-weight:bold; }
+    .carousel-title.security { color:#6d4aff; }
+    .carousel-title.activity { color:#2eaf7d; }
+    .carousel-title.admin { color:#e8993a; }
+    .carousel-title.update { color:#2d5d9f; }
+    .news-filters { display:flex; flex-wrap:wrap; justify-content:center; gap:10px; margin-bottom:1.2em;}
+    .news-filters input, .news-filters button { font-size: 0.99em; border-radius: 5px; border: 1px solid #ddd; }
+    .carousel-wrapper { position:relative; background:#f5f8fc; border-radius:12px; box-shadow:0 1px 7px #e9eff7; overflow:hidden; margin-bottom:24px;}
+    .carousel-container { display:flex; transition:transform 0.45s cubic-bezier(.55,.18,.46,.82); }
+    .carousel-arrow { position:absolute; top:50%; transform:translateY(-50%); width:40px; height:40px; background:#fff; border-radius:50%; border:none; box-shadow:0 2px 8px #e6e6e6; cursor:pointer; font-size:1.5em; color:#234; z-index:2; }
+    .carousel-arrow.left { right:10px; }
+    .carousel-arrow.right { left:10px; }
+    .news-slide { min-width:320px; max-width:320px; margin:18px 10px; background:#fff; border-radius:11px; box-shadow:0 2px 14px #e1e1e1; padding:22px 18px; position:relative; display:flex; flex-direction:column; align-items:flex-start; animation:fadeIn 0.6s;}
+    @keyframes fadeIn { from { opacity:0; transform:translateY(20px);} to { opacity:1; transform:translateY(0);}}
+    .news-type-img { width:40px; height:40px; border-radius:50%; margin-bottom:8px; object-fit:cover; box-shadow:0 2px 8px #eee; }
+    .news-title { font-weight:bold; font-size:1.1em; margin-bottom:7px; color:#234; }
+    .news-date { font-size:0.95em; color:gray; margin-top:10px; }
+    .news-content { font-size:1em; margin-bottom:7px; }
+    .news-slide.security { border-right:5px solid #6d4aff; }
+    .news-slide.activity { border-right:5px solid #2eaf7d; }
+    .news-slide.admin { border-right:5px solid #e8993a; }
+    .news-slide.update { border-right:5px solid #2d5d9f; }
+    @media (max-width:600px) {
+      .news-slide { min-width:90vw; max-width:90vw; }
+      .carousel-wrapper { padding-bottom:20px;}
+    }
+    .news-filters label {font-weight:bold;}
+  </style>
+</head>
+<body>
+  <section class="section-card">
+    <h2>📰 تعليمات وأخبار الكمبوند</h2>
+    <div class="news-tabs" id="news-tabs"></div>
+    <div class="news-filters">
+      <label for="news-date-from">من</label>
+      <input type="date" id="news-date-from" />
+      <label for="news-date-to">إلى</label>
+      <input type="date" id="news-date-to" />
+      <button id="clear-news-filter">إلغاء الفلاتر</button>
+    </div>
+    <div class="carousel-title" id="carousel-title"></div>
+    <div class="carousel-wrapper" id="carousel-wrapper">
+      <button class="carousel-arrow right" id="carousel-arrow-right">&#8592;</button>
+      <div class="carousel-container" id="carousel-container"></div>
+      <button class="carousel-arrow left" id="carousel-arrow-left">&#8594;</button>
+    </div>
+  </section>
 
-<div class="compound-news-card">
-    <h3>اخبار الانشطة والمناسبات</h3>
-    <ul>
-        <li>
-            <p>تنظيم اول جراج سيل بالكمبوند واللي فيه قدم اولاد الكمبوند معروضات جميلة من صنع ايديهم واتعلموا اساسيات البيع والتفاوض في جو عائلي مبهج</p>
-            <span class="news-date">20 يونيو 2025</span>
-        </li>
-        <li>
-            <p> تنظيم اول اوبن داي بالكمبوند وكان فيه معروضات متنوعة من الملاك والمشاركة من الجميع كانت رائعة وكلنا كنا مبسوطين جدا</p>
-            <span class="news-date">1 اغسطس 2025</span>
-        </li>
-        <li>
-            <p> تم عمل جراج سيل رقم 2 لأولاد الكمبوند اللي اشتركوا بكل حماس وفرحة .. كان يوم جميل اوووووي</p>
-            <span class="news-date">22 أغسطس 2025</span>
-        </li>
-        <li>
-            <p>تنظيم اوبن داي رقم 2 والمره دي المشاركين كانوا اكتر من المره الاولي وكان فيه معروضات كتيرة ما بين مستلزمات دراسية واكسسوارات ومأكولات وملابس وحاجات تانية كتييييير والتنظيم كان اكثر من رائع ..شكرا لكل المنظمين علي اليوم الحلو دا</p>
-            <span class="news-date">12 سبتمبر 2025</span>
-        </li>
-    </ul>
-</div>
+  <script>
+    const carouselSections = [
+      { key:"أمنية", title:"تعليمات أمنية", class:"security" },
+      { key:"أنشطة", title:"أخبار الأنشطة الترفيهية", class:"activity" },
+      { key:"ادارية", title:" أخبار وتعليمات إدارية", class:"admin" },
+      { key:"تطورات", title:"اخر تطورات المول والكمبوند", class:"update" }
+    ];
 
-<div class="compound-news-card">
-    <h3>أخبار وتعليمات ادارية</h3>
-    <ul>
-        <li>
-            <p>يتم اغلاق أنوار النادي في تمام الساعة الثانية عشر ليلا حفاظا علي راحة الملاك</p>
-            <span class="news-date">1 أبريل 2025</span>
-        </li>
-        <li>
-            <p> جاري صيانة وتعديل مدخل ومخرج جراج السيارات لبار K "مغلق حاليا"</p>
-            <span class="news-date">13 سبتمبر 2025</span>
-        </li>
+    function formatDate(dateStr) {
+      const months = [
+        "يناير", "فبراير", "مارس", "ابريل", "مايو", "يونيو",
+        "يوليو", "اغسطس", "سبتمبر", "اكتوبر", "نوفمبر", "ديسمبر"
+      ];
+      const [year, month, day] = dateStr.split("-");
+      return `${parseInt(day)} ${months[parseInt(month)-1]} ${year}`;
+    }
 
-        <li>
-            <p> سيتم اغلاق الطريق من البوابة الجانبية "بوابة المخابرات" وحتي الجزيرة امام بار D لوجود اعمال حفر لمد كابلات كهرباء جديدة وذلك من يوم السبت 20 سبتمبر وحتي الخميس 25 سبتمبر </p>
-            <span class="news-date">18 سبتمبر 2025</span>
-        </li>
-                <li>
-            <p>   تم انهاء أعمال مد كابلات الكهرباء وإعادة فتح الطريق للسيارات مرة اخري أمام بار C & D       </p>
-            <span class="news-date">27 سبتمبر 2025</span>
-        </li>
-    </ul>
-</div>
-<div class="compound-news-card">
-    <h3>أخر تطورات المول والكمبوند</h3>
-    <ul>
-        <li>
-            <p>تم الانتهاء من 75% من تجهيزات وتشطيبات الدور الثاني بالمول وجاري العمل في الدور الأول والارضي .. ان شاء الله يبقي اقوي مول في المنطقة كلها.</p>
-            <span class="news-date">1 أغسطس 2025</span>
-        </li>
-        <li>
-            <p> يجري العمل علي قدم وساق في  لاند سكيب المرحلة الرابعة .. تم انهاء العزل وتركيب مواسير الصرف وقريبا ستبدأ مرحلة الزراعة وتركيب سيراميك البحيرات</p>
-            <span class="news-date">1 سبتمبر 2025</span>
-        </li>
-    </ul>
-</div>
+    const tabsContainer = document.getElementById('news-tabs');
+    tabsContainer.innerHTML = carouselSections.map(sec =>
+      `<button class="news-tab${sec.key==="أمنية"?' active':''}" data-key="${sec.key}">${sec.title}</button>`
+    ).join("");
 
+    let currentSection = carouselSections[0];
+    let currentIndex = 0;
+    let currentFromDate = "";
+    let currentToDate = "";
+
+    function renderCarouselTitle() {
+      const el = document.getElementById('carousel-title');
+      el.className = "carousel-title " + currentSection.class;
+      el.textContent = currentSection.title;
+    }
+
+    function isDateInRange(date, from, to) {
+      if (from && date < from) return false;
+      if (to && date > to) return false;
+      return true;
+    }
+
+    function renderCarousel() {
+      let news = newsItems.filter(item => item.category === currentSection.key)
+        .sort((a,b) => b.date.localeCompare(a.date));
+      if (currentFromDate || currentToDate) {
+        news = news.filter(item => isDateInRange(item.date, currentFromDate, currentToDate));
+      }
+      const container = document.getElementById('carousel-container');
+      if (!news.length) {
+        container.innerHTML = '<div style="text-align:center; color:gray; width:100%">لا توجد أخبار في هذا القسم.</div>';
+        document.getElementById('carousel-arrow-right').style.visibility = 'hidden';
+        document.getElementById('carousel-arrow-left').style.visibility = 'hidden';
+        return;
+      }
+      if (currentIndex > news.length - 1) currentIndex = news.length - 1;
+      if (currentIndex < 0) currentIndex = 0;
+
+      container.innerHTML = `
+        <div class="news-slide ${currentSection.class}" style="margin:auto;">
+          ${news[currentIndex].image ? `<img class="news-type-img" src="${news[currentIndex].image}" alt="نوع الخبر" loading="lazy" />` : ""}
+          <div class="news-title">${news[currentIndex].title}</div>
+          <div class="news-content">${news[currentIndex].content}</div>
+          <div class="news-date">${formatDate(news[currentIndex].date)}</div>
+          <div style="position:absolute;top:10px;left:10px;font-size:0.90em;color:#aaa;">${currentIndex+1} / ${news.length}</div>
+        </div>
+      `;
+      document.getElementById('carousel-arrow-right').style.visibility = currentIndex > 0 ? 'visible' : 'hidden';
+      document.getElementById('carousel-arrow-left').style.visibility = currentIndex < news.length-1 ? 'visible' : 'hidden';
+    }
+
+    document.getElementById('carousel-arrow-right').onclick = function() {
+      currentIndex--;
+      renderCarousel();
+    };
+    document.getElementById('carousel-arrow-left').onclick = function() {
+      currentIndex++;
+      renderCarousel();
+    };
+
+    Array.from(document.querySelectorAll('.news-tab')).forEach(tab => {
+      tab.onclick = function() {
+        Array.from(document.querySelectorAll('.news-tab')).forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        currentSection = carouselSections.find(sec => sec.key === tab.getAttribute('data-key'));
+        currentIndex = 0;
+        renderCarouselTitle();
+        renderCarousel();
+      };
+    });
+
+    document.getElementById('news-date-from').addEventListener('change', function(e){
+      currentFromDate = e.target.value;
+      currentIndex = 0;
+      renderCarousel();
+    });
+    document.getElementById('news-date-to').addEventListener('change', function(e){
+      currentToDate = e.target.value;
+      currentIndex = 0;
+      renderCarousel();
+    });
+    document.getElementById('clear-news-filter').addEventListener('click', function(){
+      currentFromDate = "";
+      currentToDate = "";
+      document.getElementById('news-date-from').value = "";
+      document.getElementById('news-date-to').value = "";
+      currentIndex = 0;
+      renderCarousel();
+    });
+
+    let startX = null, dragging = false;
+    const carouselContainer = document.getElementById('carousel-container');
+    carouselContainer.addEventListener('touchstart', function(e){
+      startX = e.touches[0].clientX; dragging = true;
+    });
+    carouselContainer.addEventListener('touchmove', function(e){
+      if (!dragging) return;
+      let dx = e.touches[0].clientX - startX;
+      let news = newsItems.filter(item => item.category === currentSection.key)
+        .sort((a,b) => b.date.localeCompare(a.date));
+      if (currentFromDate || currentToDate) {
+        news = news.filter(item => isDateInRange(item.date, currentFromDate, currentToDate));
+      }
+      if (Math.abs(dx) > 40) {
+        if (dx < 0 && currentIndex < news.length-1) { currentIndex++; renderCarousel(); dragging=false; }
+        else if (dx > 0 && currentIndex > 0) { currentIndex--; renderCarousel(); dragging=false; }
+      }
+    });
+    carouselContainer.addEventListener('touchend', function(){ dragging=false; });
+
+    renderCarouselTitle();
+    renderCarousel();
+  </script>
+</body>
+</html>
