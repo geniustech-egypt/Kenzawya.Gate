@@ -20,6 +20,8 @@ body {
     color: var(--text-color);
     direction: rtl;
     text-align: right;
+    padding-bottom: 60px; /* مسافة سفلية لتجنب تداخل المحتوى مع الفوتر الثابت */
+
 }
 
 h1, h2, h3 {
@@ -186,7 +188,7 @@ a:hover {
     white-space: nowrap;
     overflow: hidden;
     display: inline-block;
-    animation: marquee 55s linear infinite;
+    animation: marquee 50s linear infinite;
 }
 
 @keyframes marquee {
@@ -462,7 +464,6 @@ a:hover {
     color: var(--text-color);
     font-weight: 700;
 }
-
 
 /* Responsive Design */
 /* ===== تنسيقات أساسية عامة ===== */
@@ -788,7 +789,7 @@ a:hover {
 .service-card .blacklist-icon {
     position: absolute;
     top: 8px;
-    right: 8px; 
+    right: 8px; /* بدلاً من left: 8px; */
     font-size: 22px;
     color: #e60000;
     font-weight: bold;
@@ -1210,7 +1211,191 @@ mark {
         }
     }
 }
+/* ====== مشروعات الكنزاوية (القسم المبسّط في الصفحة الرئيسية) ====== */
+.project-hub-simple{
+  position:relative;
+  background:linear-gradient(135deg,hsl(0, 0%, 100%),#ffffff);
+  border:1px solid #c9deee;
+  border-radius:18px;
+  padding:34px 28px 38px;
+  margin-top:38px;
+  box-shadow:0 8px 28px -6px rgba(45,110,170,.25);
+  overflow:hidden;
+}
+.project-hub-simple:before,
+.project-hub-simple:after{
+  content:"";
+  position:absolute;
+  width:420px;
+  height:420px;
+  background:radial-gradient(circle at center,rgba(255,255,255,.7),rgba(255,255,255,0));
+  top:-140px;
+  right:-160px;
+  pointer-events:none;
+  mix-blend-mode:overlay;
+}
+.project-hub-simple:after{
+  width:300px;
+  height:300px;
+  top:auto;
+  bottom:-120px;
+  right:auto;
+  left:-120px;
+  opacity:.65;
+}
+.project-hub-simple h2{
+  margin:0 0 14px;
+  font-size:1.55rem;
+  color:#1e649e;
+  display:flex;
+  align-items:center;
+  justify-content:center;   /* تجعل الأيقونة والنص في منتصف عرض القسم */
+  gap:10px;
+  text-align:center;        /* احتياطياً لو تم لفّ النص لسطرين */
+  width:100%;               /* لضمان احتلال العنوان العرض الكامل */
+}
+.project-hub-simple p{
+  margin: 0 0 26px;
+  font-size: 1.02rem;
+  line-height: 1.7;
+  text-align: center;     /* محاذاة أفقية للنص داخل الفقرة */
+  color: #284b61;
+  max-width: 760px;
+}
+.project-cta-min{
+  background:#c0a104;
+  color:#fff;
+  text-decoration:none;
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+  padding:15px 34px 16px;
+  border-radius:50px;
+  font-size:1rem;
+  font-weight:800;
+  letter-spacing:.7px;
+  box-shadow:0 8px 22px -4px rgba(0, 179, 255, 0.55);
+  position:relative;
+  overflow:hidden;
+  transition:.28s;
+}
+.project-cta-min:before{
+  content:"";
+  position:absolute;
+  top:0;left:-40%;
+  width:40%;height:100%;
+  background:linear-gradient(105deg,rgba(255,255,255,.65),rgba(255,255,255,0));
+  transform:skewX(-25deg);
+  transition:.65s;
+}
+.project-cta-min:hover{
+  transform:translateY(-4px);
+  box-shadow:0 12px 28px -6px rgba(255,152,0,.65);
+}
+.project-cta-min:hover:before{left:115%;}
+.project-cta-min i{font-size:1.15rem;}
+/* ===== ضبط زر صفحة المشروعات في الموبايل فقط ===== */
+@media (max-width: 640px){
+  .project-cta-min{
+    /* تصغير الحجم والمساحات */
+    font-size: .9rem;          /* كان أكبر */
+    padding: 10px 18px 11px;
+    line-height: 1.35;
 
+    /* منع أن يأخذ عرض الكارت بالكامل */
+    width: auto;
+    max-width: 88%;
 
+    /* تمركز */
+    margin-inline: auto;
+    text-align: center;
 
+    /* تقليل البروز */
+    box-shadow: 0 6px 16px -4px rgba(255,152,0,.55);
+    border-radius: 40px;
 
+    /* السماح بالتفاف النص سطرين بدون ضغط */
+    white-space: normal;
+  }
+  .project-cta-min i{
+    font-size: 1em;
+  }
+}
+
+/* موبايل أصغر جداً (اختياري) */
+@media (max-width: 400px){
+  .project-cta-min{
+    font-size: .82rem;
+    padding: 9px 16px 10px;
+    max-width: 92%;
+  }
+}
+.electric-border-wrapper {
+  --electric-border-color: #5227FF;
+  --electric-light-color: #7d4aff;
+  --eb-border-width: 2px;
+  margin: 32px auto;
+  border-radius: 18px;
+  max-width: 800px;
+  position: relative;
+  isolation: isolate;
+}
+
+.electric-border {
+  position: relative;
+  border-radius: inherit;
+  overflow: visible;
+  isolation: isolate;
+}
+
+.eb-content {
+  position: relative;
+  border-radius: inherit;
+  z-index: 1;
+  padding: 32px 24px;
+  background: rgba(255,255,255,0.94);
+}
+
+.eb-layers {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.eb-stroke,
+.eb-glow-1,
+.eb-glow-2,
+.eb-background-glow {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  box-sizing: border-box;
+}
+
+.eb-stroke {
+  border: var(--eb-border-width) solid var(--electric-border-color);
+  filter: url(#electric-displace-filter);
+}
+
+.eb-glow-1 {
+  border: var(--eb-border-width) solid var(--electric-border-color);
+  opacity: 0.5;
+  filter: blur(2.5px);
+}
+
+.eb-glow-2 {
+  border: var(--eb-border-width) solid var(--electric-light-color);
+  opacity: 0.5;
+  filter: blur(8px);
+}
+
+.eb-background-glow {
+  z-index: -1;
+  transform: scale(1.08);
+  filter: blur(32px);
+  opacity: 0.3;
+  background: linear-gradient(-30deg, var(--electric-light-color), transparent, var(--electric-border-color));
+}
