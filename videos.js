@@ -1,10 +1,6 @@
+// مصفوفة الفيديوهات (محلي + يوتيوب + Cloudinary عبر URL)
 const videos = [
-  {
-    type: "local",
-    src: "open-day.mp4",       // الفيديو المحلي
-    poster: "photo-day.jpg",   // صورة الغلاف
-    title: "KENZ Open Day"
-  },  
+  
   {
     type: "youtube",
     id: "h4HI7YG02j0",
@@ -34,19 +30,62 @@ const videos = [
     type: "youtube",
     id: "z-dxAbbu7Ms",
     title: "طريقة عمل توصيلة بين بطارية سيارتين "
+  },
+
+
+  // الفيديو الأول (LandScape1)
+  {
+    type: "cloudinary",
+    src: "https://res.cloudinary.com/drilxe8qd/video/upload/v1759510845/LandScape1_btl0kt.mp4",
+    // الترويسة (Poster) مأخوذة من نفس الفيديو (فريم في الثانية 1) مع تحويلات جودة تلقائية
+    poster: "https://res.cloudinary.com/drilxe8qd/video/upload/so_1,q_auto,f_auto/v1759510845/LandScape1_btl0kt.jpg",
+    title: "أخر تطورات اللاند سكيب 28-9-2025"
+  },
+
+  // الفيديو الثاني (open-day)
+  {
+    type: "cloudinary",
+    src: "https://res.cloudinary.com/drilxe8qd/video/upload/v1759510794/open-day_peiasf.mp4",
+    poster: "https://res.cloudinary.com/drilxe8qd/video/upload/so_1,q_auto,f_auto/v1759510794/open-day_peiasf.jpg",
+    title: "فعاليات Open Day 12-9-2025"
   }
 ];
 
-// جلب الكونتينر بتاع الفيديوهات
+// الكونتينر
 const videoGallery = document.getElementById("videoGallery");
 
-// توليد الكروت تلقائيًا
+// دالة مساعدة (محاولة اشتقاق بوستر لو لم يتوفر)
+function deriveCloudinaryPoster(videoSrc) {
+  try {
+    const parts = videoSrc.split("/");
+    const filePart = parts.pop(); // اسم الملف مع الامتداد
+    if (!/\.[a-z0-9]+$/i.test(filePart)) return "";
+    const withoutExt = filePart.replace(/\.[a-z0-9]+$/i, "");
+    const uploadIndex = parts.findIndex(p => p === "upload");
+    if (uploadIndex === -1) return "";
+    const afterUpload = parts[uploadIndex + 1];
+    if (afterUpload && afterUpload.includes(",")) {
+      if (!afterUpload.includes("so_")) {
+        parts[uploadIndex + 1] = "so_1," + afterUpload;
+      }
+      if (!/q_auto/.test(parts[uploadIndex + 1])) {
+        parts[uploadIndex + 1] += ",q_auto,f_auto";
+      }
+    } else {
+      parts.splice(uploadIndex + 1, 0, "so_1,q_auto,f_auto");
+    }
+    return parts.join("/") + "/" + withoutExt + ".jpg";
+  } catch {
+    return "";
+  }
+}
+
+// توليد الكروت
 videos.forEach(video => {
   const card = document.createElement("div");
   card.classList.add("video-card");
 
   if (video.type === "youtube") {
-    // فيديو يوتيوب
     card.innerHTML = `
       <a href="https://www.youtube.com/watch?v=${video.id}" target="_blank" rel="noopener noreferrer">
         <img src="https://img.youtube.com/vi/${video.id}/hqdefault.jpg" alt="${video.title}" loading="lazy" />
@@ -55,7 +94,6 @@ videos.forEach(video => {
       <p>${video.title}</p>
     `;
   } else if (video.type === "local") {
-    // فيديو محلي بنفس شكل يوتيوب
     card.innerHTML = `
       <a href="${video.src}" target="_blank" rel="noopener noreferrer">
         <img src="${video.poster}" alt="${video.title}" loading="lazy" />
@@ -63,8 +101,22 @@ videos.forEach(video => {
       </a>
       <p>${video.title}</p>
     `;
+  } else if (video.type === "cloudinary") {
+    let poster = video.poster;
+    if (!poster) {
+      poster = deriveCloudinaryPoster(video.src) || "";
+    }
+    card.innerHTML = `
+      <a href="${video.src}" target="_blank" rel="noopener noreferrer">
+        ${poster
+          ? `<img src="${poster}" alt="${video.title}" loading="lazy" />`
+          : `<div class="video-fallback-poster" style="background:#111;color:#fff;display:flex;align-items:center;justify-content:center;height:180px;font-size:14px;">Cloudinary Video</div>`
+        }
+        <div class="video-overlay"><i class="fas fa-play-circle"></i></div>
+      </a>
+      <p>${video.title}</p>
+    `;
   }
 
-  // إضافة الكارت للكونتينر
   videoGallery.appendChild(card);
 });
