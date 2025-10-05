@@ -1211,6 +1211,20 @@ mark {
         }
     }
 }
+@media (max-width: 2900px) {
+    .marquee {
+        animation: moveTextMobile 75s linear infinite;
+    }
+
+    @keyframes moveTextMobile {
+        from {
+            transform: translateX(-30%); /* يبدأ مختفي من أقصى اليسار */
+        }
+        to {
+            transform: translateX(100%);  /* يتحرك لحد أقصى اليمين */
+        }
+    }
+}
 /* ====== مشروعات الكنزاوية (القسم المبسّط في الصفحة الرئيسية) ====== */
 .project-hub-simple{
   position:relative;
@@ -1399,5 +1413,6 @@ mark {
   opacity: 0.3;
   background: linear-gradient(-30deg, var(--electric-light-color), transparent, var(--electric-border-color));
 }
+
 
 
