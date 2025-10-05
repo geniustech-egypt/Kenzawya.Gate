@@ -1199,7 +1199,7 @@ mark {
 /* حركة خاصة بالموبايل للإنفو بار */
 @media (max-width: 600px) {
     .marquee {
-        animation: moveTextMobile 75s linear infinite;
+        animation: moveTextMobile 62s linear infinite;
     }
 
     @keyframes moveTextMobile {
@@ -1413,6 +1413,7 @@ mark {
   opacity: 0.3;
   background: linear-gradient(-30deg, var(--electric-light-color), transparent, var(--electric-border-color));
 }
+
 
 
 
