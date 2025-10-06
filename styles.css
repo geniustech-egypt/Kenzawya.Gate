@@ -513,7 +513,7 @@ a:hover {
 /* الأزرار نفسها */
 .buttons li button {
     padding: 10px 5px;
-    font-size: 13px;
+    font-size: 15px;
     border-radius: 6px;
     background-color: #2980b9;
     color: white;
@@ -1413,6 +1413,7 @@ mark {
   opacity: 0.3;
   background: linear-gradient(-30deg, var(--electric-light-color), transparent, var(--electric-border-color));
 }
+
 
 
 
