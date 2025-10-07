@@ -701,6 +701,9 @@
   let currentFromDate = "";
   let currentToDate = "";
 
+  // مؤقت التبديل التلقائي
+  let autoSlideInterval = null;
+
   function renderCarouselTitle(){
     const el = document.getElementById('carousel-title');
     el.className = "carousel-title " + currentSection.class;
@@ -713,17 +716,23 @@
     return true;
   }
 
-  function renderCarousel(){
+  function getCurrentNewsList() {
     let news = newsItems.filter(item => item.category === currentSection.key)
                         .sort((a,b)=> b.date.localeCompare(a.date));
     if(currentFromDate || currentToDate){
       news = news.filter(item => isDateInRange(item.date,currentFromDate,currentToDate));
     }
+    return news;
+  }
+
+  function renderCarousel(){
+    const news = getCurrentNewsList();
     const container = document.getElementById('carousel-container');
     if(!news.length){
       container.innerHTML = '<div style="text-align:center;color:#7a8087;font-weight:600;font-size:.95rem;width:100%;padding:40px 0;">لا توجد أخبار في هذا القسم.</div>';
       document.getElementById('carousel-arrow-right').style.visibility='hidden';
       document.getElementById('carousel-arrow-left').style.visibility='hidden';
+      clearAutoSlide();
       return;
     }
     if(currentIndex > news.length-1) currentIndex = news.length-1;
@@ -741,10 +750,36 @@
     `;
     document.getElementById('carousel-arrow-right').style.visibility = currentIndex > 0 ? 'visible' : 'hidden';
     document.getElementById('carousel-arrow-left').style.visibility = currentIndex < news.length-1 ? 'visible' : 'hidden';
+
+    // إعادة ضبط التلقائي
+    startAutoSlide();
   }
 
-  document.getElementById('carousel-arrow-right').onclick = ()=>{ currentIndex--; renderCarousel(); };
-  document.getElementById('carousel-arrow-left').onclick  = ()=>{ currentIndex++; renderCarousel(); };
+  function clearAutoSlide() {
+    if (autoSlideInterval) {
+      clearInterval(autoSlideInterval);
+      autoSlideInterval = null;
+    }
+  }
+
+  function startAutoSlide() {
+    clearAutoSlide();
+    const news = getCurrentNewsList();
+    if (news.length <= 1) return; // لا داعي للتبديل إذا كان خبر واحد فقط
+    autoSlideInterval = setInterval(function() {
+      currentIndex = (currentIndex + 1) % news.length;
+      renderCarousel(false); // لا تعيد ضبط المؤقت في كل مرة
+    }, 5000); // كل 5 ثواني
+  }
+
+  document.getElementById('carousel-arrow-right').onclick = ()=>{
+    currentIndex--;
+    renderCarousel();
+  };
+  document.getElementById('carousel-arrow-left').onclick  = ()=>{
+    currentIndex++;
+    renderCarousel();
+  };
 
   Array.from(document.querySelectorAll('.news-tab')).forEach(tab=>{
     tab.onclick = ()=>{
@@ -785,11 +820,7 @@
   carouselContainerEl.addEventListener('touchmove', e=>{
     if(!dragging) return;
     const dx = e.touches[0].clientX - startX;
-    let news = newsItems.filter(item => item.category === currentSection.key)
-                        .sort((a,b)=> b.date.localeCompare(a.date));
-    if(currentFromDate || currentToDate){
-      news = news.filter(item => isDateInRange(item.date,currentFromDate,currentToDate));
-    }
+    const news = getCurrentNewsList();
     if(Math.abs(dx) > 50){
       if(dx < 0 && currentIndex < news.length-1){ currentIndex++; renderCarousel(); dragging=false; }
       else if(dx > 0 && currentIndex > 0){ currentIndex--; renderCarousel(); dragging=false; }
