@@ -36,9 +36,9 @@ const videos = [
   // الفيديو الأول (LandScape1)
   {
     type: "cloudinary",
-    src: "https://res.cloudinary.com/drilxe8qd/video/upload/v1759510845/LandScape1_btl0kt.mp4",
+    src: "https://res.cloudinary.com/drilxe8qd/video/upload/v1759840281/landS_iyfqg9.mp4",
     // الترويسة (Poster) مأخوذة من نفس الفيديو (فريم في الثانية 1) مع تحويلات جودة تلقائية
-    poster: "https://res.cloudinary.com/drilxe8qd/video/upload/so_1,q_auto,f_auto/v1759510845/LandScape1_btl0kt.jpg",
+    poster: "https://res.cloudinary.com/drilxe8qd/video/upload/so_1,q_auto,f_auto/v1759840281/landS_iyfqg9.jpg",
     title: "أخر تطورات اللاند سكيب 28-9-2025"
   },
 
@@ -120,3 +120,4 @@ videos.forEach(video => {
 
   videoGallery.appendChild(card);
 });
+
