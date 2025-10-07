@@ -1199,7 +1199,7 @@ mark {
 /* حركة خاصة بالموبايل للإنفو بار */
 @media (max-width: 600px) {
     .marquee {
-        animation: moveTextMobile 62s linear infinite;
+        animation: moveTextMobile 65s linear infinite;
     }
 
     @keyframes moveTextMobile {
@@ -1344,77 +1344,35 @@ mark {
     max-width: 92%;
   }
 }
-.electric-border-wrapper {
-  --electric-border-color: #5227FF;
-  --electric-light-color: #7d4aff;
-  --eb-border-width: 2px;
-  margin: 32px auto;
-  border-radius: 18px;
-  max-width: 800px;
-  position: relative;
-  isolation: isolate;
-}
-
-.electric-border {
-  position: relative;
-  border-radius: inherit;
-  overflow: visible;
-  isolation: isolate;
-}
 
 .eb-content {
   position: relative;
-  border-radius: inherit;
+  border-radius: 14px;
   z-index: 1;
   padding: 32px 24px;
-  background: rgba(255,255,255,0.94);
+  background: rgba(248, 212, 158, 0.94);
+  text-align: center; /* يوسّط كل النص والعناصر داخله */
 }
 
-.eb-layers {
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  pointer-events: none;
-  z-index: 2;
+.shiny-text {
+  /* أزل اللون العادي */
+  color: transparent;
+  background: linear-gradient(
+    120deg,
+    #1d3342 0%,
+    #1d3342 40%,
+    #fff 50%,
+    #1d3342 60%,
+    #1d3342 100%
+  );
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shine 6s linear infinite;
 }
-
-.eb-stroke,
-.eb-glow-1,
-.eb-glow-2,
-.eb-background-glow {
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  pointer-events: none;
-  box-sizing: border-box;
+@keyframes shine {
+  0% { background-position: -100%; }
+  100% { background-position: 100%; }
+  
 }
-
-.eb-stroke {
-  border: var(--eb-border-width) solid var(--electric-border-color);
-  filter: url(#electric-displace-filter);
-}
-
-.eb-glow-1 {
-  border: var(--eb-border-width) solid var(--electric-border-color);
-  opacity: 0.5;
-  filter: blur(2.5px);
-}
-
-.eb-glow-2 {
-  border: var(--eb-border-width) solid var(--electric-light-color);
-  opacity: 0.5;
-  filter: blur(8px);
-}
-
-.eb-background-glow {
-  z-index: -1;
-  transform: scale(1.08);
-  filter: blur(32px);
-  opacity: 0.3;
-  background: linear-gradient(-30deg, var(--electric-light-color), transparent, var(--electric-border-color));
-}
-
-
-
-
-
