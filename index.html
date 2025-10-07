@@ -20,71 +20,6 @@
     </script>
     <script src="app.js" type="module"></script>
 
-    <!-- Electric Border CSS -->
-    <style>
-        .electric-border-wrapper {
-            --electric-border-color: #5227FF;
-            --electric-light-color: #7d4aff;
-            --eb-border-width: 2px;
-            margin: 32px auto;
-            border-radius: 18px;
-            max-width: 800px;
-            position: relative;
-            isolation: isolate;
-        }
-        .electric-border {
-            position: relative;
-            border-radius: inherit;
-            overflow: visible;
-            isolation: isolate;
-        }
-        .eb-content {
-            position: relative;
-            border-radius: inherit;
-            z-index: 1;
-            padding: 32px 24px;
-            background: rgba(255,255,255,0.94);
-        }
-        .eb-layers {
-            position: absolute;
-            inset: 0;
-            border-radius: inherit;
-            pointer-events: none;
-            z-index: 2;
-        }
-        .eb-stroke,
-        .eb-glow-1,
-        .eb-glow-2,
-        .eb-background-glow {
-            position: absolute;
-            inset: 0;
-            border-radius: inherit;
-            pointer-events: none;
-            box-sizing: border-box;
-        }
-        .eb-stroke {
-            border: var(--eb-border-width) solid var(--electric-border-color);
-            filter: url(#electric-displace-filter);
-        }
-        .eb-glow-1 {
-            border: var(--eb-border-width) solid var(--electric-border-color);
-            opacity: 0.5;
-            filter: blur(2.5px);
-        }
-        .eb-glow-2 {
-            border: var(--eb-border-width) solid var(--electric-light-color);
-            opacity: 0.5;
-            filter: blur(8px);
-        }
-        .eb-background-glow {
-            z-index: -1;
-            transform: scale(1.08);
-            filter: blur(32px);
-            opacity: 0.3;
-            background: linear-gradient(-30deg, var(--electric-light-color), transparent, var(--electric-border-color));
-        }
-    </style>
-
     <!-- أخبار وتعليمات الكمبوند CSS (محدث لتكبير عرض بطاقة الخبر) -->
     <style>
         .section-card {
@@ -718,46 +653,12 @@
     </div>
 </section>
 
-<!-- ====== Electric Border مشروعات الكنزاوية ====== -->
-<section id="projects-hub" class="project-hub-simple electric-border-wrapper">
-  <!-- SVG filter for electric border -->
-  <svg id="electric-svg-filter" class="eb-svg" aria-hidden="true" focusable="false" style="position: fixed; left: -10000px;">
-    <defs>
-      <filter id="electric-displace-filter" color-interpolation-filters="sRGB" x="-20%" y="-20%" width="140%" height="140%">
-        <feTurbulence type="turbulence" baseFrequency="0.02" numOctaves="10" result="noise1" seed="1" />
-        <feOffset in="noise1" dx="0" dy="0" result="offsetNoise1">
-          <animate attributeName="dy" values="700; 0" dur="6s" repeatCount="indefinite" calcMode="linear" />
-        </feOffset>
-        <feTurbulence type="turbulence" baseFrequency="0.02" numOctaves="10" result="noise2" seed="1" />
-        <feOffset in="noise2" dx="0" dy="0" result="offsetNoise2">
-          <animate attributeName="dy" values="0; -700" dur="6s" repeatCount="indefinite" calcMode="linear" />
-        </feOffset>
-        <feTurbulence type="turbulence" baseFrequency="0.02" numOctaves="10" result="noise1" seed="2" />
-        <feOffset in="noise1" dx="0" dy="0" result="offsetNoise3">
-          <animate attributeName="dx" values="490; 0" dur="6s" repeatCount="indefinite" calcMode="linear" />
-        </feOffset>
-        <feTurbulence type="turbulence" baseFrequency="0.02" numOctaves="10" result="noise2" seed="2" />
-        <feOffset in="noise2" dx="0" dy="0" result="offsetNoise4">
-          <animate attributeName="dx" values="0; -490" dur="6s" repeatCount="indefinite" calcMode="linear" />
-        </feOffset>
-        <feComposite in="offsetNoise1" in2="offsetNoise2" result="part1" />
-        <feComposite in="offsetNoise3" in2="offsetNoise4" result="part2" />
-        <feBlend in="part1" in2="part2" mode="color-dodge" result="combinedNoise" />
-        <feDisplacementMap in="SourceGraphic" in2="combinedNoise" scale="30" xChannelSelector="R" yChannelSelector="B"/>
-      </filter>
-    </defs>
-  </svg>
-  <div class="electric-border">
-    <div class="eb-layers">
-      <div class="eb-stroke"></div>
-      <div class="eb-glow-1"></div>
-      <div class="eb-glow-2"></div>
-      <div class="eb-background-glow"></div>
-    </div>
+
+  
     <div class="eb-content">
       <h2><i class="fa-solid fa-diagram-project" style="color:#1f6fa8;"></i> مشروعات الكنزاوية</h2>
-      <p>
-        قسم مختص بعرض مشروعات وخدمات يقدمها بعض سكان الكمبوند – ادخل و استمتع بالمشروعات المميزة لخدمتك و راحتك و اشتري ما تتمناه بأفضل الاسعار   .
+      <p class="shiny-text">
+        قسم مختص بعرض مشروعات وخدمات بيقدمها بعض سكان الكمبوند – عندنا مشروعات مأكولات بيتي لذيذة ومشروعات زراعة وديكور و مشروعات مستلزمات المنزل والرفايع بكل انواعها وكمان أولادنا الصغيرين مش ناسينهم... ادخل و استمتع بالمشروعات المميزة لخدمتك و راحتك و اشتري ما تتمناه بأفضل الاسعار
       </p>
       <a class="project-cta-min" href="kenzawya-pj.html" aria-label="الدخول إلى صفحة المشروعات">
         <i class="fa-solid fa-arrow-left-long"></i>
@@ -898,18 +799,6 @@
 
   renderCarouselTitle();
   renderCarousel();
-</script>
-
-<!-- Electric Border JS -->
-<script>
-  function updateElectricBorder() {
-    var border = document.querySelector('.eb-stroke');
-    if (border) {
-      border.style.filter = 'url(#electric-displace-filter)';
-    }
-  }
-  window.addEventListener('resize', updateElectricBorder);
-  document.addEventListener('DOMContentLoaded', updateElectricBorder);
 </script>
 </body>
 </html>
