@@ -62,231 +62,446 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // عرض احصائيات الاعجاب وعدم الاعجاب القديمة لكل العناصر
     displayAllOldRatings();
+    // ===== نظام التقييم للخدمات (صيدليات، سوبر ماركت ...) =====
+document.querySelectorAll('.star-rating-comment[data-service-id]').forEach(block => {
+    const serviceId = block.getAttribute('data-service-id');
+    const stars = block.querySelectorAll('.star');
+    const textarea = block.querySelector('.comment-text');
+    const submitBtn = block.querySelector('.submit-rating');
+    const commentsDiv = block.querySelector('.all-comments');
+    let selectedRating = 0;
+    let userRatingKey = null;
 
-    // نظام التقييم بالنجوم + تعليق (مع نقل متوسط التقييم فقط)
-    document.querySelectorAll('.star-rating-comment').forEach(block => {
-        const serviceId = block.getAttribute('data-service-id');
-        const stars = block.querySelectorAll('.star');
-        const textarea = block.querySelector('.comment-text');
-        const submitBtn = block.querySelector('.submit-rating');
-        const commentsDiv = block.querySelector('.all-comments');
-        let selectedRating = 0;
-        let userRatingKey = null;
+    const avgDiv = block.querySelector('.average-rating') || document.createElement('div');
+    avgDiv.className = 'average-rating';
+    avgDiv.style.cssText = "margin: 5px 0 10px 0; font-weight: bold; color: #ff9800;";
 
-        const avgDiv = block.querySelector('.average-rating') || document.createElement('div');
-        avgDiv.className = 'average-rating';
-        avgDiv.style.cssText = "margin: 5px 0 10px 0; font-weight: bold; color: #ff9800;";
+    if (!avgDiv.parentNode) block.insertBefore(avgDiv, block.firstChild);
 
-        if (!avgDiv.parentNode) block.insertBefore(avgDiv, block.firstChild);
-
-        // تظليل النجوم عند المرور أو الاختيار
-        stars.forEach(star => {
-            star.addEventListener('mouseenter', () => {
-                const val = parseInt(star.getAttribute('data-value'));
-                stars.forEach(s => {
-                    if (parseInt(s.getAttribute('data-value')) <= val) {
-                        s.classList.add('hovered');
-                    } else {
-                        s.classList.remove('hovered');
-                    }
-                });
-            });
-            star.addEventListener('mouseleave', () => {
-                stars.forEach(s => s.classList.remove('hovered'));
-            });
-            star.addEventListener('click', () => {
-                selectedRating = parseInt(star.getAttribute('data-value'));
-                stars.forEach(s => {
-                    if (parseInt(s.getAttribute('data-value')) <= selectedRating) {
-                        s.classList.add('selected');
-                    } else {
-                        s.classList.remove('selected');
-                    }
-                });
-            });
-        });
-
-        // جلب تقييم المستخدم الحالي
-        function fetchUserRating() {
-            const ratingsRef = ref(database, `starRatings/${serviceId}`);
-            userRatingKey = null;
-            get(ratingsRef).then(snapshot => {
-                if (snapshot.exists()) {
-                    snapshot.forEach(child => {
-                        const data = child.val();
-                        if (data.deviceId === deviceId) {
-                            userRatingKey = child.key;
-                            selectedRating = data.rating;
-                            textarea.value = data.comment;
-                            stars.forEach(s => {
-                                if (parseInt(s.getAttribute('data-value')) <= selectedRating) {
-                                    s.classList.add('selected');
-                                } else {
-                                    s.classList.remove('selected');
-                                }
-                            });
-                        }
-                    });
+    // تظليل النجوم عند المرور أو الاختيار
+    stars.forEach(star => {
+        star.addEventListener('mouseenter', () => {
+            const val = parseInt(star.getAttribute('data-value'));
+            stars.forEach(s => {
+                if (parseInt(s.getAttribute('data-value')) <= val) {
+                    s.classList.add('hovered');
                 } else {
-                    selectedRating = 0;
-                    textarea.value = "";
-                    stars.forEach(s => s.classList.remove('selected'));
+                    s.classList.remove('hovered');
                 }
             });
-        }
-        fetchUserRating();
-
-        // عند الإرسال
-        submitBtn.addEventListener('click', () => {
-            if (selectedRating === 0) {
-                alert("يرجى اختيار عدد النجوم أولاً");
-                return;
-            }
-            const commentText = textarea.value.trim();
-            if (commentText.length < 2) {
-                alert("يرجى كتابة تعليق مناسب");
-                return;
-            }
-            const ratingsRef = ref(database, `starRatings/${serviceId}`);
-            const newRatingData = {
-                deviceId,
-                rating: selectedRating,
-                comment: commentText,
-                time: Date.now()
-            };
-
-            if (userRatingKey) {
-                const userRatingRef = ref(database, `starRatings/${serviceId}/${userRatingKey}`);
-                set(userRatingRef, newRatingData).then(() => {
-                    alert("تم تعديل تقييمك بنجاح");
-                }).catch(error => {
-                    console.error("خطأ في تعديل التقييم:", error);
-                    alert("حدث خطأ أثناء تعديل تقييمك. يرجى المحاولة مرة أخرى.");
-                });
-            } else {
-                const newRatingRef = push(ratingsRef);
-                set(newRatingRef, newRatingData).then(() => {
-                    alert("تم إضافة تقييمك بنجاح");
-                    fetchUserRating();
-                }).catch(error => {
-                    console.error("خطأ في إضافة التقييم:", error);
-                    alert("حدث خطأ أثناء إضافة تقييمك. يرجى المحاولة مرة أخرى.");
-                });
-            }
         });
-
-        // نافذة منبثقة لعرض كل التعليقات
-        let modal = document.getElementById('comments-modal');
-        if (!modal) {
-            modal = document.createElement('div');
-            modal.id = 'comments-modal';
-            modal.style.display = 'none';
-            modal.innerHTML = `
-                <div class="modal-backdrop"></div>
-                <div class="modal-content">
-                    <span class="close-modal" title="إغلاق">×</span>
-                    <h3 style="margin-top:0;">كل التعليقات</h3>
-                    <div class="modal-comments-list"></div>
-                </div>
-            `;
-            document.body.appendChild(modal);
-            modal.querySelector('.close-modal').onclick = () => { modal.style.display = 'none'; };
-            modal.querySelector('.modal-backdrop').onclick = () => { modal.style.display = 'none'; };
-        }
-        const modalCommentsList = modal.querySelector('.modal-comments-list');
-
-        // عرض زر "عرض كل التعليقات"
-        const ratingsRef = ref(database, `starRatings/${serviceId}`);
-        onValue(ratingsRef, (snapshot) => {
-            commentsDiv.innerHTML = "";
-            let ratingsArr = [];
-            if (snapshot.exists()) {
-                snapshot.forEach(child => {
-                    ratingsArr.push(child.val());
-                });
-                ratingsArr.reverse();
-
-                if (ratingsArr.length > 0) {
-                    const btn = document.createElement('button');
-                    btn.className = 'show-comments-btn';
-                    btn.textContent = `عرض كل التعليقات (${ratingsArr.length})`;
-                    btn.onclick = () => {
-                        modalCommentsList.innerHTML = "";
-                        ratingsArr.forEach(data => {
-                            const commentDiv = document.createElement('div');
-                            commentDiv.className = 'user-comment';
-                            commentDiv.innerHTML = `
-                                <span style="color:#ffc107;">${'★'.repeat(data.rating)}</span>
-                                <span style="color:#bbb;">${'★'.repeat(5 - data.rating)}</span>
-                                <span style="margin-right:8px;">${data.comment}</span>
-                                <span style="font-size:10px; color:#888; float:left;">${new Date(data.time).toLocaleDateString('ar-EG')}</span>
-                            `;
-                            modalCommentsList.appendChild(commentDiv);
-                        });
-                        modal.style.display = 'block';
-                    };
-                    commentsDiv.appendChild(btn);
+        star.addEventListener('mouseleave', () => {
+            stars.forEach(s => s.classList.remove('hovered'));
+        });
+        star.addEventListener('click', () => {
+            selectedRating = parseInt(star.getAttribute('data-value'));
+            stars.forEach(s => {
+                if (parseInt(s.getAttribute('data-value')) <= selectedRating) {
+                    s.classList.add('selected');
+                } else {
+                    s.classList.remove('selected');
                 }
-                // حساب المتوسط
-                const sum = ratingsArr.reduce((a, b) => a + b.rating, 0);
-                const avg = ratingsArr.length > 0 ? (sum / ratingsArr.length).toFixed(1) : "0.0";
-
-                // تظليل الكارت وإضافة أيقونة البلاك ليست
-const card = block;
-card.style.backgroundColor = '';
-card.style.border = '';
-card.style.color = '';
-const existingIcon = card.querySelector('.blacklist-icon');
-if (existingIcon) existingIcon.remove();
-
-if (avg < 2) {
-    if (ratingsArr.length >= 5) {
-        // أحمر قوي + كتابة داكنة
-        card.style.backgroundColor = '#ffcccc'; // أحمر قوي
-        card.style.border = '2px solid #ff0000';
-        card.style.color = '#222'; // كتابة داكنة
-    } else if (ratingsArr.length > 0) {
-        // أحمر فاتح جدًا + كتابة داكنة
-        card.style.backgroundColor = '#fff0f0'; // أحمر فاتح جدًا
-        card.style.border = '2px solid #ffb6b6';
-        card.style.color = '#444'; // كتابة داكنة
-    }
-    card.style.position = 'relative';
-
-    // علامة ممنوع
-    const blacklistIcon = document.createElement('span');
-    blacklistIcon.textContent = '🚫';
-    blacklistIcon.className = 'blacklist-icon';
-    blacklistIcon.style.position = 'absolute';
-    blacklistIcon.style.top = '10px';
-    blacklistIcon.style.right = '10px';
-    blacklistIcon.style.fontSize = '24px';
-    blacklistIcon.style.cursor = 'pointer';
-    blacklistIcon.style.zIndex = '10';
-    blacklistIcon.title = 'الخدمة مصنفة سيئة من المستخدمين';
-
-    card.appendChild(blacklistIcon);
-} else {
-    card.style.backgroundColor = '';
-    card.style.border = '';
-    card.style.color = '';
-    // إزالة أيقونة البلاك ليست لو موجودة
-    const blacklistIcon = card.querySelector('.blacklist-icon');
-    if (blacklistIcon) blacklistIcon.remove();
-}
-
-avgDiv.innerHTML = `
-    متوسط التقييم: <span style="color:#ffc107;">${avg}</span> / 5
-    <span style="font-size:18px;">
-        ${'★'.repeat(Math.round(avg))}
-        <span style="color:#bbb;">${'★'.repeat(5 - Math.round(avg))}</span>
-    </span>
-    <span style="font-size:12px; color:#666; margin-right:5px;">(${ratingsArr.length} تقييم)</span>
-`;
-            }
+            });
         });
     });
 
+    // جلب تقييم المستخدم الحالي
+    function fetchUserRating() {
+        const ratingsRef = ref(database, `starRatings/${serviceId}`);
+        userRatingKey = null;
+        get(ratingsRef).then(snapshot => {
+            if (snapshot.exists()) {
+                snapshot.forEach(child => {
+                    const data = child.val();
+                    if (data.deviceId === deviceId) {
+                        userRatingKey = child.key;
+                        selectedRating = data.rating;
+                        textarea.value = data.comment;
+                        stars.forEach(s => {
+                            if (parseInt(s.getAttribute('data-value')) <= selectedRating) {
+                                s.classList.add('selected');
+                            } else {
+                                s.classList.remove('selected');
+                            }
+                        });
+                    }
+                });
+            } else {
+                selectedRating = 0;
+                textarea.value = "";
+                stars.forEach(s => s.classList.remove('selected'));
+            }
+        });
+    }
+    fetchUserRating();
+
+    // عند الإرسال
+    submitBtn.addEventListener('click', () => {
+        if (selectedRating === 0) {
+            alert("يرجى اختيار عدد النجوم أولاً");
+            return;
+        }
+        const commentText = textarea.value.trim();
+        if (commentText.length < 2) {
+            alert("يرجى كتابة تعليق مناسب");
+            return;
+        }
+        const ratingsRef = ref(database, `starRatings/${serviceId}`);
+        const newRatingData = {
+            deviceId,
+            rating: selectedRating,
+            comment: commentText,
+            time: Date.now()
+        };
+
+        if (userRatingKey) {
+            const userRatingRef = ref(database, `starRatings/${serviceId}/${userRatingKey}`);
+            set(userRatingRef, newRatingData).then(() => {
+                alert("تم تعديل تقييمك بنجاح");
+            }).catch(error => {
+                console.error("خطأ في تعديل التقييم:", error);
+                alert("حدث خطأ أثناء تعديل تقييمك. يرجى المحاولة مرة أخرى.");
+            });
+        } else {
+            const newRatingRef = push(ratingsRef);
+            set(newRatingRef, newRatingData).then(() => {
+                alert("تم إضافة تقييمك بنجاح");
+                fetchUserRating();
+            }).catch(error => {
+                console.error("خطأ في إضافة التقييم:", error);
+                alert("حدث خطأ أثناء إضافة تقييمك. يرجى المحاولة مرة أخرى.");
+            });
+        }
+    });
+
+    // نافذة منبثقة لعرض كل التعليقات
+    let modal = document.getElementById('comments-modal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'comments-modal';
+        modal.style.display = 'none';
+        modal.innerHTML = `
+            <div class="modal-backdrop"></div>
+            <div class="modal-content">
+                <span class="close-modal" title="إغلاق">×</span>
+                <h3 style="margin-top:0;">كل التعليقات</h3>
+                <div class="modal-comments-list"></div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+        modal.querySelector('.close-modal').onclick = () => { modal.style.display = 'none'; };
+        modal.querySelector('.modal-backdrop').onclick = () => { modal.style.display = 'none'; };
+    }
+    const modalCommentsList = modal.querySelector('.modal-comments-list');
+
+    // عرض زر "عرض كل التعليقات"
+    const ratingsRef = ref(database, `starRatings/${serviceId}`);
+    onValue(ratingsRef, (snapshot) => {
+        commentsDiv.innerHTML = "";
+        let ratingsArr = [];
+        if (snapshot.exists()) {
+            snapshot.forEach(child => {
+                ratingsArr.push(child.val());
+            });
+            ratingsArr.reverse();
+
+            if (ratingsArr.length > 0) {
+                const btn = document.createElement('button');
+                btn.className = 'show-comments-btn';
+                btn.textContent = `عرض كل التعليقات (${ratingsArr.length})`;
+                btn.onclick = () => {
+                    modalCommentsList.innerHTML = "";
+                    ratingsArr.forEach(data => {
+                        const commentDiv = document.createElement('div');
+                        commentDiv.className = 'user-comment';
+                        commentDiv.innerHTML = `
+                            <span style="color:#ffc107;">${'★'.repeat(data.rating)}</span>
+                            <span style="color:#bbb;">${'★'.repeat(5 - data.rating)}</span>
+                            <span style="margin-right:8px;">${data.comment}</span>
+                            <span style="font-size:10px; color:#888; float:left;">${new Date(data.time).toLocaleDateString('ar-EG')}</span>
+                        `;
+                        modalCommentsList.appendChild(commentDiv);
+                    });
+                    modal.style.display = 'block';
+                };
+                commentsDiv.appendChild(btn);
+            }
+            // حساب المتوسط
+            const sum = ratingsArr.reduce((a, b) => a + b.rating, 0);
+            const avg = ratingsArr.length > 0 ? (sum / ratingsArr.length).toFixed(1) : "0.0";
+
+            // تظليل الكارت وإضافة أيقونة البلاك ليست
+            const card = block;
+            card.style.backgroundColor = '';
+            card.style.border = '';
+            card.style.color = '';
+            const existingIcon = card.querySelector('.blacklist-icon');
+            if (existingIcon) existingIcon.remove();
+
+            if (avg < 2) {
+                if (ratingsArr.length >= 5) {
+                    card.style.backgroundColor = '#ffcccc'; // أحمر قوي
+                    card.style.border = '2px solid #ff0000';
+                    card.style.color = '#222'; // كتابة داكنة
+                } else if (ratingsArr.length > 0) {
+                    card.style.backgroundColor = '#fff0f0'; // أحمر فاتح جدًا
+                    card.style.border = '2px solid #ffb6b6';
+                    card.style.color = '#444'; // كتابة داكنة
+                }
+                card.style.position = 'relative';
+
+                // علامة ممنوع
+                const blacklistIcon = document.createElement('span');
+                blacklistIcon.textContent = '🚫';
+                blacklistIcon.className = 'blacklist-icon';
+                blacklistIcon.style.position = 'absolute';
+                blacklistIcon.style.top = '10px';
+                blacklistIcon.style.right = '10px';
+                blacklistIcon.style.fontSize = '24px';
+                blacklistIcon.style.cursor = 'pointer';
+                blacklistIcon.style.zIndex = '10';
+                blacklistIcon.title = 'الخدمة مصنفة سيئة من المستخدمين';
+
+                card.appendChild(blacklistIcon);
+            } else {
+                card.style.backgroundColor = '';
+                card.style.border = '';
+                card.style.color = '';
+                // إزالة أيقونة البلاك ليست لو موجودة
+                const blacklistIcon = card.querySelector('.blacklist-icon');
+                if (blacklistIcon) blacklistIcon.remove();
+            }
+
+            avgDiv.innerHTML = `
+                متوسط التقييم: <span style="color:#ffc107;">${avg}</span> / 5
+                <span style="font-size:18px;">
+                    ${'★'.repeat(Math.round(avg))}
+                    <span style="color:#bbb;">${'★'.repeat(5 - Math.round(avg))}</span>
+                </span>
+                <span style="font-size:12px; color:#666; margin-right:5px;">(${ratingsArr.length} تقييم)</span>
+            `;
+        }
+    });
+});
+// ===== نظام التقييم للمشروعات (صفحة المشروعات الجديدة): يستخدم projectRatings فقط =====
+document.querySelectorAll('.star-rating-comment[data-project-id]').forEach(block => {
+    const projectId = block.getAttribute('data-project-id');
+    if (!projectId) return;
+    const stars = block.querySelectorAll('.star');
+    const textarea = block.querySelector('.comment-text');
+    const submitBtn = block.querySelector('.submit-rating');
+    const commentsDiv = block.querySelector('.all-comments');
+    let selectedRating = 0;
+    let userRatingKey = null;
+
+    const avgDiv = block.querySelector('.average-rating');
+    avgDiv.style.cssText = "margin: 5px 0 10px 0; font-weight: bold; color: #ff9800;";
+
+    // تظليل النجوم
+    stars.forEach(star => {
+        star.addEventListener('mouseenter', () => {
+            const val = parseInt(star.getAttribute('data-value'));
+            stars.forEach(s => {
+                if (parseInt(s.getAttribute('data-value')) <= val) {
+                    s.classList.add('hovered');
+                } else {
+                    s.classList.remove('hovered');
+                }
+            });
+        });
+        star.addEventListener('mouseleave', () => {
+            stars.forEach(s => s.classList.remove('hovered'));
+        });
+        star.addEventListener('click', () => {
+            selectedRating = parseInt(star.getAttribute('data-value'));
+            stars.forEach(s => {
+                if (parseInt(s.getAttribute('data-value')) <= selectedRating) {
+                    s.classList.add('selected');
+                } else {
+                    s.classList.remove('selected');
+                }
+            });
+        });
+    });
+
+    // جلب تقييم المستخدم الحالي
+    function fetchUserRating() {
+        const ratingsRef = ref(database, `projectRatings/${projectId}`);
+        userRatingKey = null;
+        get(ratingsRef).then(snapshot => {
+            if (snapshot.exists()) {
+                snapshot.forEach(child => {
+                    const data = child.val();
+                    if (data.deviceId === deviceId) {
+                        userRatingKey = child.key;
+                        selectedRating = data.rating;
+                        textarea.value = data.comment;
+                        stars.forEach(s => {
+                            if (parseInt(s.getAttribute('data-value')) <= selectedRating) {
+                                s.classList.add('selected');
+                            } else {
+                                s.classList.remove('selected');
+                            }
+                        });
+                    }
+                });
+            } else {
+                selectedRating = 0;
+                textarea.value = "";
+                stars.forEach(s => s.classList.remove('selected'));
+            }
+        });
+    }
+    fetchUserRating();
+
+    // عند الإرسال
+    submitBtn.addEventListener('click', () => {
+        if (selectedRating === 0) {
+            alert("يرجى اختيار عدد النجوم أولاً");
+            return;
+        }
+        const commentText = textarea.value.trim();
+        if (commentText.length < 2) {
+            alert("يرجى كتابة تعليق مناسب");
+            return;
+        }
+        const ratingsRef = ref(database, `projectRatings/${projectId}`);
+        const newRatingData = {
+            deviceId,
+            rating: selectedRating,
+            comment: commentText,
+            time: Date.now()
+        };
+
+        if (userRatingKey) {
+            const userRatingRef = ref(database, `projectRatings/${projectId}/${userRatingKey}`);
+            set(userRatingRef, newRatingData).then(() => {
+                alert("تم تعديل تقييمك بنجاح");
+            }).catch(error => {
+                console.error("خطأ في تعديل التقييم:", error);
+                alert("حدث خطأ أثناء تعديل تقييمك. يرجى المحاولة مرة أخرى.");
+            });
+        } else {
+            const newRatingRef = push(ratingsRef);
+            set(newRatingRef, newRatingData).then(() => {
+                alert("تم إضافة تقييمك بنجاح");
+                fetchUserRating();
+            }).catch(error => {
+                console.error("خطأ في إضافة التقييم:", error);
+                alert("حدث خطأ أثناء إضافة تقييمك. يرجى المحاولة مرة أخرى.");
+            });
+        }
+    });
+
+    // نافذة منبثقة لعرض كل التعليقات
+    let modal = document.getElementById('comments-modal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'comments-modal';
+        modal.style.display = 'none';
+        modal.innerHTML = `
+            <div class="modal-backdrop"></div>
+            <div class="modal-content">
+                <span class="close-modal" title="إغلاق">×</span>
+                <h3 style="margin-top:0;">كل التعليقات</h3>
+                <div class="modal-comments-list"></div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+        modal.querySelector('.close-modal').onclick = () => { modal.style.display = 'none'; };
+        modal.querySelector('.modal-backdrop').onclick = () => { modal.style.display = 'none'; };
+    }
+    const modalCommentsList = modal.querySelector('.modal-comments-list');
+
+    // عرض زر "عرض كل التعليقات"
+    const ratingsRef = ref(database, `projectRatings/${projectId}`);
+    onValue(ratingsRef, (snapshot) => {
+        commentsDiv.innerHTML = "";
+        let ratingsArr = [];
+        if (snapshot.exists()) {
+            snapshot.forEach(child => {
+                ratingsArr.push(child.val());
+            });
+            ratingsArr.reverse();
+
+            if (ratingsArr.length > 0) {
+                const btn = document.createElement('button');
+                btn.className = 'show-comments-btn';
+                btn.textContent = `عرض كل التعليقات (${ratingsArr.length})`;
+                btn.onclick = () => {
+                    modalCommentsList.innerHTML = "";
+                    ratingsArr.forEach(data => {
+                        const commentDiv = document.createElement('div');
+                        commentDiv.className = 'user-comment';
+                        commentDiv.innerHTML = `
+                            <span style="color:#ffc107;">${'★'.repeat(data.rating)}</span>
+                            <span style="color:#bbb;">${'★'.repeat(5 - data.rating)}</span>
+                            <span style="margin-right:8px;">${data.comment}</span>
+                            <span style="font-size:10px; color:#888; float:left;">${new Date(data.time).toLocaleDateString('ar-EG')}</span>
+                        `;
+                        modalCommentsList.appendChild(commentDiv);
+                    });
+                    modal.style.display = 'block';
+                };
+                commentsDiv.appendChild(btn);
+            }
+            // حساب المتوسط
+            const sum = ratingsArr.reduce((a, b) => a + b.rating, 0);
+            const avg = ratingsArr.length > 0 ? (sum / ratingsArr.length).toFixed(1) : "0.0";
+
+            // تظليل الكارت إذا كان التقييم ضعيف
+            const card = block.closest('.project-card');
+            if (card) {
+                card.style.backgroundColor = '';
+                card.style.border = '';
+                card.style.color = '';
+                const existingIcon = card.querySelector('.blacklist-icon');
+                if (existingIcon) existingIcon.remove();
+
+                if (avg < 2) {
+                    if (ratingsArr.length >= 5) {
+                        card.style.backgroundColor = '#ffcccc';
+                        card.style.border = '2px solid #ff0000';
+                        card.style.color = '#222';
+                    } else if (ratingsArr.length > 0) {
+                        card.style.backgroundColor = '#fff0f0';
+                        card.style.border = '2px solid #ffb6b6';
+                        card.style.color = '#444';
+                    }
+                    card.style.position = 'relative';
+
+                    const blacklistIcon = document.createElement('span');
+                    blacklistIcon.textContent = '🚫';
+                    blacklistIcon.className = 'blacklist-icon';
+                    blacklistIcon.style.position = 'absolute';
+                    blacklistIcon.style.top = '10px';
+                    blacklistIcon.style.right = '10px';
+                    blacklistIcon.style.fontSize = '24px';
+                    blacklistIcon.style.cursor = 'pointer';
+                    blacklistIcon.style.zIndex = '10';
+                    blacklistIcon.title = 'المشروع مصنف سيء من المستخدمين';
+
+                    card.appendChild(blacklistIcon);
+                } else {
+                    card.style.backgroundColor = '';
+                    card.style.border = '';
+                    card.style.color = '';
+                    const blacklistIcon = card.querySelector('.blacklist-icon');
+                    if (blacklistIcon) blacklistIcon.remove();
+                }
+            }
+
+            avgDiv.innerHTML = `
+                متوسط التقييم: <span style="color:#ffc107;">${avg}</span> / 5
+                <span style="font-size:18px;">
+                    ${'★'.repeat(Math.round(avg))}
+                    <span style="color:#bbb;">${'★'.repeat(5 - Math.round(avg))}</span>
+                </span>
+                <span style="font-size:12px; color:#666; margin-right:5px;">(${ratingsArr.length} تقييم)</span>
+            `;
+        }
+    });
+});
     /* ================= SEARCH (Legacy + New Architecture) ================= */
     const searchInput  = document.getElementById('search-input');
     const searchButton = document.getElementById('search-button');
@@ -304,12 +519,12 @@ avgDiv.innerHTML = `
     let noResultsMessage = document.getElementById('no-results-message');
     if (!noResultsMessage && searchInput) {
         noResultsMessage = document.createElement('div');
-    noResultsMessage.id = 'no-results-message';
-    noResultsMessage.textContent = 'لا توجد نتائج مطابقة.';
-    noResultsMessage.style.cssText = `
+        noResultsMessage.id = 'no-results-message';
+        noResultsMessage.textContent = 'لا توجد نتائج مطابقة.';
+        noResultsMessage.style.cssText = `
             display:none;text-align:center;margin-top:20px;
             font-size:1.2em;color:#e74c3c;font-weight:bold;
-    `;
+        `;
         searchInput.parentNode.parentNode.insertAdjacentElement('afterend', noResultsMessage);
     }
 
@@ -515,8 +730,8 @@ avgDiv.innerHTML = `
                 const term = normalizeArabic(searchInput.value);
                 if (!term){
                     resetOldDisplay();
-            return;
-        }
+                    return;
+                }
                 let found = false;
                 serviceSections.forEach(sec=>{
                     let sectionHas = false;
@@ -544,12 +759,12 @@ avgDiv.innerHTML = `
                     first?.scrollIntoView({behavior:'smooth'});
                 }
                 autocompleteResults.style.display='none';
-                }
+            }
 
             searchInput.addEventListener('input', performLiveSearchOld);
             searchInput.addEventListener('keypress', e=>{ if(e.key==='Enter'){ e.preventDefault(); performFullSearchOld(); } });
             searchButton.addEventListener('click', performFullSearchOld);
-            }
+        }
     }
 
     document.addEventListener('click', (e)=>{
@@ -671,4 +886,5 @@ avgDiv.innerHTML = `
         .catch(error => {
             document.getElementById('news-container').innerHTML = '<p>تعذر تحميل الأخبار. يرجى المحاولة لاحقًا.</p>';
         });
+
 });
