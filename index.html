@@ -703,6 +703,7 @@
 
   // مؤقت التبديل التلقائي
   let autoSlideInterval = null;
+  let isPaused = false; // متغير لتتبع حالة التوقف المؤقت
 
   function renderCarouselTitle(){
     const el = document.getElementById('carousel-title');
@@ -725,7 +726,7 @@
     return news;
   }
 
-  function renderCarousel(){
+  function renderCarousel(startAuto = true){
     const news = getCurrentNewsList();
     const container = document.getElementById('carousel-container');
     if(!news.length){
@@ -751,8 +752,15 @@
     document.getElementById('carousel-arrow-right').style.visibility = currentIndex > 0 ? 'visible' : 'hidden';
     document.getElementById('carousel-arrow-left').style.visibility = currentIndex < news.length-1 ? 'visible' : 'hidden';
 
-    // إعادة ضبط التلقائي
-    startAutoSlide();
+    // إضافة مستمعي أحداث للخبر الحالي
+    const slideElem = container.querySelector('.news-slide');
+    if (slideElem) {
+      slideElem.addEventListener('mouseenter', pauseAutoSlide);
+      slideElem.addEventListener('mouseleave', resumeAutoSlide);
+    }
+
+    // إعادة ضبط التلقائي إذا مطلوب
+    if(startAuto) startAutoSlide();
   }
 
   function clearAutoSlide() {
@@ -767,9 +775,19 @@
     const news = getCurrentNewsList();
     if (news.length <= 1) return; // لا داعي للتبديل إذا كان خبر واحد فقط
     autoSlideInterval = setInterval(function() {
-      currentIndex = (currentIndex + 1) % news.length;
-      renderCarousel(false); // لا تعيد ضبط المؤقت في كل مرة
+      if (!isPaused) {
+        currentIndex = (currentIndex + 1) % news.length;
+        renderCarousel(false); // لا تعيد ضبط المؤقت في كل مرة
+      }
     }, 5000); // كل 5 ثواني
+  }
+
+  function pauseAutoSlide() {
+    isPaused = true;
+  }
+
+  function resumeAutoSlide() {
+    isPaused = false;
   }
 
   document.getElementById('carousel-arrow-right').onclick = ()=>{
