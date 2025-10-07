@@ -142,7 +142,6 @@
             display:flex;
             flex-direction:column;
             align-items:flex-start;
-            animation:fadeIn .55s;
             box-sizing:border-box;
             border:1px solid #ecf0f5;
         }
@@ -199,10 +198,7 @@
             letter-spacing:.5px;
         }
 
-        @keyframes fadeIn {
-            from { opacity:0; transform:translateY(28px); }
-            to   { opacity:1; transform:translateY(0); }
-        }
+        
 
         /* الأسهم */
         .carousel-arrow {
@@ -417,6 +413,7 @@
     right: auto !important;
   }
 }
+
 </style>
 </head>
 <body>
@@ -636,22 +633,22 @@
 
 <!-- سكشن تعليمات وأخبار الكمبوند الجديد -->
 <section id="compound-updates" class="section-card">
-    <h2>📰 تعليمات وأخبار الكمبوند</h2>
-    <div class="news-tabs" id="news-tabs"></div>
-    <div class="news-filters">
-        <label for="news-date-from">من</label>
-        <input type="date" id="news-date-from" />
-        <label for="news-date-to">إلى</label>
-        <input type="date" id="news-date-to" />
-        <button id="clear-news-filter">مسح</button>
-    </div>
-    <div class="carousel-title" id="carousel-title"></div>
-    <div class="carousel-wrapper" id="carousel-wrapper">
-        <button class="carousel-arrow right" id="carousel-arrow-right">&#8592;</button>
-        <div class="carousel-container" id="carousel-container"></div>
-        <button class="carousel-arrow left" id="carousel-arrow-left">&#8594;</button>
-    </div>
-</section>
+        <h2>📰 تعليمات وأخبار الكمبوند</h2>
+        <div class="news-tabs" id="news-tabs"></div>
+        <div class="news-filters">
+            <label for="news-date-from">من</label>
+            <input type="date" id="news-date-from" />
+            <label for="news-date-to">إلى</label>
+            <input type="date" id="news-date-to" />
+            <button id="clear-news-filter">مسح</button>
+        </div>
+        <div class="carousel-title" id="carousel-title"></div>
+        <div class="carousel-wrapper" id="carousel-wrapper">
+            <button class="carousel-arrow right" id="carousel-arrow-right">&#8592;</button>
+            <div class="carousel-container" id="carousel-container"></div>
+            <button class="carousel-arrow left" id="carousel-arrow-left">&#8594;</button>
+        </div>
+    </section>
 
 
   
@@ -676,178 +673,177 @@
 </footer>
 <!-- ربط ملف بيانات الأخبار -->
 <script src="news-data.js"></script>
-<script>
-  // سكشن تعليمات واخبار الكمبوند (مقتبس ومطور)
-  const carouselSections = [
-    { key:"أمنية", title:"تعليمات أمنية", class:"security" },
-    { key:"أنشطة", title:"أخبار الأنشطة الترفيهية", class:"activity" },
-    { key:"ادارية", title:"تعليمات وأخبار إدارية", class:"admin" },
-    { key:"تطورات", title:"تطورات المول والكمبوند", class:"update" }
-  ];
+    <script>
+      const carouselSections = [
+        { key:"أمنية", title:"تعليمات أمنية", class:"security" },
+        { key:"أنشطة", title:"أخبار الأنشطة الترفيهية", class:"activity" },
+        { key:"ادارية", title:"تعليمات وأخبار إدارية", class:"admin" },
+        { key:"تطورات", title:"تطورات المول والكمبوند", class:"update" }
+      ];
 
-  function formatDate(dateStr) {
-    const months = ["يناير","فبراير","مارس","ابريل","مايو","يونيو","يوليو","اغسطس","سبتمبر","اكتوبر","نوفمبر","ديسمبر"];
-    const [year,month,day] = dateStr.split("-");
-    return `${parseInt(day)} ${months[parseInt(month)-1]} ${year}`;
-  }
-
-  const tabsContainer = document.getElementById('news-tabs');
-  tabsContainer.innerHTML = carouselSections.map(sec =>
-    `<button class="news-tab${sec.key==="أمنية"?' active':''}" data-key="${sec.key}">${sec.title}</button>`
-  ).join("");
-
-  let currentSection = carouselSections[0];
-  let currentIndex = 0;
-  let currentFromDate = "";
-  let currentToDate = "";
-
-  // مؤقت التبديل التلقائي
-  let autoSlideInterval = null;
-  let isPaused = false; // متغير لتتبع حالة التوقف المؤقت
-
-  function renderCarouselTitle(){
-    const el = document.getElementById('carousel-title');
-    el.className = "carousel-title " + currentSection.class;
-    el.textContent = currentSection.title;
-  }
-
-  function isDateInRange(date,from,to){
-    if(from && date < from) return false;
-    if(to && date > to) return false;
-    return true;
-  }
-
-  function getCurrentNewsList() {
-    let news = newsItems.filter(item => item.category === currentSection.key)
-                        .sort((a,b)=> b.date.localeCompare(a.date));
-    if(currentFromDate || currentToDate){
-      news = news.filter(item => isDateInRange(item.date,currentFromDate,currentToDate));
-    }
-    return news;
-  }
-
-  function renderCarousel(startAuto = true){
-    const news = getCurrentNewsList();
-    const container = document.getElementById('carousel-container');
-    if(!news.length){
-      container.innerHTML = '<div style="text-align:center;color:#7a8087;font-weight:600;font-size:.95rem;width:100%;padding:40px 0;">لا توجد أخبار في هذا القسم.</div>';
-      document.getElementById('carousel-arrow-right').style.visibility='hidden';
-      document.getElementById('carousel-arrow-left').style.visibility='hidden';
-      clearAutoSlide();
-      return;
-    }
-    if(currentIndex > news.length-1) currentIndex = news.length-1;
-    if(currentIndex < 0) currentIndex = 0;
-
-    const n = news[currentIndex];
-    container.innerHTML = `
-      <div class="news-slide ${currentSection.class}">
-        ${n.image ? `<img class="news-type-img" src="${n.image}" alt="صورة الخبر" loading="lazy" />` : ""}
-        <div class="news-title">${n.title}</div>
-        <div class="news-content">${n.content}</div>
-        <div class="news-date">${formatDate(n.date)}</div>
-        <div class="slide-counter">${currentIndex+1} / ${news.length}</div>
-      </div>
-    `;
-    document.getElementById('carousel-arrow-right').style.visibility = currentIndex > 0 ? 'visible' : 'hidden';
-    document.getElementById('carousel-arrow-left').style.visibility = currentIndex < news.length-1 ? 'visible' : 'hidden';
-
-    // إضافة مستمعي أحداث للخبر الحالي
-    const slideElem = container.querySelector('.news-slide');
-    if (slideElem) {
-      slideElem.addEventListener('mouseenter', pauseAutoSlide);
-      slideElem.addEventListener('mouseleave', resumeAutoSlide);
-    }
-
-    // إعادة ضبط التلقائي إذا مطلوب
-    if(startAuto) startAutoSlide();
-  }
-
-  function clearAutoSlide() {
-    if (autoSlideInterval) {
-      clearInterval(autoSlideInterval);
-      autoSlideInterval = null;
-    }
-  }
-
-  function startAutoSlide() {
-    clearAutoSlide();
-    const news = getCurrentNewsList();
-    if (news.length <= 1) return; // لا داعي للتبديل إذا كان خبر واحد فقط
-    autoSlideInterval = setInterval(function() {
-      if (!isPaused) {
-        currentIndex = (currentIndex + 1) % news.length;
-        renderCarousel(false); // لا تعيد ضبط المؤقت في كل مرة
+      function formatDate(dateStr) {
+        const months = ["يناير","فبراير","مارس","ابريل","مايو","يونيو","يوليو","اغسطس","سبتمبر","اكتوبر","نوفمبر","ديسمبر"];
+        const [year,month,day] = dateStr.split("-");
+        return `${parseInt(day)} ${months[parseInt(month)-1]} ${year}`;
       }
-    }, 5000); // كل 5 ثواني
+
+      const tabsContainer = document.getElementById('news-tabs');
+      tabsContainer.innerHTML = carouselSections.map(sec =>
+        `<button class="news-tab${sec.key==="أمنية"?' active':''}" data-key="${sec.key}">${sec.title}</button>`
+      ).join("");
+
+      let currentSection = carouselSections[0];
+      let currentIndex = 0;
+      let currentFromDate = "";
+      let currentToDate = "";
+
+      let autoSlideInterval = null;
+      let isPaused = false;
+
+      function getCurrentNewsList() {
+        let news = newsItems.filter(item => item.category === currentSection.key)
+          .sort((a,b)=> b.date.localeCompare(a.date));
+        if(currentFromDate || currentToDate){
+          news = news.filter(item => isDateInRange(item.date,currentFromDate,currentToDate));
+        }
+        return news;
+      }
+
+      function renderCarouselTitle(){
+        const el = document.getElementById('carousel-title');
+        el.className = "carousel-title " + currentSection.class;
+        el.textContent = currentSection.title;
+      }
+
+      function isDateInRange(date,from,to){
+        if(from && date < from) return false;
+        if(to && date > to) return false;
+        return true;
+      }
+
+// الحركة التلقائية: slide فقط، الحركة اليدوية flip فقط (لا يجتمعان)
+function renderCarousel(startAuto = true, animateFlip = false, animateAuto = false) {
+  const news = getCurrentNewsList();
+  const container = document.getElementById('carousel-container');
+  if (!news.length) {
+    container.innerHTML = '<div style="text-align:center;color:#7a8087;font-weight:600;font-size:.95rem;width:100%;padding:40px 0;">لا توجد أخبار في هذا القسم.</div>';
+    document.getElementById('carousel-arrow-right').style.visibility = 'hidden';
+    document.getElementById('carousel-arrow-left').style.visibility = 'hidden';
+    clearAutoSlide();
+    return;
   }
+  if (currentIndex > news.length - 1) currentIndex = news.length - 1;
+  if (currentIndex < 0) currentIndex = 0;
 
-  function pauseAutoSlide() {
-    isPaused = true;
+  // امسح البطاقة القديمة أولاً
+  container.innerHTML = "";
+
+  // أنشئ الكارت الجديد ومعه الحركة المطلوبة
+  const card = document.createElement('div');
+  card.className = `news-slide ${currentSection.class} ${animateFlip ? 'flip-news' : ''} ${animateAuto ? 'auto-slide' : ''}`;
+  card.innerHTML = `
+    ${news[currentIndex].image ? `<img class="news-type-img" src="${news[currentIndex].image}" alt="نوع الخبر" loading="lazy" />` : ""}
+    <div class="news-title">${news[currentIndex].title}</div>
+    <div class="news-content">${news[currentIndex].content}</div>
+    <div class="news-date">${formatDate(news[currentIndex].date)}</div>
+    <div class="slide-counter">${currentIndex+1} / ${news.length}</div>
+  `;
+  container.appendChild(card);
+
+  document.getElementById('carousel-arrow-right').style.visibility = currentIndex > 0 ? 'visible' : 'hidden';
+  document.getElementById('carousel-arrow-left').style.visibility = currentIndex < news.length-1 ? 'visible' : 'hidden';
+
+  card.addEventListener('mouseenter', pauseAutoSlide);
+  card.addEventListener('mouseleave', resumeAutoSlide);
+
+  // إزالة كلاس الحركة بعد انتهاء الحركة
+  if (animateFlip) setTimeout(() => card.classList.remove('flip-news'), 600);
+  if (animateAuto) setTimeout(() => card.classList.remove('auto-slide'), 600);
+
+  if(startAuto) startAutoSlide();
+}
+
+function clearAutoSlide() {
+  if (autoSlideInterval) {
+    clearInterval(autoSlideInterval);
+    autoSlideInterval = null;
   }
+}
 
-  function resumeAutoSlide() {
-    isPaused = false;
-  }
-
-  document.getElementById('carousel-arrow-right').onclick = ()=>{
-    currentIndex--;
-    renderCarousel();
-  };
-  document.getElementById('carousel-arrow-left').onclick  = ()=>{
-    currentIndex++;
-    renderCarousel();
-  };
-
-  Array.from(document.querySelectorAll('.news-tab')).forEach(tab=>{
-    tab.onclick = ()=>{
-      Array.from(document.querySelectorAll('.news-tab')).forEach(t=>t.classList.remove('active'));
-      tab.classList.add('active');
-      currentSection = carouselSections.find(sec=>sec.key===tab.getAttribute('data-key'));
-      currentIndex=0;
-      renderCarouselTitle();
-      renderCarousel();
-    };
-  });
-
-  document.getElementById('news-date-from').addEventListener('change', e=>{
-    currentFromDate = e.target.value;
-    currentIndex = 0;
-    renderCarousel();
-  });
-  document.getElementById('news-date-to').addEventListener('change', e=>{
-    currentToDate = e.target.value;
-    currentIndex = 0;
-    renderCarousel();
-  });
-  document.getElementById('clear-news-filter').addEventListener('click', ()=>{
-    currentFromDate = "";
-    currentToDate = "";
-    document.getElementById('news-date-from').value = "";
-    document.getElementById('news-date-to').value = "";
-    currentIndex = 0;
-    renderCarousel();
-  });
-
-  // سحب للموبايل
-  let startX = null, dragging = false;
-  const carouselContainerEl = document.getElementById('carousel-container');
-  carouselContainerEl.addEventListener('touchstart', e=>{
-    startX = e.touches[0].clientX; dragging = true;
-  });
-  carouselContainerEl.addEventListener('touchmove', e=>{
-    if(!dragging) return;
-    const dx = e.touches[0].clientX - startX;
-    const news = getCurrentNewsList();
-    if(Math.abs(dx) > 50){
-      if(dx < 0 && currentIndex < news.length-1){ currentIndex++; renderCarousel(); dragging=false; }
-      else if(dx > 0 && currentIndex > 0){ currentIndex--; renderCarousel(); dragging=false; }
+function startAutoSlide() {
+  clearAutoSlide();
+  const news = getCurrentNewsList();
+  if (news.length <= 1) return;
+  autoSlideInterval = setInterval(function() {
+    if (!isPaused) {
+      currentIndex = (currentIndex + 1) % news.length;
+      renderCarousel(false, false, true); // حركة slide تلقائية فقط
     }
-  });
-  carouselContainerEl.addEventListener('touchend', ()=> dragging=false );
+  }, 5000);
+}
 
-  renderCarouselTitle();
-  renderCarousel();
-</script>
+function pauseAutoSlide() { isPaused = true; }
+function resumeAutoSlide() { isPaused = false; }
+
+// الحركة اليدوية والأسهم فقط فيها flip
+document.getElementById('carousel-arrow-right').onclick = ()=>{
+  currentIndex--;
+  renderCarousel(true, true, false);
+};
+document.getElementById('carousel-arrow-left').onclick  = ()=>{
+  currentIndex++;
+  renderCarousel(true, true, false);
+};
+
+Array.from(document.querySelectorAll('.news-tab')).forEach(tab=>{
+  tab.onclick = ()=>{
+    Array.from(document.querySelectorAll('.news-tab')).forEach(t=>t.classList.remove('active'));
+    tab.classList.add('active');
+    currentSection = carouselSections.find(sec=>sec.key===tab.getAttribute('data-key'));
+    currentIndex=0;
+    renderCarouselTitle();
+    renderCarousel(true, true, false);
+  };
+});
+
+document.getElementById('news-date-from').addEventListener('change', e=>{
+  currentFromDate = e.target.value;
+  currentIndex = 0;
+  renderCarousel(true, true, false);
+});
+document.getElementById('news-date-to').addEventListener('change', e=>{
+  currentToDate = e.target.value;
+  currentIndex = 0;
+  renderCarousel(true, true, false);
+});
+document.getElementById('clear-news-filter').addEventListener('click', ()=>{
+  currentFromDate = "";
+  currentToDate = "";
+  document.getElementById('news-date-from').value = "";
+  document.getElementById('news-date-to').value = "";
+  currentIndex = 0;
+  renderCarousel(true, true, false);
+});
+
+// سحب للموبايل فيه flip أيضا
+let startX = null, dragging = false;
+const carouselContainerEl = document.getElementById('carousel-container');
+carouselContainerEl.addEventListener('touchstart', e=>{
+  startX = e.touches[0].clientX; dragging = true;
+});
+carouselContainerEl.addEventListener('touchmove', e=>{
+  if(!dragging) return;
+  const dx = e.touches[0].clientX - startX;
+  const news = getCurrentNewsList();
+  if(Math.abs(dx) > 50){
+    if(dx < 0 && currentIndex < news.length-1){ currentIndex++; renderCarousel(true, true, false); dragging=false; }
+    else if(dx > 0 && currentIndex > 0){ currentIndex--; renderCarousel(true, true, false); dragging=false; }
+  }
+});
+carouselContainerEl.addEventListener('touchend', ()=> dragging=false );
+
+renderCarouselTitle();
+renderCarousel();
+    </script>
 </body>
 </html>
