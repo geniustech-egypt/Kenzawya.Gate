@@ -1442,3 +1442,58 @@ mark {
   box-shadow: 0 8px 22px rgba(74,144,226,.25);
   transform: scale(1.08);
 }
+
+/* ايقونات التواصل السريعة على جانب الشاشة */
+.floating-contact-icons {
+  position: fixed;
+  top: 70%;
+  left: 3px;
+  transform: translateY(-50%);
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  transition: opacity 0.3s, visibility 0.3s;
+}
+
+.contact-icon-btn {
+  width: 54px;
+  height: 54px;
+  background: #fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.13);
+  color: #25d366; /* واتساب */
+  border: 2px solid #e3e8f3;
+  transition: background 0.3s, box-shadow 0.3s, transform 0.2s;
+  cursor: pointer;
+}
+.contact-icon-btn.email {
+  color: #1a75e8;
+}
+.contact-icon-btn:hover {
+  background: #f1f5fa;
+  box-shadow: 0 6px 24px rgba(0,0,0,0.18);
+  transform: scale(1.08);
+}
+.floating-contact-icons.hide {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+@media (max-width:600px) {
+  .floating-contact-icons {
+    position: fixed;
+    top: 45%;
+    left: 3px;
+    width: 44px;
+  }
+  .contact-icon-btn {
+    width: 44px;
+    height: 44px;
+    font-size: 1.4rem;
+  }
+}
