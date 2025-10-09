@@ -937,3 +937,14 @@ document.querySelectorAll('.show-more-btn').forEach(btn => {
         };
     });
 });
+
+// إخفاء أيقونات التواصل عند عمل Scroll
+const floatingContact = document.getElementById('floatingContactIcons');
+let lastScrollY = window.scrollY;
+window.addEventListener('scroll', function() {
+  if (window.scrollY > 60) {
+    floatingContact.classList.add('hide');
+  } else {
+    floatingContact.classList.remove('hide');
+  }
+});
