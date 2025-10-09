@@ -36,10 +36,10 @@ const videos = [
   // الفيديو الأول (LandScape1)
   {
     type: "cloudinary",
-    src: "https://res.cloudinary.com/drilxe8qd/video/upload/v1759840281/landS_iyfqg9.mp4",
+    src: "https://res.cloudinary.com/drilxe8qd/video/upload/v1760038444/landS_efqjjf.mp4",
     // الترويسة (Poster) مأخوذة من نفس الفيديو (فريم في الثانية 1) مع تحويلات جودة تلقائية
-    poster: "https://res.cloudinary.com/drilxe8qd/video/upload/so_1,q_auto,f_auto/v1759840281/landS_iyfqg9.jpg",
-    title: "أخر تطورات اللاند سكيب 28-9-2025"
+    poster: "https://res.cloudinary.com/drilxe8qd/video/upload/so_1,q_auto,f_auto/v1760038444/landS_efqjjf.jpg",
+    title: "أخر تطورات اللاند سكيب 8-10-2025"
   },
 
   // الفيديو الثاني (open-day)
@@ -48,6 +48,14 @@ const videos = [
     src: "https://res.cloudinary.com/drilxe8qd/video/upload/v1759510794/open-day_peiasf.mp4",
     poster: "https://res.cloudinary.com/drilxe8qd/video/upload/so_1,q_auto,f_auto/v1759510794/open-day_peiasf.jpg",
     title: "فعاليات Open Day 12-9-2025"
+  },
+
+  // الفيديو الثالث (Kaya Mall)
+  {
+    type: "cloudinary",
+    src: "https://res.cloudinary.com/drilxe8qd/video/upload/v1760038435/kaya_doe2yl.mp4",
+    poster: "https://res.cloudinary.com/drilxe8qd/video/upload/so_1,q_auto,f_auto/v1760038435/kaya_doe2yl.jpg",
+    title: "أخر التطورات في المول 25-9-2025"
   }
 ];
 
@@ -120,4 +128,3 @@ videos.forEach(video => {
 
   videoGallery.appendChild(card);
 });
-
