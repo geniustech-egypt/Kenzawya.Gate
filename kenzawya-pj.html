@@ -670,6 +670,14 @@ footer{
     text-align:center;
   }
 }
+.contact-btn.wa-group {
+  background: #128c7e;
+  color: #fff;
+  box-shadow: 0 3px 10px rgba(18,140,126,.25);
+}
+.contact-btn.wa-group:hover {
+  background: #0d6c5c;
+}
 </style>
 </head>
 <body data-page="projects">
@@ -729,7 +737,6 @@ footer{
     <div id="grid" class="projects-grid" aria-live="polite">
 
       <!-- مشروع 1 -->
-      <!-- مثال كامل لكل كارت مشروع مع نظام التقييم والتعليقات -->
 <article class="project-card" data-type="food">
   <div class="project-media">
     <img src="sweet.jpg" alt="حلويات Sweet Cravings" loading="lazy">
@@ -741,6 +748,7 @@ footer{
       <div class="contact-group">
         <a class="contact-btn phone" href="tel:01112396622"><i class="fa-solid fa-phone"></i><span class="num">01112396622</span></a>
         <a class="contact-btn wa" href="https://wa.me/201147459842" target="_blank" rel="noopener"><i class="fa-brands fa-whatsapp"></i><span class="lbl-ar">واتساب</span></a>
+        <a class="contact-btn wa-group" href="https://chat.whatsapp.com/CPTfpKJ8nLc89iQMaMbb2H?mode=ems_copy_c" target="_blank" rel="noopener"><i class="fa-brands fa-whatsapp"></i><span class="lbl-ar">جروب واتساب</span></a>
       </div>
       <div class="category-badge food"><i class="fa-solid fa-utensils"></i><span>مأكولات</span></div>
     </div>
@@ -782,6 +790,7 @@ footer{
       <div class="contact-group">
         <a class="contact-btn phone" href="tel:01123311988"><i class="fa-solid fa-phone"></i><span class="num">01123311988</span></a>
         <a class="contact-btn wa" href="https://wa.me/201123311988" target="_blank" rel="noopener"><i class="fa-brands fa-whatsapp"></i><span class="lbl-ar">واتساب</span></a>
+        <a class="contact-btn wa-group" href="https://chat.whatsapp.com/DyKAzoEPfW4GRdE4y2uyLm?mode=ac_t" target="_blank" rel="noopener"><i class="fa-brands fa-whatsapp"></i><span class="lbl-ar">جروب واتساب</span></a>
       </div>
       <div class="category-badge food"><i class="fa-solid fa-utensils"></i><span>مأكولات</span></div>
     </div>
@@ -822,6 +831,7 @@ footer{
       <div class="contact-group">
         <a class="contact-btn phone" href="tel:01008864140"><i class="fa-solid fa-phone"></i><span class="num">01008864140</span></a>
         <a class="contact-btn wa" href="https://wa.me/201008864140" target="_blank" rel="noopener"><i class="fa-brands fa-whatsapp"></i><span class="lbl-ar">واتساب</span></a>
+        <a class="contact-btn wa-group" href="https://chat.whatsapp.com/group1" target="_blank" rel="noopener"><i class="fa-brands fa-whatsapp"></i><span class="lbl-ar">جروب واتساب</span></a>
         <a class="contact-btn fb" href="https://www.facebook.com/profile.php?id=61566559271321" target="_blank" rel="noopener"><i class="fa-brands fa-facebook-f"></i><span class="lbl-ar">فيسبوك</span></a>
       </div>
       <div class="category-badge agri"><i class="fa-solid fa-seedling"></i><span>زراعة</span></div>
@@ -862,6 +872,7 @@ footer{
       <div class="contact-group">
         <a class="contact-btn phone" href="tel:01276273761"><i class="fa-solid fa-phone"></i><span class="num">01276273761</span></a>
         <a class="contact-btn wa" href="https://wa.me/201276273761" target="_blank" rel="noopener"><i class="fa-brands fa-whatsapp"></i><span class="lbl-ar">واتساب</span></a>
+        <a class="contact-btn wa-group" href="https://chat.whatsapp.com/Hh91wEXgVFY1NWnvmntZYp?mode=ems_copy_t" target="_blank" rel="noopener"><i class="fa-brands fa-whatsapp"></i><span class="lbl-ar">جروب واتساب</span></a>
       </div>
       <div class="category-badge home"><i class="fa-solid fa-house-chimney"></i><span>منزلية</span></div>
     </div>
@@ -905,6 +916,7 @@ footer{
       <div class="contact-group">
         <a class="contact-btn phone" href="tel:01040495927"><i class="fa-solid fa-phone"></i><span class="num">01040495927</span></a>
         <a class="contact-btn wa" href="https://wa.me/201040495927" target="_blank" rel="noopener"><i class="fa-brands fa-whatsapp"></i><span class="lbl-ar">واتساب</span></a>
+        <a class="contact-btn wa-group" href="https://chat.whatsapp.com/CsJmB5fo6jr4xZaRukKbjt" target="_blank" rel="noopener"><i class="fa-brands fa-whatsapp"></i><span class="lbl-ar">جروب واتساب</span></a>
         <a class="contact-btn fb" href="https://www.facebook.com/profile.php?id=61563132000096" target="_blank" rel="noopener"><i class="fa-brands fa-facebook-f"></i><span class="lbl-ar">فيسبوك</span></a>
       </div>
       <div class="category-badge kids"><i class="fa-solid fa-children"></i><span>ترفيه أطفال</span></div>
@@ -981,8 +993,8 @@ footer{
           </div>
 
           <div class="sf-field">
-            <label for="fContact">تواصل إضافي (اختياري)</label>
-            <input id="fContact" placeholder="بريد أو رقم احتياطي">
+            <label for="fWAGroup">رابط جروب واتساب (اختياري)</label>
+            <input id="fWAGroup" placeholder="https://chat.whatsapp.com/yourgroupid">
           </div>
 
           <div class="sf-field" style="grid-column:1/-1;">
@@ -1021,8 +1033,8 @@ footer{
 })();
 
 /* بيانات أساسية */
-const adminNumber='201001790590';
-const adminEmail ='compoundkenz@gmail.com';
+const adminNumber = '201001790590';
+const adminEmail  = 'compoundkenz@gmail.com';
 
 const searchInput = document.getElementById('searchInput');
 const filters     = document.getElementById('filters');
@@ -1035,8 +1047,8 @@ const fType    = document.getElementById('fType');
 const fPhone   = document.getElementById('fPhone');
 const fWA      = document.getElementById('fWA');
 const fFB      = document.getElementById('fFB');
+const fWAGroup = document.getElementById('fWAGroup');
 const fDesc    = document.getElementById('fDesc');
-const fContact = document.getElementById('fContact');
 const preview  = document.getElementById('preview');
 
 const btnWA    = document.getElementById('btnWhatsApp');
@@ -1051,16 +1063,16 @@ const cards = () => Array.from(grid.querySelectorAll('.project-card'));
 /* خريطة التصنيفات */
 function labelForType(t){
   return ({
-    food:'مأكولات',
-    agri:'زراعة',
-    medical:'طبية',
-    clothes:'ملابس',
-    shoes_bags:'أحذية وشنط',
-    sports:'رياضية',
-    home:'منزلية',
-    handmade:'أكسسوار',
-    kids:'ترفيه أطفال',
-    other:'أخرى'
+    food: 'مأكولات',
+    agri: 'زراعة',
+    medical: 'طبية',
+    clothes: 'ملابس',
+    shoes_bags: 'أحذية وشنط',
+    sports: 'رياضية',
+    home: 'منزلية',
+    handmade: 'أكسسوار',
+    kids: 'ترفيه أطفال',
+    other: 'أخرى'
   })[t] || 'أخرى';
 }
 
@@ -1083,8 +1095,8 @@ function buildMessage(){
   const phone   = fPhone.value.trim();
   const waInput = fWA.value.trim();
   const fbLink  = fFB.value.trim();
+  const waGroup = fWAGroup.value.trim();
   const desc    = fDesc.value.trim();
-  const contact = fContact.value.trim();
 
   const errors = [];
   if(!name)  errors.push('اسم المشروع');
@@ -1111,7 +1123,7 @@ function buildMessage(){
     'رقم التليفون: ' + phone,
     waInput ? ('رقم واتساب: ' + waInput + (waIntl ? ' (دولي: ' + waIntl + ')' : '')) : null,
     fbLink  ? ('رابط فيسبوك: ' + fbLink) : null,
-    contact ? ('تواصل إضافي: ' + contact) : null,
+    waGroup ? ('رابط جروب واتساب: ' + waGroup) : null,
     SEP,
     'أقر أن البيانات صحيحة ومناسبة للنشر.'
   ].filter(Boolean);
@@ -1127,7 +1139,7 @@ function updatePreview(){
 
 /* مستمعو التغيير */
 ['input','change','keyup'].forEach(ev=>{
-  [fName,fType,fPhone,fWA,fFB,fDesc,fContact].forEach(el=> el.addEventListener(ev, updatePreview));
+  [fName,fType,fPhone,fWA,fFB,fWAGroup,fDesc].forEach(el=> el.addEventListener(ev, updatePreview));
 });
 updatePreview();
 
