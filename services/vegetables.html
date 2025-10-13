@@ -119,6 +119,34 @@
             padding: 2px 7px;
             margin-left: 5px;
         }
+                /* شارة عدد الكروت */
+.count-badge{
+  background:linear-gradient(145deg,#ff9800,#ffb74d);
+  color:#fff;
+  font-weight:700;
+  font-size:0.78rem;
+  padding:6px 12px 7px;
+  border-radius:30px;
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  margin-right:10px;
+  box-shadow:0 3px 10px rgba(0,0,0,.18);
+  position:relative;
+}
+.count-badge:before{
+  content:"#";
+  font-size:.75rem;
+  opacity:.85;
+}
+@media (max-width:600px){
+  .count-badge{
+    margin-top:8px;
+    font-size:0.72rem;
+    padding:5px 10px 6px;
+  }
+}
+
         @media (max-width:600px) {
             .services-list {
                 grid-template-columns: 1fr;
@@ -156,14 +184,6 @@
             font-size:0.95em;
         }
         .service-phone a:hover { text-decoration:underline; }
-
-        /* استبدال السلاش النصي */
-        .service-phone a:not(:last-of-type)::after {
-            content:" /";
-            margin:0 2px;
-            color:#555;
-            font-weight:400;
-        }
 
         .service-phone .label {
             background:#4a90e2;
@@ -440,5 +460,20 @@
 <footer dir="rtl">
   <p>Copyright © 2024 GENIUS Tech All Rights Reserved</p>
 </footer>
+    <script>
+    // شارة عدد الكروت
+    document.addEventListener('DOMContentLoaded', function(){
+        const h2 = document.querySelector('.section-card h2');
+        const list = document.querySelector('.services-list');
+        if(h2 && list){
+            const count = list.querySelectorAll('.service-card').length;
+            const badge = document.createElement('span');
+            badge.className = 'count-badge';
+            badge.textContent = 'العدد الحالي: ' + count;
+            h2.appendChild(badge);
+        }
+    });
+    </script>
+
 </body>
 </html>
