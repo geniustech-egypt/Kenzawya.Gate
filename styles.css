@@ -1497,3 +1497,27 @@ mark {
     font-size: 1.4rem;
   }
 }
+.project-note {
+  margin: 18px 0 12px;
+  padding: 14px 18px;
+  background: linear-gradient(90deg, #fffbe7 75%, #ffe0b2 100%);
+  border: 1.5px solid #ffc107;
+  border-radius: 12px;
+  color: #bc7300;
+  font-size: 1em;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 2px 14px rgba(255,193,7,.10);
+}
+.project-note i {
+  font-size: 1.5em;
+  color: #ffa000;
+}
+.project-note strong {
+  color: #d35400;
+  font-weight: 900;
+}
+
+
