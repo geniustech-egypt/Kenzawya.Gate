@@ -40,14 +40,12 @@ a:hover {
 
 /* Header */
 .header {
+    background-color: var(--primary-color);
     color: #fff;
     padding: 20px;
     text-align: center;
     box-shadow: 0 4px 6px var(--shadow);
-    background: url('photo/KC.jpg') center center/contain no-repeat, #f3f4f5;
-
 }
-
 
 .logo h1 {
     color: #fff;
