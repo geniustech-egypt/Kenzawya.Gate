@@ -1,0 +1,14 @@
+{
+  "name": "visitor-stats",
+  "version": "1.0.0",
+  "description": "Simple visitor stats (active / last7 / last30) using SQLite",
+  "main": "server/visitors-sqlite.js",
+  "scripts": {
+    "start": "node server/visitors-sqlite.js"
+  },
+  "dependencies": {
+    "cookie-parser": "^1.4.6",
+    "express": "^4.18.2",
+    "sqlite3": "^5.1.6"
+  }
+}

@@ -1,0 +1,37 @@
+#visitor-stats-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  z-index: 9999;
+  background: #0f172a;
+  color: #fff;
+  font-family: system-ui, Arial, sans-serif;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  box-shadow: 0 -2px 6px rgba(0,0,0,0.15);
+}
+#visitor-stats-bar .container{
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 16px;
+  box-sizing: border-box;
+  width: 100%;
+}
+#visitor-stats-bar .stat{
+  flex: 1;
+  text-align: center;
+}
+#visitor-stats-bar .label{
+  font-size: 12px;
+  opacity: 0.85;
+}
+#visitor-stats-bar .value{
+  font-size: 18px;
+  font-weight: 700;
+  margin-top: 6px;
+}
+@media (max-width:800px){
+  #visitor-stats-bar .container{ flex-direction: column; gap:8px; align-items:center; }
+  #visitor-stats-bar .stat{ width:100%;}
+}
