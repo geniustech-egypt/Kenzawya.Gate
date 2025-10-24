@@ -38,16 +38,162 @@ body{
   color:#1d3342;
 }
 
-/* الهيدر */
+body[data-page="projects"] .header {
+  /* ضع اسم الملف الصحيح مع الامتداد والمسار إن كان في مجلد فرعي */
+  background: url('KP9999.jpg') center center / contain no-repeat !important;
+  background-color: white !important; /* إذا تريد شفافية بدل اللون الأبيض */
+}
+
+/* على الشاشات الصغيرة نستخدم cover ليملأ المساحة أفضل (اختياري) */
+@media (max-width: 640px) {
+  body[data-page="projects"] .header {
+    background-size: cover !important;
+    background-position: center bottom !important;
+  }
+}
+
+/* إذا استخدمت background-size: contain قد تحتاج لرفع ارتفاع الهيدر لظهور الصورة كاملة */
+@media (min-width: 760px) {
+  body[data-page="projects"] .header {
+    min-height: 220px; /* عدّل حسب نسبة صورة KP9999 */
+  }
+}
+/* اجعل النص شفاف تمامًا (مخفي) */
+body[data-page="projects"] .logo h1,
+body[data-page="projects"] .logo p {
+  color: transparent !important;
+  -webkit-text-fill-color: transparent !important;
+  text-shadow: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+/* إزالة أي خلفية / ظل / blur خلف h1 و p داخل الهيدر لصفحة المشاريع */
+body[data-page="projects"] .logo p {
+  box-shadow: none !important;              /* يزيل الظل */
+  border: none !important;
+  backdrop-filter: none !important;          /* يلغي blur لو كان مستخدماً */
+}
+
+
+
+/* ===== HEADER with full-image background (KP9999.jpg) ===== */
 .header{
   position:fixed; top:0; right:0; left:0; z-index:1000;
-  background:#4a90e2;
-  box-shadow:0 2px 8px rgba(0,0,0,.08);
   padding:14px 0 10px;
+  box-shadow:0 2px 8px rgba(0,0,0,.08);
+  overflow:hidden; /* hide any overflow from the background element */
+  /* fallback color while image loads */
+  background-color:#123042;
 }
+
+/* background layer that holds the image and keeps it fully visible */
+.header-bg{
+  position:absolute;
+  inset:0;
+  z-index:0;
+  background-image: url('KP999.jpg') !important; 
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: contain;
+  filter: saturate(.98) contrast(.95);
+}
+
+/* subtle overlay so header text/icons remain readable over the image */
+.header-overlay{
+  position:absolute;
+  inset:0;
+  z-index:1;
+  pointer-events:none;
+  /* a gentle gradient to maintain contrast across different parts of the image */
+  background: linear-gradient(90deg, rgba(10,20,30,0.45), rgba(74,144,226,0.18));
+  mix-blend-mode: normal;
+}
+
+/* ensure header content appears above background layers */
+.header > *{ position:relative; z-index:2; }
+
+/* logo */
 .logo{padding:0 26px;}
 .logo h1{margin:0;font-size:2rem;color:#f9fdff;font-weight:700;line-height:1.05;}
 .logo p{margin:4px 0 0;color:#e8f5ff;font-size:1rem;font-weight:500;}
+
+/* privacy button styling (left in header) */
+.privacy-footer {
+  background: transparent;
+  color: #0b66b3;
+  padding: 6px 8px;
+  border-radius: 8px;
+  box-shadow: none;
+  font-weight:700;
+  text-decoration: none;
+}
+@media (max-width:640px){
+  .privacy-btn{ padding:6px 10px; font-size:.95rem; }
+}
+
+/* modal and remaining styles unchanged... */
+.policy-modal{
+  position:fixed;
+  inset:0;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  background:rgba(7,11,15,0.55);
+  z-index:12000;
+  padding:24px;
+}
+.policy-modal.open{ display:flex; }
+.policy-panel{
+  width: min(1000px, 96vw);
+  max-height: 88vh;
+  background: #fff;
+  border-radius:12px;
+  overflow:auto;
+  box-shadow:0 20px 60px rgba(0,0,0,0.45);
+  position:relative;
+  border:1px solid rgba(10,60,100,0.06);
+  direction: rtl;
+}
+.policy-panel .panel-header{
+  display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid #eef6ff;background:linear-gradient(90deg,#f8fbff,#fff);
+}
+.policy-panel .panel-header h3{margin:0;color:#0b66b3;font-size:1.05rem;}
+.policy-panel .panel-body{
+  padding:18px;
+  height: calc(88vh - 74px); /* header height + padding */
+  overflow:auto;
+  background:#fbfeff;
+}
+.policy-close{
+  background:transparent;
+  border:0;
+  font-size:20px;
+  color:#23475f;
+  cursor:pointer;
+  padding:6px 8px;
+  border-radius:8px;
+}
+.policy-close:hover{ background:#f1f8ff; transform:translateY(-1px); }
+
+/* spinner while loading */
+.policy-spinner{
+  display:inline-block;
+  width:22px;
+  height:22px;
+  border:3px solid rgba(11,102,179,0.15);
+  border-top-color:#0b66b3;
+  border-radius:50%;
+  animation:spin .9s linear infinite;
+  vertical-align:middle;
+}
+@keyframes spin{ to{transform:rotate(360deg);} }
+
+/* responsive tweaks */
+@media (max-width:520px){
+  .privacy-icon-btn{ width:40px; height:40px; }
+  .policy-panel{ width: 100vw; height: 100vh; border-radius:0; max-height:100vh; }
+  .policy-panel .panel-body{ height: calc(100vh - 64px); }
+}
 
 /* المحتوى */
 .main-content{
@@ -339,6 +485,11 @@ p.page-intro{
 
 /* ديسكتوب: ترتيب شارة + اتصالات */
 @media (min-width:760px){
+  :root{ --header-height:60px; }
+  .header{
+    padding:26px 0 20px;
+    min-height:160px;
+  }
   .meta-row{
     flex-direction:row;
     justify-content:space-between;
@@ -359,8 +510,6 @@ p.page-intro{
   :root{--header-height:84px;}
 
   .logo{padding:0 18px;}
-  .logo h1{font-size:1.55rem;}
-  .logo p{font-size:.85rem;margin-top:2px;}
   .section-card{padding:22px 18px 30px;}
   h2.page-title{font-size:1.45rem;}
   p.page-intro{font-size:.9rem;margin-bottom:18px;}
@@ -518,7 +667,7 @@ p.page-intro{
   grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
   gap:18px 26px;
 }
-.sf-field{display:flex;flex-direction:column;gap:6px;}
+.sf-field{Display:flex;flex-direction:column;gap:6px;}
 .sf-field label{
   font-size:.63rem;
   font-weight:700;
@@ -683,12 +832,17 @@ footer{
 <body data-page="projects">
 
 <header class="header" id="siteHeader">
+  <!-- background layer (KP9999.jpg) -->
+  <div class="header-bg" aria-hidden="true"></div>
+  <!-- overlay to help text contrast -->
+  <div class="header-overlay" aria-hidden="true"></div>
+
   <div class="logo">
     <h1>بوابة الكنزاوية</h1>
     <p>دليل المشروعات</p>
   </div>
-    <div style="width:100%;display:flex;justify-content:flex-start;align-items:center;padding-right:35px;margin-top:2px;">
-        <a href="index.html" class="icon-btn" data-tooltip="العودة للصفحة الرئيسية" style="background:rgba(255,255,255,0.2);color:#fff;font-size:2rem;margin-right:10px;">
+    <div style="width:100%;display:flex;justify-content:flex-start;align-items:center;padding-right:5px;margin-top:2px;">
+        <a href="index.html" class="icon-btn" data-tooltip="العودة للرئيسية" style="background:rgba(68, 60, 60, 0);color:#e30404;font-size:2rem;margin-right:5px;">
             <i class="fas fa-home"></i>
         </a>
     </div>
@@ -741,7 +895,7 @@ footer{
   <div class="project-media">
     <img src="sweet.jpg" alt="حلويات Sweet Cravings" loading="lazy">
   </div>
-  <div class="project-body">
+  <div class="project-body">    
     <h3>Sweet Cravings</h3>
     <p>حلويات منزلية طازجة يوميًا (دونات، تشيز كيك، سينابون، مولتن كيك، كيك، وافل).</p>
     <div class="meta-row">
@@ -1308,8 +1462,29 @@ footer{
 </main>
 
 <footer dir="rtl">
-  <p>Copyright © 2024 GENIUS Tech All Rights Reserved</p>
+  <p style="margin:0;">Copyright © 2024 GENIUS Tech All Rights Reserved</p>
+  <!-- subtle privacy link in footer -->
+  <a href="#" id="openPrivacyFooter" class="privacy-footer" style="margin-left:10px; color:red;">سياسة الخصوصية</a>
 </footer>
+
+<!-- Modal to show privacy content -->
+<div id="policyModal" class="policy-modal" role="dialog" aria-modal="true" aria-labelledby="policyTitle" tabindex="-1">
+  <div class="policy-panel" role="document">
+    <div class="panel-header">
+      <h3 id="policyTitle">سياسة الخصوصية</h3>
+      <div>
+        <span id="policyStatus" style="margin-inline-start:8px;color:#23475f;font-size:.95rem;"></span>
+        <button class="policy-close" id="closePolicy" aria-label="إغلاق نافذة سياسة الخصوصية">&times;</button>
+      </div>
+    </div>
+    <div class="panel-body" id="policyContent" tabindex="0">
+      <div style="padding:20px; text-align:center; color:#23475f;">
+        <span class="policy-spinner" aria-hidden="true"></span>
+        <div style="margin-top:10px; font-weight:700;">جاري تحميل سياسة الخصوصية...</div>
+      </div>
+    </div>
+  </div>
+</div>
 
 <script>
 /* ضبط ارتفاع الهيدر */
@@ -1321,6 +1496,7 @@ footer{
   }
   window.addEventListener('load', setHeaderHeight);
   window.addEventListener('resize', setHeaderHeight);
+  window.addEventListener('orientationchange', setHeaderHeight);
 })();
 
 /* بيانات أساسية */
@@ -1416,7 +1592,7 @@ function buildMessage(){
     fbLink  ? ('رابط فيسبوك: ' + fbLink) : null,
     waGroup ? ('رابط جروب واتساب: ' + waGroup) : null,
     SEP,
-    'أقر أن بياناتي الشخصية المذكورة صحيحة و أوافق علي نشرها علي موقع بوابة الكنزاوية بغرض عرض خدماتي مع علمي بحقي في تعديل أو حذف هذه البيانات في اي وقت.'
+    'أقر أن بياناتي الشخصية المذكورة صحيحة و اوافق علي نشرها علي موقع بوابة الكنزاوية بغرض عرض خدماتي مع علمي بحقي في تعديل أو حذف هذه البيانات في اي وقت.'
   ].filter(Boolean);
 
   return parts.join(NL);
@@ -1430,7 +1606,9 @@ function updatePreview(){
 
 /* مستمعو التغيير */
 ['input','change','keyup'].forEach(ev=>{
-  [fName,fType,fPhone,fWA,fFB,fWAGroup,fDesc].forEach(el=> el.addEventListener(ev, updatePreview));
+  [fName,fType,fPhone,fWA,fFB,fWAGroup,fDesc].forEach(el=>{
+    if(el) el.addEventListener(ev, updatePreview);
+  });
 });
 updatePreview();
 
@@ -1454,8 +1632,8 @@ function applySearchAndFilter(){
   });
   emptyState.style.display = shown === 0 ? 'block' : 'none';
 }
-searchInput.addEventListener('input', applySearchAndFilter);
-filters.addEventListener('click', e=>{
+if(searchInput) searchInput.addEventListener('input', applySearchAndFilter);
+if(filters) filters.addEventListener('click', e=>{
   const btn = e.target.closest('.filter-btn');
   if(!btn) return;
   filters.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
@@ -1465,64 +1643,171 @@ filters.addEventListener('click', e=>{
 applySearchAndFilter();
 
 /* إظهار/إخفاء النموذج */
-toggleFormBtn.addEventListener('click', ()=>{
-  const isHidden = formSection.hasAttribute('hidden');
-  if(isHidden){
-    formSection.removeAttribute('hidden');
-    const fullHeight = formSection.scrollHeight + 'px';
-    formSection.style.height='0px';
-    formSection.style.opacity='0';
-    requestAnimationFrame(()=>{
-      formSection.style.height=fullHeight;
-      formSection.style.opacity='1';
-    });
-    setTimeout(()=>{ formSection.style.height=''; }, 500);
-    toggleFormBtn.innerHTML='<i class="fa-solid fa-xmark"></i> إخفاء النموذج';
-    toggleFormBtn.setAttribute('aria-expanded','true');
-    formSection.scrollIntoView({behavior:'smooth',block:'start'});
-  }else{
-    const currentHeight = formSection.scrollHeight + 'px';
-    formSection.style.height=currentHeight;
-    requestAnimationFrame(()=>{
+if(toggleFormBtn && formSection){
+  toggleFormBtn.addEventListener('click', ()=>{
+    const isHidden = formSection.hasAttribute('hidden');
+    if(isHidden){
+      formSection.removeAttribute('hidden');
+      const fullHeight = formSection.scrollHeight + 'px';
       formSection.style.height='0px';
       formSection.style.opacity='0';
-    });
-    toggleFormBtn.innerHTML='<i class="fa-solid fa-paper-plane"></i> طلب إضافة مشروع';
-    toggleFormBtn.setAttribute('aria-expanded','false');
-    setTimeout(()=>{
-      formSection.setAttribute('hidden','');
-      formSection.style.height='';
-      formSection.style.opacity='';
-    },480);
-  }
-});
+      requestAnimationFrame(()=>{
+        formSection.style.height=fullHeight;
+        formSection.style.opacity='1';
+      });
+      setTimeout(()=>{ formSection.style.height=''; }, 500);
+      toggleFormBtn.innerHTML='<i class="fa-solid fa-xmark"></i> إخفاء النموذج';
+      toggleFormBtn.setAttribute('aria-expanded','true');
+      formSection.scrollIntoView({behavior:'smooth',block:'start'});
+    }else{
+      const currentHeight = formSection.scrollHeight + 'px';
+      formSection.style.height=currentHeight;
+      requestAnimationFrame(()=>{
+        formSection.style.height='0px';
+        formSection.style.opacity='0';
+      });
+      toggleFormBtn.innerHTML='<i class="fa-solid fa-paper-plane"></i> طلب إضافة مشروع';
+      toggleFormBtn.setAttribute('aria-expanded','false');
+      setTimeout(()=>{
+        formSection.setAttribute('hidden','');
+        formSection.style.height='';
+        formSection.style.opacity='';
+      },480);
+    }
+  });
+}
 
 /* إرسال واتساب للأدمن */
-btnWA.addEventListener('click', ()=>{
-  const msg = buildMessage();
-  if(!msg){ alert('أكمل الحقول المطلوبة.'); return; }
-  const url='https://wa.me/'+adminNumber+'?text='+encodeURIComponent(msg);
-  window.open(url,'_blank');
-});
+if(btnWA){
+  btnWA.addEventListener('click', ()=>{
+    const msg = buildMessage();
+    if(!msg){ alert('أكمل الحقول المطلوبة.'); return; }
+    const url='https://wa.me/'+adminNumber+'?text='+encodeURIComponent(msg);
+    window.open(url,'_blank');
+  });
+}
 
 /* إعداد البريد */
-btnEmail.addEventListener('click', ()=>{
-  const msg = buildMessage();
-  if(!msg){ alert('أكمل الحقول المطلوبة.'); return; }
-  btnEmail.href = 'mailto:'+adminEmail+
-    '?subject='+encodeURIComponent('طلب إضافة مشروع جديد')+
-    '&body='+encodeURIComponent(msg);
-});
+if(btnEmail){
+  btnEmail.addEventListener('click', ()=>{
+    const msg = buildMessage();
+    if(!msg){ alert('أكمل الحقول المطلوبة.'); return; }
+    btnEmail.href = 'mailto:'+adminEmail+
+      '?subject='+encodeURIComponent('طلب إضافة مشروع جديد')+
+      '&body='+encodeURIComponent(msg);
+  });
+}
 
 /* نسخ النص */
-btnCopy.addEventListener('click', ()=>{
-  const msg = buildMessage();
-  if(!msg){ alert('أكمل الحقول المطلوبة.'); return; }
-  navigator.clipboard.writeText(msg).then(()=>{
-    btnCopy.textContent='تم النسخ ✓';
-    setTimeout(()=> btnCopy.innerHTML='<i class="fa-solid fa-copy"></i> نسخ النص',1600);
+if(btnCopy){
+  btnCopy.addEventListener('click', ()=>{
+    const msg = buildMessage();
+    if(!msg){ alert('أكمل الحقول المطلوبة.'); return; }
+    navigator.clipboard.writeText(msg).then(()=>{
+      btnCopy.textContent='تم النسخ ✓';
+      setTimeout(()=> btnCopy.innerHTML='<i class="fa-solid fa-copy"></i> نسخ النص',1600);
+    });
   });
-});
+}
+
+/* ================= Privacy modal logic (responsive, accessible) ================= */
+(function(){
+  const openBtn = document.getElementById('openPrivacy');
+  const openFooter = document.getElementById('openPrivacyFooter');
+  const modal = document.getElementById('policyModal');
+  const content = document.getElementById('policyContent');
+  const closeBtn = document.getElementById('closePolicy');
+  const status = document.getElementById('policyStatus');
+  let lastFocused = null;
+  let cachedPolicy = null;
+
+  function openModal(){
+    lastFocused = document.activeElement;
+    modal.classList.add('open');
+    // prevent background scroll on mobile
+    document.documentElement.style.overflow = 'hidden';
+    status.textContent = '';
+    content.innerHTML = '<div style="padding:20px;text-align:center;color:#23475f;"><span class="policy-spinner" aria-hidden="true"></span><div style="margin-top:10px;font-weight:700;">جاري تحميل سياسة الخصوصية...</div></div>';
+    // if cached, use it
+    if(cachedPolicy){
+      renderPolicy(cachedPolicy);
+      return;
+    }
+    // fetch the privacy page
+    fetch('privacy-policy.html', { credentials:'same-origin' })
+    .then(r => {
+      if(!r.ok) throw new Error('Network response not OK');
+      return r.text();
+    })
+    .then(html => {
+      cachedPolicy = html;
+      renderPolicy(html);
+    })
+    .catch(err=>{
+      content.innerHTML = '<div style="padding:20px;color:#7a4a4a;text-align:center;">حدث خطأ أثناء تحميل الصفحة. يمكنك فتحها في نافذة جديدة <a href="privacy-policy.html" target="_blank" rel="noopener">فتح سياسة الخصوصية</a>.</div>';
+      status.textContent = '';
+      console.error(err);
+    });
+    // focus management
+    setTimeout(()=> { content.focus(); }, 300);
+  }
+
+  function renderPolicy(html){
+    // create a temp container to pick the relevant policy article
+    const tmp = document.createElement('div');
+    tmp.innerHTML = html;
+    let policyNode = tmp.querySelector('#policyAr') || tmp.querySelector('#policyEn') || tmp.querySelector('.container') || tmp.querySelector('article') || tmp;
+    // remove scripts
+    policyNode.querySelectorAll('script').forEach(s=>s.remove());
+    // ensure external links open new tab
+    policyNode.querySelectorAll('a').forEach(a=>{
+      const href = a.getAttribute('href') || '';
+      if(href.startsWith('#')) return;
+      a.setAttribute('target','_blank');
+      a.setAttribute('rel','noopener noreferrer');
+    });
+    // clear and insert
+    content.innerHTML = '';
+    // clone into current document
+    const cloned = policyNode.cloneNode(true);
+    content.appendChild(cloned);
+    
+    // small footer status
+    const now = new Date();
+    status.textContent = 'آخر تحديث: ' + now.getFullYear();
+    // focus first focusable element inside content
+    const focusable = content.querySelectorAll('a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])');
+    if(focusable.length) focusable[0].focus();
+  }
+
+  function closeModal(){
+    modal.classList.remove('open');
+    document.documentElement.style.overflow = '';
+    if(lastFocused && lastFocused.focus) lastFocused.focus();
+  }
+
+  if(openBtn) openBtn.addEventListener('click', openModal);
+  if(openFooter) openFooter.addEventListener('click', function(e){ e.preventDefault(); openModal(); });
+  if(closeBtn) closeBtn.addEventListener('click', closeModal);
+
+  // close when clicking outside panel
+  modal.addEventListener('click', function(e){
+    if(e.target === modal) closeModal();
+  });
+
+  // keyboard support and basic focus trap
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape' && modal.classList.contains('open')) closeModal();
+    if(e.key === 'Tab' && modal.classList.contains('open')){
+      const focusable = modal.querySelectorAll('a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])');
+      if(focusable.length === 0){ e.preventDefault(); return; }
+      const first = focusable[0], last = focusable[focusable.length-1];
+      if(e.shiftKey && document.activeElement === first){ last.focus(); e.preventDefault(); }
+      else if(!e.shiftKey && document.activeElement === last){ first.focus(); e.preventDefault(); }
+    }
+  });
+})();
+
 </script>
 <script type="module" src="app.js"></script>
 <div id="images-popup" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.7); justify-content:center; align-items:center; z-index:9999;">
@@ -1530,7 +1815,40 @@ btnCopy.addEventListener('click', ()=>{
     <span id="close-popup" style="position:absolute; top:30px; right:40px; font-size:38px; color:#fff; cursor:pointer; z-index:10000;">×</span>
     <div id="popup-thumbs" style="display:flex; gap:18px; flex-wrap:wrap; justify-content:center; align-items:center; margin-top:80px;"></div>
 </div>
+<script>
+(function(){
+  const header = document.getElementById('siteHeader') || document.querySelector('.header');
+  if(!header) return;
+
+  // تحديث متغير CSS لارتفاع الهيدر (يستخدمه CSS/lay out إن لزم)
+  function setHeaderHeight(){
+    document.documentElement.style.setProperty('--header-height', header.offsetHeight + 'px');
+  }
+  window.addEventListener('load', setHeaderHeight);
+  window.addEventListener('resize', setHeaderHeight);
+  window.addEventListener('orientationchange', setHeaderHeight);
+
+  // السلوك: إضافة/إزالة كلاس .shrink عند التمرير (مثل index)
+  let lastScroll = 0;
+  const downThreshold = 80; // بعد هذه المسافة سيبدأ الانكماش
+  window.addEventListener('scroll', function(){
+    const sc = window.scrollY || document.documentElement.scrollTop;
+    if (sc > downThreshold && sc > lastScroll) {
+      header.classList.add('shrink');
+    } else if (sc <= downThreshold || sc < lastScroll) {
+      header.classList.remove('shrink');
+    }
+    lastScroll = sc <= 0 ? 0 : sc; // for Mobile bounce
+  }, {passive:true});
+
+  // إذا كان هناك صور داخل الهيدر، حدِّث الارتفاع بعد تحميلها
+  Array.from(header.querySelectorAll('img')).forEach(img=>{
+    if(!img.complete) img.addEventListener('load', setHeaderHeight);
+  });
+
+  // اضبط الارتفاع فوراً
+  setHeaderHeight();
+})();
+</script>
 </body>
 </html>
-
-
