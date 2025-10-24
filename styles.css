@@ -39,18 +39,87 @@ a:hover {
 }
 
 /* Header */
+/* اجعل الصورة خلفية واحدة فقط */
 .header {
-    background-color: var(--primary-color);
-    color: #fff;
-    padding: 20px;
-    text-align: center;
-    box-shadow: 0 4px 6px var(--shadow);
+  position: sticky;
+  top: 0;
+  z-index: 1100;
+  padding: 20px;
+  text-align: center;
+  box-shadow: 0 4px 6px var(--shadow);
+  background: url('KC30.jpg') center bottom / cover no-repeat; /* الوضع الافتراضي للموبايل والتابلت */
+  background-color: #ffffff;
+  transition: padding .25s ease;
 }
 
+/* طبقة التدرّج كأوفرلاي فوق الصورة */
+.header::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0));
+  pointer-events: none;
+  z-index: 0;
+}
+.header > * { position: relative; z-index: 1; }
+
+/* شاشات لاب إلى متوسطة: كبّر الصورة قليلًا لتقليل الفراغات مع قص بسيط مقبول */
+@media (min-width: 992px) and (max-width: 1199px) {
+  .header {
+    /* كبّر العرض عن 100% لتقليل الفراغات */
+    background-size: 110% auto;
+    background-position: center 20%;
+    min-height: 80px; /* زوّد الارتفاع قليلاً لتقليل القص */
+  }
+}
+
+/* شاشات كبيرة: تحكم مرن في الحجم مع حد أدنى وأقصى + ارتفاع مرن لتقليل القص */
+@media (min-width: 1200px) {
+  .header {
+    /* كبّر عرض الخلفية بنِسب مرنة: */
+    /* - أقل شيء 1200px، المفضل 90vw، وأقصى 1800px */
+    background-size: clamp(1200px, 90vw, 1800px) auto;
+    background-position: center 20%;
+    min-height: clamp(20px, 38vh, 20px);
+  }
+  /* أثناء التصغير لا نجبر ارتفاع كبير */
+  .header.shrink {
+    min-height: auto;
+  }
+}
+
+/* حالة التصغير كما هي */
+.header.shrink { padding: 10px 16px; }
+
+/* كما هي */
+.header .logo h1 { transition: font-size .25s ease; }
+.header .logo p  { transition: font-size .25s ease, padding .25s ease; }
+.header .header-buttons { transition: margin-top .25s ease, gap .25s ease; }
+.header .icon-btn { transition: background-color .3s ease, width .25s ease, height .25s ease, font-size .25s ease; }
+
+/* الحالة المصغّرة */
+.header.shrink {
+  padding: 10px 16px;
+}
+.header.shrink .logo h1 { font-size: 1.5rem; }
+.header.shrink .logo p  { font-size: 0.9rem; padding: 4px 10px; }
+.header.shrink .header-buttons { margin-top: 10px; gap: 6px; }
+.header.shrink .icon-btn { width: 35px; height: 35px; font-size: 1.2rem; }
+
 .logo h1 {
-    color: #fff;
-    margin: 0;
-    font-size: 2rem;
+  color: #fff; 
+  display: inline-block;
+  padding: 6px 14px;
+  border-radius: 22px;
+  background: rgba(18, 18, 18, 0.25); /* نصف شفافة داكنة لتحسين التباين */
+  box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+  -webkit-backdrop-filter: blur(3px);
+}
+
+/* عند تصغير الهيدر قلّل الحشو قليلاً */
+.header.shrink .logo h1 {
+  padding: 4px 10px;
+  border-radius: 10px;
 }
 
 .logo p {
@@ -63,15 +132,15 @@ a:hover {
     display: flex;
     justify-content: center;
     flex-wrap: wrap;
-    gap: 15px;
+    gap: 7px;
     margin-top: 20px;
 }
 
 .icon-btn {
-    background-color: rgba(255, 255, 255, 0.2);
+    background-color: rgba(10, 0, 0, 0.345);
     border-radius: 50%;
-    width: 50px;
-    height: 50px;
+    width: 40px;
+    height: 40px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -89,7 +158,7 @@ a:hover {
 .icon-btn[data-tooltip]::after {
     content: attr(data-tooltip);
     position: absolute;
-    bottom: 125%;
+    bottom: 60%;
     left: 50%;
     transform: translateX(-50%);
     background-color: #333;
@@ -1193,6 +1262,14 @@ mark {
         height: 100%;
         max-height: 180px;
     }
+
+    /* تقليل تصغير الهيدر أكثر على الشاشات الصغيرة لسهولة النقر */
+    .header.shrink {
+        padding: 10px 12px;
+    }
+    .header.shrink .logo h1 { font-size: 1.35rem; }
+    .header.shrink .logo p  { font-size: 0.85rem; }
+    .header.shrink .icon-btn { width: 30px; height: 30px; font-size: 1.1rem; }
 }
 /* --- نهاية التعديل --- */
 
@@ -1518,4 +1595,55 @@ mark {
 .project-note strong {
   color: #d35400;
   font-weight: 900;
+}
+/* ===== شريط نصف شفاف تحت نص وصف الهيدر (.logo p) ===== */
+.logo {
+  position: relative;
+  z-index: 3;
+  margin: 0px 0 0;        /* تصغير المسافة فوق الفقرة لتصبح أقرب للـ h1 */
+  text-align: center;
+  display: flex;             /* جديد */
+  flex-direction: column;    /* جديد: عمودي */
+  align-items: center;       /* تمركز أفقي للعنصرين */
+  gap: 0px;                  /* مسافة بسيطة بين العنوان والجملة */
+}
+
+.logo p {
+  position: relative;       /* لتموضع الشريط بشكل صحيح */
+  z-index: 4;               /* أعلى من أي لون تغطية داخل الخلفية */
+  display: inline-block;    /* يسمح بالحشو ويجعل العرض حسب النص */
+  margin: 6px 0 0;
+  padding: 2px 20px;        /* عدّل الحشو لو عايز الشريط أعرض/أضيق */
+  border-radius: 10px;
+  background: #0d040436; /* خلفية نصف شفافة داكنة لتحسين وضوح النص */
+  color: #fff;
+  font-size: 1rem;
+  line-height: 1.25;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+  backdrop-filter: blur(4px);      /* طمس خلفي خفيف (اختياري، مدعوم جزئياً) */
+  -webkit-backdrop-filter: blur(4px);
+  white-space: nowrap; /* يمنع انقسام الجملة إذا اخترت هذا السلوك */
+}
+
+/* لو تحب الشريط فاتح بدل داكن (اختياري) */
+.logo p.light {
+  background: rgba(255,255,255,0.75);
+  color: #11446a; /* لون نص مناسب مع الخلفية الفاتحة */
+  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+}
+
+/* استجابة للموبايل: تقليل الحشو وحجم الخط */
+@media (max-width: 480px) {
+  .logo p {
+    padding: 5px 10px;
+    font-size: 1.1rem;
+    border-radius: 8px;
+    white-space: normal; /* يسمح باللف للسطرين إذا احتاج */
+  }
+}
+
+.logo p {
+    margin: 0px 0 0;        /* تصغير المسافة فوق الفقرة لتصبح أقرب للـ h1 */
+    font-size: 1.05rem;     /* زيادـة حجم النص قليلاً */
+    opacity: 0.9;           /* اختياري: زيادة وضوح النص */
 }
