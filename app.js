@@ -938,13 +938,44 @@ document.querySelectorAll('.show-more-btn').forEach(btn => {
     });
 });
 
-// إخفاء أيقونات التواصل عند عمل Scroll
+// إخفاء أيقونات التواصل عند عمل Scroll + تصغير/تكبير الهيدر بحسب اتجاه التمرير
+// إخفاء أيقونات التواصل عند عمل Scroll + تصغير/تكبير الهيدر بهسترة لتفادي الرعشة
 const floatingContact = document.getElementById('floatingContactIcons');
-let lastScrollY = window.scrollY;
-window.addEventListener('scroll', function() {
-  if (window.scrollY > 60) {
-    floatingContact.classList.add('hide');
-  } else {
-    floatingContact.classList.remove('hide');
+const headerEl = document.querySelector('.header');
+
+// عتبة الدخول للتصغير وعتبة الخروج (هسترة)
+const SHRINK_ENTER = 120; // ابدأ التصغير بعد 120px نزول
+const SHRINK_LEAVE = 60;  // أعد الحجم الطبيعي عند الرجوع لأعلى دون 60px
+
+let isShrunk = false;
+let ticking = false;
+
+function onScrollRaf() {
+  const y = window.scrollY || document.documentElement.scrollTop;
+
+  // أيقونات التواصل
+  if (floatingContact) {
+    if (y > 60) floatingContact.classList.add('hide');
+    else floatingContact.classList.remove('hide');
   }
-});
+
+  // منطق الهسترة للهيدر
+  if (headerEl) {
+    if (!isShrunk && y >= SHRINK_ENTER) {
+      headerEl.classList.add('shrink');
+      isShrunk = true;
+    } else if (isShrunk && y <= SHRINK_LEAVE) {
+      headerEl.classList.remove('shrink');
+      isShrunk = false;
+    }
+  }
+
+  ticking = false;
+}
+
+window.addEventListener('scroll', () => {
+  if (!ticking) {
+    requestAnimationFrame(onScrollRaf);
+    ticking = true;
+  }
+}, { passive: true });
