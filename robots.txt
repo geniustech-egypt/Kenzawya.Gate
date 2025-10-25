@@ -1,7 +1,6 @@
-
 # السماح لكل محركات البحث بالزحف على الموقع
 User-agent: *
 Allow: /
 
-# مكان ملف الـ sitemap
-Sitemap: https://kenzawyagate.vercel.app/sitemap.xml
+# مكان ملف الـ sitemap (استخدم عنوان GitHub Pages الجديد)
+Sitemap: https://geniustech-egypt.github.io/Kenzawya.Gate/sitemap.xml
