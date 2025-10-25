@@ -1,13 +1,36 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- ملف الـ sitemap يساعد محركات البحث على أرشفة الصفحات -->
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
 
   <!-- الصفحة الرئيسية -->
   <url>
-    <loc>https://kenzawyagate.vercel.app/</loc>
-    <lastmod>2025-08-17</lastmod>
+    <loc>https://geniustech-egypt.github.io/Kenzawya.Gate/</loc>
+    <lastmod>2025-10-25</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>1.0</priority>
+    <priority>1.00</priority>
   </url>
 
+  <url>
+    <loc>https://geniustech-egypt.github.io/Kenzawya.Gate/kenzawya-pj.html</loc>
+    <lastmod>2025-10-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.80</priority>
+  </url>
+
+  <url>
+    <loc>https://geniustech-egypt.github.io/Kenzawya.Gate/transport.html</loc>
+    <lastmod>2025-10-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.60</priority>
+  </url>
+
+  <url>
+    <loc>https://geniustech-egypt.github.io/Kenzawya.Gate/map.html</loc>
+    <lastmod>2025-10-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.60</priority>
+  </url>
+
+  <!-- أضف هنا روابط صفحات إضافية إن وُجدت -->
 </urlset>
