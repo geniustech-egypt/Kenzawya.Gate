@@ -426,6 +426,100 @@
     border-width: 8px 0 8px 12px;
   }
 }
+.policy-modal{
+  position:fixed;
+  inset:0;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  background:rgba(7,11,15,0.55);
+  z-index:12000;
+  padding:24px;
+}
+.policy-modal.open{ display:flex; }
+.policy-panel{
+  width: min(1000px, 96vw);
+  max-height: 88vh;
+  background: #fff;
+  border-radius:12px;
+  overflow:auto;
+  box-shadow:0 20px 60px rgba(0,0,0,0.45);
+  position:relative;
+  border:1px solid rgba(10,60,100,0.06);
+  direction: rtl;
+}
+.policy-panel .panel-header{
+  display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid #eef6ff;background:linear-gradient(90deg,#f8fbff,#fff);
+}
+.policy-panel .panel-header h3{margin:0;color:#0b66b3;font-size:1.05rem;}
+.policy-panel .panel-body{
+  padding:18px;
+  height: calc(88vh - 74px); /* header height + padding */
+  overflow:auto;
+  background:#fbfeff;
+}
+.policy-close{
+  background:transparent;
+  border:0;
+  font-size:20px;
+  color:#23475f;
+  cursor:pointer;
+  padding:6px 8px;
+  border-radius:8px;
+}
+.policy-close:hover{ background:#f1f8ff; transform:translateY(-1px); }
+.lang-switch{display:flex;gap:8px;align-items:center;}
+.lang-switch button{border:1px solid #d7eaf7;background:#fff;color:#0b66b3;padding:6px 8px;border-radius:8px;cursor:pointer;font-weight:700}
+.lang-switch button[aria-pressed="true"]{background:#0b66b3;color:#fff}
+
+footer.site-footer {
+  position: fixed !important;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 35px;               /* اضبط القيمة إذا تريد ارتفاع مختلف */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 12px;
+  background: #dee8f0;
+  color: #007bff;
+  z-index: 9999;
+  box-shadow: 0 -2px 8px rgba(0,0,0,0.04);
+}
+
+/* حافظ على مسافة في أسفل الصفحة حتى لا يختفي أي محتوى تحت الفوتر */
+body {
+  padding-bottom: calc(56px + 12px); /* height + فاصل بسيط */
+}
+
+/* زر سياسة الخصوصية: حجم خط أصغر ولون نص أحمر */
+footer.site-footer .privacy-btn {
+  font-size: 0.75rem;               /* صغر الفونت قليلاً كما طلبت */
+  color: #e30404;                   /* احمر واضح لكلمة "سياسة الخصوصية" */
+  background: transparent;
+  border: 1px solid rgba(227,4,4,0.12); /* حدود خفيفة بلون أحمر */
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* تأثير بسيط عند المرور */
+footer.site-footer .privacy-btn:hover {
+  color: #b30000;
+  border-color: rgba(227,4,4,0.22);
+}
+
+/* تأكد أن المودال يبقى فوق الفوتر */
+.policy-modal { z-index: 12000 !important; }
+
+/* تجاوب للموبايل: اذا التفاف النص أدى لعرض أكبر */
+@media (max-width:420px){
+  footer.site-footer { height: 34px; padding:8px; }
+  body { padding-bottom: calc(64px + 12px); }
+  footer.site-footer .privacy-btn { font-size: 0.78rem; padding: 6px 8px; }
+}
 </style>
 </head>
 <body>
@@ -677,11 +771,141 @@
 
     </main>
 <link href="styles.css" rel="stylesheet"/>
-<footer dir="rtl" style="display: flex; justify-content: center; align-items: center; padding: 0; line-height: 1; text-align: center; background-color: rgb(195, 222, 247); color: #131314; font-size: 0.7em; height: 25px; position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); max-width: 1200px; width: 100%; box-shadow: 0 -2px 5px rgba(0,0,0,0.1); z-index: 1000;">
-<p>Copyright © 2024 GENIUS Tech All Rights Reserved</p>
+<footer class="site-footer" dir="rtl" role="contentinfo" aria-label="الفوتر">
+  <div style="display:flex;gap:12px;align-items:center;">
+    <p style="margin:8px 10px 8px 0;font-size:0.75rem;">Copyright © 2024 GENIUS Tech All Rights Reserved</p>
+    <!-- نص الزر بالأحمر وحجم الخط أصغر يطبق عبر CSS الجديد -->
+    <button id="open-privacy" class="privacy-btn" aria-label="فتح سياسة الخصوصية">سياسة الخصوصية</button>
+  </div>
 </footer>
+
+<!-- Privacy modal placeholder (content will be loaded from privacy-policy.html) -->
+<div id="privacy-modal" class="policy-modal" aria-hidden="true" role="dialog" aria-modal="true">
+  <div class="policy-panel" role="document" aria-labelledby="privacy-modal-title">
+    <div class="panel-header">
+      <h3 id="privacy-modal-title">سياسة الخصوصية</h3>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div id="privacy-lang-switch" class="lang-switch" aria-hidden="false" style="margin-left:12px;">
+          <button id="pmBtnAr" aria-pressed="true" title="العربية" aria-label="عرض بالعربية">AR</button>
+          <button id="pmBtnEn" aria-pressed="false" title="English" aria-label="Show in English">EN</button>
+        </div>
+        <button class="policy-close" id="privacy-close" aria-label="إغلاق">×</button>
+      </div>
+    </div>
+    <div class="panel-body" id="privacy-modal-body">
+      <div style="text-align:center;color:#5a7680;">جارٍ تحميل سياسة الخصوصية...</div>
+    </div>
+  </div>
+</div>
+
 <!-- ربط ملف بيانات الأخبار -->
 <script src="news-data.js"></script>
+
+<script>
+/*
+  Script to load privacy-policy.html into a modal and toggle Arabic/English similar to kenzawya-pj.html.
+  - Fetches privacy-policy.html when user clicks the footer button.
+  - Injects the Arabic and English article bodies into the modal (avoids duplicate IDs).
+  - Provides a simple language switch with persistence in localStorage (key: kenz_policy_lang).
+*/
+
+(function(){
+  const openBtn = document.getElementById('open-privacy');
+  const modal = document.getElementById('privacy-modal');
+  const closeBtn = document.getElementById('privacy-close');
+  const bodyContainer = document.getElementById('privacy-modal-body');
+  const btnAr = document.getElementById('pmBtnAr');
+  const btnEn = document.getElementById('pmBtnEn');
+
+  function applyLangModal(lang){
+    const arBlock = document.getElementById('pmPolicyAr');
+    const enBlock = document.getElementById('pmPolicyEn');
+    if(!arBlock || !enBlock) return;
+    if(lang === 'en'){
+      arBlock.classList.remove('active');
+      arBlock.style.display = 'none';
+      enBlock.classList.add('active');
+      enBlock.style.display = 'block';
+      btnEn.setAttribute('aria-pressed','true');
+      btnAr.setAttribute('aria-pressed','false');
+    } else {
+      enBlock.classList.remove('active');
+      enBlock.style.display = 'none';
+      arBlock.classList.add('active');
+      arBlock.style.display = 'block';
+      btnAr.setAttribute('aria-pressed','true');
+      btnEn.setAttribute('aria-pressed','false');
+    }
+    try{ localStorage.setItem('kenz_policy_lang', lang); }catch(e){}
+  }
+
+  function loadPrivacyIntoModal(){
+    // If content already loaded, just open
+    if(document.getElementById('pmPolicyAr')) { modal.classList.add('open'); modal.setAttribute('aria-hidden','false'); return; }
+
+    fetch('privacy-policy.html').then(r=>{
+      if(!r.ok) throw new Error('network');
+      return r.text();
+    }).then(html=>{
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(html,'text/html');
+      const ar = doc.getElementById('policyAr');
+      const en = doc.getElementById('policyEn');
+
+      const arInner = ar ? ar.innerHTML : '<p>لا تتوفر نسخة عربية.</p>';
+      const enInner = en ? en.innerHTML : '<p>No English version available.</p>';
+
+      // Inject content but change IDs to avoid duplicates
+      const arHtml = `<article id="pmPolicyAr" class="policy-block active" lang="ar" dir="rtl">${arInner}</article>`;
+      const enHtml = `<article id="pmPolicyEn" class="policy-block" lang="en" dir="ltr" style="display:none">${enInner}</article>`;
+
+      bodyContainer.innerHTML = arHtml + enHtml;
+
+      // set initial language
+      const saved = (function(){ try{ return localStorage.getItem('kenz_policy_lang'); }catch(e){ return null; } })();
+      if(saved === 'en' || saved === 'ar') applyLangModal(saved);
+      else {
+        const navLang = (navigator.language || navigator.userLanguage || 'ar').toLowerCase();
+        applyLangModal(navLang.startsWith('en') ? 'en' : 'ar');
+      }
+
+      // Accessibility: allow left/right keys to toggle while modal open
+      document.addEventListener('keydown', modalKeyHandler);
+
+      modal.classList.add('open');
+      modal.setAttribute('aria-hidden','false');
+
+    }).catch(err=>{
+      bodyContainer.innerHTML = '<div style="text-align:center;color:#c0392b;">تعذر تحميل سياسة الخصوصية حالياً. حاول لاحقاً.</div>';
+      modal.classList.add('open');
+      modal.setAttribute('aria-hidden','false');
+    });
+  }
+
+  function modalKeyHandler(e){
+    if(!modal.classList.contains('open')) return;
+    if(e.key === 'Escape') closeModal();
+    if(e.key === 'ArrowRight') applyLangModal('en');
+    if(e.key === 'ArrowLeft') applyLangModal('ar');
+  }
+
+  function closeModal(){
+    modal.classList.remove('open');
+    modal.setAttribute('aria-hidden','true');
+    // remove keyboard handler if modal content exists
+    document.removeEventListener('keydown', modalKeyHandler);
+  }
+
+  openBtn.addEventListener('click', loadPrivacyIntoModal);
+  closeBtn.addEventListener('click', closeModal);
+  modal.addEventListener('click', (e) => { if(e.target === modal) closeModal(); });
+
+  btnAr.addEventListener('click', ()=> applyLangModal('ar'));
+  btnEn.addEventListener('click', ()=> applyLangModal('en'));
+
+})();
+</script>
+
     <script>
       const carouselSections = [
         { key:"أمنية", title:"تعليمات أمنية", class:"security" },
