@@ -934,6 +934,7 @@ footer{
       <img src="photo\sweet20.jpg" alt="صورة" class="thumb-img" />
       <img src="photo\sweet21.jpg" alt="صورة" class="thumb-img" />
 
+
     </div>
     <!-- نظام التقييم والتعليقات لهذا المشروع -->
     <div class="star-rating-comment" data-project-id="sweet_cravings">
@@ -1009,15 +1010,41 @@ footer{
       </div>
       <div class="category-badge agri"><i class="fa-solid fa-seedling"></i><span>زراعة</span></div>
     </div>
+
     <!-- زر المزيد وقسم الصور -->
     <button class="show-more-btn" data-project-id="sara_plant">المزيد</button>
+
     <div class="project-images" data-project-id="sara_plant" style="display:none;">
-      <img src="photo\sara10.webp" alt="صورة 1" class="thumb-img" />
-      <img src="photo\sara11.webp" alt="صورة 2" class="thumb-img" />
-      <img src="photo\sara12.webp" alt="صورة 3" class="thumb-img" />
-      <img src="photo\sara13.webp" alt="صورة 4" class="thumb-img" />
-      <img src="photo\sara14.webp" alt="صورة 5" class="thumb-img" />
+      <img src="photo/sara10.webp" alt="صورة 1" class="thumb-img" />
+      <img src="photo/sara11.webp" alt="صورة 2" class="thumb-img" />
+      <img src="photo/sara12.webp" alt="صورة 3" class="thumb-img" />
+      <img src="photo/sara13.webp" alt="صورة 4" class="thumb-img" />
+      <img src="photo/sara14.webp" alt="صورة 5" class="thumb-img" />
+
+      <!-- روابط الـ PDF داخل مجلد photo -->
+      <div class="project-pdf" style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap; justify-content:center;">
+        <!-- افتح في تاب جديد (GitHub Pages URL أو مسار نسبي) -->
+        <a class="btn btn-outline" href="https://geniustech-egypt.github.io/Kenzawya.Gate/photo/offers.pdf" target="_blank" rel="noopener" style="display:inline-flex; align-items:center; gap:8px;">
+          <i class="fa-solid fa-file-pdf"></i> فتح الملف في تاب جديد
+        </a>
+
+        <!-- عرض داخل الصفحة -->
+        <button class="btn" type="button" data-pdf-url="https://geniustech-egypt.github.io/Kenzawya.Gate/photo/offers.pdf" onclick="togglePdfViewer(this)" aria-expanded="false" style="display:inline-flex; align-items:center; gap:8px;">
+          <i class="fa-solid fa-eye"></i> عرض داخل الصفحة
+        </button>
+      </div>
+
+      <!-- حاوية عرض الـ PDF (مخفية افتراضياً) -->
+      <div class="pdf-viewer" style="display:none; margin-top:12px; border:1px solid #d2e2ee; border-radius:8px; overflow:hidden;">
+        <iframe class="pdf-iframe" src="" width="100%" height="480" title="ملف PDF — عرض"></iframe>
+        <div style="padding:10px; text-align:center;">
+          <a href="#" class="btn btn-outline" onclick="closePdfViewer(this); return false;">إغلاق العرض</a>
+          <a class="btn" href="https://geniustech-egypt.github.io/Kenzawya.Gate/photo/offers.pdf" target="_blank" rel="noopener" style="margin-left:8px;">فتح في تاب جديد</a>
+        </div>
+      </div>
+
     </div>
+
     <div class="star-rating-comment" data-project-id="sara_plant">
       <div class="average-rating"></div>
       <div class="star-rating">
@@ -1186,6 +1213,8 @@ footer{
       <img src="photo\tomor2.jpg" alt="صورة 2" class="thumb-img" />
       <img src="photo\tomor3.jpg" alt="صورة 3" class="thumb-img" />
       <img src="photo\tomor4.jpg" alt="صورة 4" class="thumb-img" />
+      <img src="photo\tomor5.jpg" alt="5" class="thumb-img" />
+
     </div>
     <div class="star-rating-comment" data-project-id="tomor">
       <div class="average-rating"></div>
@@ -1869,6 +1898,38 @@ if(btnCopy){
   setHeaderHeight();
 })();
 </script>
+<script>
+  function togglePdfViewer(btn){
+    var pdfUrl = btn.getAttribute('data-pdf-url');
+    var container = btn.closest('.project-images') || btn.closest('.project-body');
+    if(!container) return;
+    var viewer = container.querySelector('.pdf-viewer');
+    var iframe = container.querySelector('.pdf-iframe');
+    if(!viewer || !iframe) return;
+    if(viewer.style.display === 'none' || viewer.style.display === ''){
+      iframe.src = pdfUrl;
+      viewer.style.display = 'block';
+      btn.setAttribute('aria-expanded','true');
+      btn.classList.add('active');
+    } else {
+      iframe.src = '';
+      viewer.style.display = 'none';
+      btn.setAttribute('aria-expanded','false');
+      btn.classList.remove('active');
+    }
+  }
+  function closePdfViewer(el){
+    var container = el.closest('.project-images') || el.closest('.project-body');
+    if(!container) return;
+    var viewer = container.querySelector('.pdf-viewer');
+    var iframe = container.querySelector('.pdf-iframe');
+    if(iframe) iframe.src = '';
+    if(viewer) viewer.style.display = 'none';
+    // إعادة الحالة على زر العرض إذا وجد
+    var btn = container.querySelector('[data-pdf-url]');
+    if(btn) { btn.setAttribute('aria-expanded','false'); btn.classList.remove('active'); }
+  }
+</script>
+
 </body>
 </html>
-
