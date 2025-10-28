@@ -879,65 +879,113 @@ document.querySelectorAll('.star-rating-comment[data-project-id]').forEach(block
     }
 
     fetch('news.html')
-        .then(response => response.ok ? response.text() : Promise.reject('network'))
-        .then(data => {
-            document.getElementById('news-container').innerHTML = data;
-        })
-        .catch(error => {
-            document.getElementById('news-container').innerHTML = '<p>تعذر تحميل الأخبار. يرجى المحاولة لاحقًا.</p>';
-        });
+  .then(response => response.ok ? response.text() : Promise.reject('network'))
+  .then(data => {
+    const newsContainer = document.getElementById('news-container');
+    if (newsContainer) {
+      newsContainer.innerHTML = data;
+    } else {
+      console.warn('news-container not found, skipping insertion of news.html');
+    }
+  })
+  .catch(error => {
+    const newsContainer = document.getElementById('news-container');
+    if (newsContainer) {
+      newsContainer.innerHTML = '<p>تعذر تحميل الأخبار. يرجى المحاولة لاحقًا.</p>';
+    } else {
+      console.warn('news-container not found and news fetch failed:', error);
+    }
+  });
 
 });
 
 
+// استبدل معالج show-more الحالي بهذا المعالج المحسّن:
 document.querySelectorAll('.show-more-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-        const projectId = btn.getAttribute('data-project-id');
-        const imagesDiv = document.querySelector('.project-images[data-project-id="'+projectId+'"]');
-        if (!imagesDiv) return;
+  btn.addEventListener('click', () => {
+    const projectId = btn.getAttribute('data-project-id');
+    const imagesDiv = document.querySelector('.project-images[data-project-id="'+projectId+'"]');
+    if (!imagesDiv) return;
 
-        const images = Array.from(imagesDiv.querySelectorAll('img'));
-        let modal = document.getElementById('images-popup');
-        let thumbsDiv = document.getElementById('popup-thumbs');
-        let popupImg = document.getElementById('popup-img');
-        let closePopup = document.getElementById('close-popup');
+    const images = Array.from(imagesDiv.querySelectorAll('img'));
+    const modal = document.getElementById('images-popup');
+    const thumbsDiv = document.getElementById('popup-thumbs');
+    const popupImg = document.getElementById('popup-img');
+    const closePopup = document.getElementById('close-popup');
 
-        // تنظيف المصغرات
-        thumbsDiv.innerHTML = '';
-        images.forEach(img => {
-            const thumb = document.createElement('img');
-            thumb.src = img.src;
-            thumb.alt = img.alt;
-            thumb.style.cssText = "width:110px; height:110px; object-fit:cover; border-radius:8px; cursor:pointer; border:3px solid #fff; box-shadow:0 2px 8px #222;";
-            thumb.className = "mini-popup-img";
-            thumbsDiv.appendChild(thumb);
+    // حراسة: تأكد العناصر موجودة
+    if (!modal || !thumbsDiv || !popupImg || !closePopup) {
+      console.warn('images popup elements missing:', { modal: !!modal, thumbsDiv: !!thumbsDiv, popupImg: !!popupImg, closePopup: !!closePopup });
+      return;
+    }
 
-            thumb.addEventListener('click', () => {
-                popupImg.src = thumb.src;
-                popupImg.style.display = 'block';
-                thumbsDiv.style.display = 'none';
-            });
-        });
-        modal.style.display = "flex";
-        popupImg.style.display = 'none';
+    // تنظيف المصغرات
+    thumbsDiv.innerHTML = '';
 
-        // زر الإغلاق
-        closePopup.onclick = () => {
-            modal.style.display = 'none';
-            thumbsDiv.style.display = 'flex';
-            popupImg.style.display = 'none';
-        };
-        // إغلاق عند الضغط خارج المنطقة
-        modal.onclick = (e) => {
-            if (e.target === modal) {
-                modal.style.display = 'none';
-                thumbsDiv.style.display = 'flex';
-                popupImg.style.display = 'none';
-            }
-        };
+    // إضافة مصغرات الصور
+    images.forEach(img => {
+      const thumb = document.createElement('img');
+      thumb.src = img.src;
+      thumb.alt = img.alt || '';
+      thumb.style.cssText = "width:110px; height:110px; object-fit:cover; border-radius:8px; cursor:pointer; border:3px solid #fff; box-shadow:0 2px 8px #222;";
+      thumb.className = "mini-popup-img";
+      thumbsDiv.appendChild(thumb);
+
+      thumb.addEventListener('click', () => {
+        popupImg.src = thumb.src;
+        popupImg.style.display = 'block';
+        thumbsDiv.style.display = 'none';
+      });
     });
-});
 
+    // إضافة مصغّر للـ PDF إن وُجد داخل imagesDiv
+    (function addPdfThumbIfAny(){
+      // بحث عن رابط PDF: <a href="...pdf"> أو زر يحمل data-pdf-url
+      const pdfAnchor = imagesDiv.querySelector('a[href$=".pdf"], a[href$=".PDF"]');
+      let pdfLink = null;
+      if (pdfAnchor) pdfLink = pdfAnchor.href || pdfAnchor.getAttribute('href');
+
+      if (!pdfLink) {
+        const pdfBtn = imagesDiv.querySelector('[data-pdf-url]');
+        if (pdfBtn) pdfLink = pdfBtn.getAttribute('data-pdf-url');
+      }
+
+      if (pdfLink) {
+        const pdfCard = document.createElement('div');
+        pdfCard.className = 'mini-popup-pdf';
+        pdfCard.style.cssText = "width:110px; height:110px; display:flex; flex-direction:column; align-items:center; justify-content:center; border-radius:8px; background:#fff; box-shadow:0 2px 8px rgba(0,0,0,0.12); cursor:pointer; padding:8px; text-align:center; gap:6px; font-size:12px;";
+        pdfCard.innerHTML = '<div style="font-size:28px;color:#e24b3a;">📄</div><div style="font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:96%;">عرض الكاتالوج</div>';
+        pdfCard.title = "فتح الكاتالوج (PDF) في تبويب جديد";
+
+        pdfCard.addEventListener('click', function(){
+          window.open(pdfLink, '_blank', 'noopener');
+        });
+
+        thumbsDiv.appendChild(pdfCard);
+      }
+    })();
+
+    modal.style.display = "flex";
+    popupImg.style.display = 'none';
+
+    // زر الإغلاق
+    closePopup.onclick = () => {
+      modal.style.display = 'none';
+      thumbsDiv.style.display = 'flex';
+      popupImg.style.display = 'none';
+      popupImg.src = '';
+    };
+    // إغلاق عند الضغط خارج المنطقة
+    modal.onclick = (e) => {
+      if (e.target === modal) {
+        modal.style.display = 'none';
+        thumbsDiv.style.display = 'flex';
+        popupImg.style.display = 'none';
+        popupImg.src = '';
+      }
+    };
+  });
+});
 // إخفاء أيقونات التواصل عند عمل Scroll + تصغير/تكبير الهيدر بحسب اتجاه التمرير
 // إخفاء أيقونات التواصل عند عمل Scroll + تصغير/تكبير الهيدر بهسترة لتفادي الرعشة
 const floatingContact = document.getElementById('floatingContactIcons');
