@@ -954,7 +954,7 @@ document.querySelectorAll('.show-more-btn').forEach(btn => {
         const pdfCard = document.createElement('div');
         pdfCard.className = 'mini-popup-pdf';
         pdfCard.style.cssText = "width:110px; height:110px; display:flex; flex-direction:column; align-items:center; justify-content:center; border-radius:8px; background:#fff; box-shadow:0 2px 8px rgba(0,0,0,0.12); cursor:pointer; padding:8px; text-align:center; gap:6px; font-size:12px;";
-        pdfCard.innerHTML = '<div style="font-size:28px;color:#e24b3a;">📄</div><div style="font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:96%;">عرض الكاتالوج</div>';
+        pdfCard.innerHTML = '<div style="font-size:28px;color:#e24b3a;">📄</div><div style="font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:96%;">عروض خاصة</div>';
         pdfCard.title = "فتح الكاتالوج (PDF) في تبويب جديد";
 
         pdfCard.addEventListener('click', function(){
