@@ -1,6 +1,18 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
 import { getDatabase, ref, get, set, onValue, push } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
+function escapeHtml(str) {
+    return String(str).replace(/[&<>"']/g, function(m) {
+        return ({
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#39;'
+        })[m];
+    });
+}
+
 // يجب أن تكون جميع الأكواد الخاصة بالتطبيق داخل هذه الوظيفة
 document.addEventListener('DOMContentLoaded', () => {
 
@@ -217,7 +229,7 @@ document.querySelectorAll('.star-rating-comment[data-service-id]').forEach(block
                         commentDiv.innerHTML = `
                             <span style="color:#ffc107;">${'★'.repeat(data.rating)}</span>
                             <span style="color:#bbb;">${'★'.repeat(5 - data.rating)}</span>
-                            <span style="margin-right:8px;">${data.comment}</span>
+                            <span style="margin-right:8px;">${escapeHtml(data.comment)}</span>
                             <span style="font-size:10px; color:#888; float:left;">${new Date(data.time).toLocaleDateString('ar-EG')}</span>
                         `;
                         modalCommentsList.appendChild(commentDiv);
@@ -436,7 +448,7 @@ document.querySelectorAll('.star-rating-comment[data-project-id]').forEach(block
                         commentDiv.innerHTML = `
                             <span style="color:#ffc107;">${'★'.repeat(data.rating)}</span>
                             <span style="color:#bbb;">${'★'.repeat(5 - data.rating)}</span>
-                            <span style="margin-right:8px;">${data.comment}</span>
+                            <span style="margin-right:8px;">${escapeHtml(data.comment)}</span>
                             <span style="font-size:10px; color:#888; float:left;">${new Date(data.time).toLocaleDateString('ar-EG')}</span>
                         `;
                         modalCommentsList.appendChild(commentDiv);
