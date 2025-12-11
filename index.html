@@ -474,7 +474,7 @@
   background: #fff;
   border-radius:12px;
   overflow:auto;
-  box-shadow:0 20px 60px rgba(0,0,0,0.45);
+  box-shadow:0 20px 60px rgba(0,0,0,.45);
   position:relative;
   border:1px solid rgba(10,60,100,0.06);
   direction: rtl;
@@ -502,56 +502,130 @@
 
 /* Removed lang-switch CSS: language toggle removed per request */
 
-/* footer styles */
+/* ---------- Footer styles (modified) ---------- */
+/* Make footer non-fixed, increase height and include content comfortably */
 footer.site-footer {
-  position: fixed !important;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 35px;               /* اضبط القيمة إذا تريد ارتفاع مختلف */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0 12px;
-  background: #dee8f0;
+  position: static; /* not fixed anymore */
+  left: auto;
+  right: auto;
+  bottom: auto;
+  padding: 28px 18px;
+  background: #070707;
   color: #007bff;
-  z-index: 9999;
+  z-index: 999;
   box-shadow: 0 -2px 8px rgba(0,0,0,0.04);
+  min-height: 160px;
+  width: 100%;
+  box-sizing: border-box;
+  display: block;
 }
 
-/* حافظ على مسافة في أسفل الصفحة حتى لا يختفي أي محتوى تحت الفوتر */
-body {
-  padding-bottom: calc(56px + 12px); /* height + فاصل بسيط */
+/* inner container to align footer content */
+footer.site-footer .footer-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  direction: rtl;
 }
 
-/* زر سياسة الخصوصية: حجم خط أصغر ولون نص أحمر */
+/* about block inside footer */
+footer.site-footer .footer-about {
+  flex: 1 1 640px;
+  min-width: 260px;
+  color: #1f2d3a;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+/* tagline always on its own line */
+footer.site-footer .footer-about .tagline-line {
+  display: block;
+  width: 100%;
+  margin-top: 10px;
+  color: #1f6fa8;
+  font-weight: 700;
+  font-size: 0.98rem;
+  line-height: 1.4;
+  white-space: normal; /* allow normal wrapping but it's a separate block */
+  text-align: right;
+}
+
+/* actions / small column */
+footer.site-footer .footer-actions {
+  flex: 0 0 260px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: flex-end;
+}
+
+/* privacy button style (slightly larger) */
 footer.site-footer .privacy-btn {
-  font-size: 0.75rem;               /* صغر الفونت قليلاً كما طلبت */
-  color: #e30404;                   /* احمر واضح لكلمة "سياسة الخصوصية" */
+  font-size: 0.85rem;
+  color: #e30404;
   background: transparent;
-  border: 1px solid rgba(227,4,4,0.12); /* حدود خفيفة بلون أحمر */
-  padding: 6px 10px;
+  border: 1px solid rgba(227,4,4,0.12);
+  padding: 8px 12px;
   border-radius: 8px;
   font-weight: 700;
   cursor: pointer;
 }
 
-/* تأثير بسيط عند المرور */
-footer.site-footer .privacy-btn:hover {
-  color: #b30000;
-  border-color: rgba(227,4,4,0.22);
+/* small responsive adjustments */
+@media (max-width:800px) {
+  footer.site-footer .footer-inner { flex-direction: column; align-items: stretch; gap: 16px; }
+  footer.site-footer .footer-actions { align-items: flex-start; }
+  footer.site-footer { padding: 20px 12px; min-height: auto; }
 }
 
-/* تأكد أن المودال يبقى فوق الفوتر */
-.policy-modal { z-index: 12000 !important; }
+/* reduce bottom padding for body since footer isn't fixed */
+body {
+  padding-bottom: 18px;
+}
 
-/* تجاوب للموبايل: اذا التفاف النص أدى لعرض أكبر */
+/* small screens */
 @media (max-width:420px){
-  footer.site-footer { height: 34px; padding:8px; }
-  body { padding-bottom: calc(64px + 12px); }
+  footer.site-footer { padding: 20px 10px; }
   footer.site-footer .privacy-btn { font-size: 0.78rem; padding: 6px 8px; }
 }
-</style>
+
+/* ---------- Gap-fix overrides: remove unexpected space between footer and page end ---------- */
+/* Ensure no fixed extra bottom padding on body that creates visual gap */
+body {
+  padding-bottom: 0 !important;
+}
+
+/* Remove bottom margin from last section/card and from the about block so footer sits tight */
+#about-kenzawya,
+.section-card:last-of-type {
+  margin-bottom: 0 !important;
+}
+
+/* Prevent paragraphs inside the about section from adding bottom margin */
+#about-kenzawya p,
+.footer-about p {
+  margin-bottom: 0 !important;
+}
+
+/* Make sure footer has no top margin creating gap */
+footer.site-footer {
+  margin-top: 0 !important;
+}
+
+/* Ensure tagline remains on its own line across all screen sizes */
+.footer-about .tagline-line {
+  display: block !important;
+}
+
+/* Small adjustment for very small screens to avoid extra bleed */
+@media (max-width:360px) {
+  .footer-about { font-size: 0.92rem; }
+}
+    </style>
 </head>
 <body>
     <header class="header">
@@ -593,6 +667,7 @@ footer.site-footer .privacy-btn:hover {
                         <li>المقدم/ مصطفي عرفة رئيس مباحث ح.اكتوبر : 01003192105</li>
                         <li>الرائد/ باسم ابوالدهب معاون مباحث ح.اكتوبر : 01227188206</li>
                         <li>النقيب/ محمد ابوالخير معاون مباحث ح.اكتوبر : 01221310854</li>
+                        <li>شكاوي جهاز مدينة ح. اكتوبر : 15100</li>
                         <li>ونش إنقاذ أمان : 15558</li>
                     </ul>
                 </div>
@@ -791,23 +866,39 @@ footer.site-footer .privacy-btn:hover {
 
     </main>
 <link href="styles.css" rel="stylesheet"/>
-  <section id="about-kenzawya" class="section-card">
-<h2>عن بوابة الكنزاوية</h2>
-<p>
-بوابة الكنزاوية هي المنصة الرقمية الأولى المخصصة لسكان <strong>كمبوند كنز</strong> وما حوله في <strong>حدائق أكتوبر</strong>. 
-توفر البوابة دليلًا متكاملًا لكل <strong>الخدمات الأساسية لسكان الكمبوند </strong> مثل العيادات، المطاعم، السوبرماركت، الخضروات والفواكه، محلات الصيانة، المكتبات، 
-إضافة إلى معلومات دقيقة عن <strong>المواصلات وخريطة الكمبوند</strong> وخطوط السير من وإلى المنطقة.  
-كما تضم المنصة قسمًا خاصًا بـ<strong>مشروعات السكان</strong> التي تشمل المأكولات المنزلية والمنتجات اليدوية والخدمات الصغيرة داخل الكمبوند.  
-الهدف من <strong>بوابة الكنزاوية</strong> هو تسهيل الوصول إلى كل ما يهم سكان كنز وحدائق أكتوبر من مكان واحد سهل الاستخدام.  
-<span style="color:#1f6fa8;font-weight:600;">بوابة الكنزاوية طريقك لكل حاجة.</span>
-</p>
-</section>
 
+<!-- ---------- Modified footer: contains about content and larger area ---------- -->
 <footer class="site-footer" dir="rtl" role="contentinfo" aria-label="الفوتر">
-  <div style="display:flex;gap:12px;align-items:center;">
-    <p style="margin:8px 10px 8px 0;font-size:0.75rem;">Copyright © 2024 GENIUS Tech All Rights Reserved</p>
-    <!-- نص الزر بالأحمر وحجم الخط أصغر يطبق عبر CSS الجديد -->
-    <button id="open-privacy" class="privacy-btn" aria-label="فتح سياسة الخصوصية">سياسة الخصوصية</button>
+  <div class="footer-inner">
+    <div class="footer-about" aria-labelledby="footer-about-title">
+      <h3 id="footer-about-title" style="margin-top:0;text-align:center;color:#0b66b3;">عن بوابة الكنزاوية</h3>
+      <p style="margin:0 0 0.6rem; color:#dbdcdd; font-size:0.98rem; line-height:1.6;">
+        بوابة الكنزاوية هي المنصة الرقمية الأولى المخصصة لسكان <strong>كمبوند كنز</strong> وما حوله في <strong>حدائق أكتوبر</strong>.
+      توفر البوابة دليلًا متكاملًا لكل الخدمات الأساسية لسكان الكمبوند</> مثل العيادات، المطاعم، السوبرماركت، الخضروات والفواكه، محلات الصيانة والمكتبات،
+        إضافة إلى معلومات عن المواصلات والخريطة الداخلية للكمبوند وخطوط السير
+      </p>
+      <p style="margin:0;color:#dbdcdd;font-size:0.95rem;line-height:1.6;">
+        كما تضم المنصة قسمًا خاصًا بـ<strong>مشروعات السكان</strong> التي تشمل المأكولات المنزلية والمنتجات اليدوية والخدمات الصغيرة داخل الكمبوند.
+        الهدف من <strong>بوابة الكنزاوية</strong> هو تسهيل الوصول إلى كل ما يهم سكان كنز وحدائق أكتوبر من مكان واحد سهل الاستخدام.
+      </p>
+
+      <!-- Tagline on its own line always -->
+      <p class="tagline-line" aria-hidden="false" style="text-align:center;"><strong>بوابة الكنزاوية طريقك لكل حاجة.</strong></p>
+    </div>
+        <button id="open-privacy" class="privacy-btn" aria-label="فتح سياسة الخصوصية">سياسة الخصوصية</button>
+      </div>
+      <div style="margin-top:8px;display:flex;gap:8px;align-items:center;justify-content:flex-end;">
+        <a href="https://wa.me/201001790590" aria-label="واتساب" target="_blank" style="color:#25D366;font-size:1.1rem;text-decoration:none;">
+          <i class="fab fa-whatsapp"></i>
+        </a>
+        <a href="mailto:compoundkenz@gmail.com" aria-label="بريد إلكتروني" target="_blank" style="color:#1f6fa8;font-size:1.1rem;text-decoration:none;">
+          <i class="ri-mail-send-line"></i>
+        </a>
+      </div>
+      <div class="footer-actions">
+      <p style="margin:0;font-size:.85rem;color:#5a2ff7;text-align:center;width:100%;">Copyright © 2024 GENIUS Tech All Rights Reserved</p>
+      <div>
+    </div>
   </div>
 </footer>
 
@@ -1070,11 +1161,3 @@ renderCarousel();
 <script src="/visitor-stats.js" defer></script>
 </body>
 </html>
-
-
-
-
-
-
-
-
