@@ -1648,3 +1648,141 @@ mark {
     opacity: 0.9;           /* اختياري: زيادة وضوح النص */
 }
 
+/* ===== تنسيق قسم الإعلانات ===== */
+.ads-section {
+  margin: 40px auto;
+  padding: 20px;
+  text-align: center;
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.ads-section h2 {
+  font-size: 1.5rem;
+  color: var(--primary-color);
+  margin-bottom: 20px;
+}
+
+.ads-carousel-container {
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  position: relative;
+}
+
+.ads-carousel {
+  display: flex;
+  align-items: center;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  gap: 20px;
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  padding: 10px;
+}
+
+.ad-card {
+  flex: 0 0 auto;
+  width: 250px;
+  background: #f9f9f9;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  scroll-snap-align: start;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.ad-card:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.ad-card img {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+}
+
+.ad-card p {
+  padding: 10px;
+  font-size: 0.9rem;
+  color: var(--text-color);
+}
+
+
+/* ===== تحسين العرض على الشاشات الصغيرة ===== */
+@media (max-width: 600px) {
+  .ads-section {
+    padding: 15px;
+  }
+
+  .ads-carousel {
+    gap: 10px;
+  }
+
+  .ad-card {
+    min-width: 90%; /* اجعل العرض ممتدًا تقريبًا لكامل الشاشة */
+    max-width: 100%;
+    margin: 0 auto;
+  }
+
+  .ad-title {
+    font-size: 1rem;
+  }
+
+  .carousel-button {
+    width: 36px;
+    height: 36px;
+    font-size: 16px;
+  }
+}
+
+/* ===== تخصيص الكروت لفيسبوك ===== */
+.ad-card.facebook {
+  border: 2px solid #1877F2;
+  position: relative;
+}
+
+
+/* زر مخصص لزيارة صفحة فيسبوك */
+.ad-card.facebook .facebook-button {
+  display: inline-block;
+  background-color: #1877F2;
+  color: #fff;
+  border: none;
+  padding: 5px 14px;
+  border-radius: 6px;
+  margin-top: 10px;
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-weight: bold;
+  transition: background-color 0.2s;
+}
+
+.ad-card.facebook .facebook-button:hover {
+  background-color: #145dbf;
+}
+/* ===== تنسيق منطقة الهاتف ===== */
+.ad-phone {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 10px;
+  font-size: 0.9rem;
+}
+
+.ad-phone i {
+  color: #4caf50; /* لون أيقونة الهاتف */
+  font-size: 1rem;
+}
+
+.ad-phone .phone-numbers {
+  font-weight: bold;
+  color: #333;
+  text-align: center;
+}
+
+
