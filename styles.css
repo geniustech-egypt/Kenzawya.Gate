@@ -1784,5 +1784,30 @@ mark {
   color: #333;
   text-align: center;
 }
+/* تعديل صورة بابا نويل */
+#static-santa {
+  width: 100%; /* عرض الحاوية بالكامل */
+  text-align: center; /* توسيط الصورة */
+  margin: 1px 0; /* مساحة صغيرة أعلى وأسفل */
+  background: linear-gradient(to bottom, #123456, #000); /* خلفية جذابة */
+  padding: 20px 0; /* مسافة إضافية حول الصورة */
+}
+
+#static-santa img {
+  max-width: 80%; /* تحديد عرض الصورة كنسبة مئوية */
+  height: auto; /* الحفاظ على النسبة الأصلية للصورة */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25); /* إضافة ظل للصورة */
+  border-radius: 10px; /* جمالية دائرية للصورة */
+}
+
+/* استهداف الشاشات الكبيرة */
+@media (min-width: 992px) {
+  #static-santa img {
+    max-width: 60%; /* تصغير الصورة قليلاً للشاشات الكبيرة */
+  }
+}
+
+
+
 
 
