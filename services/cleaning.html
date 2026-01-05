@@ -1,21 +1,466 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cleaning Services</title>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>مغاسل ودراي كلين | بوابة الكنزاوية</title>
+    <meta name="description" content="دليل المغاسل والدراي كلين حول كمبوند كنز مع تقييمات السكان." />
+    <link href="../styles.css" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet"/>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet"/>
+    <script src="../app.js" type="module"></script>
+    <style>
+        .header {
+            position: fixed;
+            top: 0;
+            right: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+            background: #4a90e2;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            padding: 16px 0 8px 0;
+        }
+        .logo h1 {
+            margin: 0;
+            font-size: 2.1rem;
+            color: #f9fdff;
+            font-weight: bold;
+        }
+        .logo p {
+            margin: 0;
+            color: #f9fdff;
+            font-size: 1.1rem;
+        }
+        .main-content {
+            max-width: 950px;
+            margin: 0 auto;
+            padding-top: 75px;
+            padding-bottom: 40px;
+        }
+        footer {
+            position: fixed;
+            bottom: 0;
+            right: 0;
+            left: 0;
+            width: 100%;
+            z-index: 999;
+            background-color: #dee8f0;
+            color: #007bff;
+            font-size: 0.7em;
+            height: 25px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 0;
+            line-height: 1;
+            text-align: center;
+            box-shadow: 0 -2px 8px rgba(0,0,0,0.04);
+        }
+        .section-card {
+            background: linear-gradient(120deg,#e6f7ff 70%,#f0f2f5 100%);
+            margin-top: 25px;
+            box-shadow: 0 8px 32px rgba(74,144,226,0.11);
+        }
+        .services-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(305px, 1fr));
+            gap: 22px;
+            margin-top: 30px;
+        }
+        .service-card {
+            background-color: #fff;
+            border-radius: 16px;
+            box-shadow: 0 5px 18px rgba(0,0,0,0.07);
+            padding: 18px 22px 14px 22px;
+            transition: box-shadow 0.2s;
+            position: relative;
+            overflow:hidden;
+        }
+        .service-card:hover {
+            box-shadow: 0 8px 32px rgba(74,144,226,0.16);
+        }
+        .service-title {
+            font-size: 1.15em;
+            font-weight: bold;
+            color: #2567a1;
+            margin-bottom: 3px;
+        }
+        .service-address {
+            color: #888;
+            font-size: 0.97em;
+            margin-bottom: 3px;
+        }
+        .service-phone {
+            font-size: 1.03em;
+            color: #007bff;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            margin-bottom: 9px;
+        }
+        .average-rating {
+            margin: 10px 0 8px 0;
+            font-weight: bold;
+            color: #ff9800;
+            font-size: 1.07em;
+        }
+        .old-likes-info {
+            color: #777;
+            font-size: 0.92em;
+            margin-bottom: 5px;
+        }
+        .label {
+            background: #4a90e2;
+            color: #fff;
+            border-radius: 4px;
+            font-size: 0.9em;
+            padding: 2px 7px;
+            margin-left: 5px;
+        }
+        /* شارة عدد الكروت */
+.count-badge{
+  background:linear-gradient(145deg,#ff9800,#ffb74d);
+  color:#fff;
+  font-weight:700;
+  font-size:0.78rem;
+  padding:6px 12px 7px;
+  border-radius:30px;
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  margin-right:10px;
+  box-shadow:0 3px 10px rgba(0,0,0,.18);
+  position:relative;
+}
+.count-badge:before{
+  content:"#";
+  font-size:.75rem;
+  opacity:.85;
+}
+@media (max-width:600px){
+  .count-badge{
+    margin-top:8px;
+    font-size:0.72rem;
+    padding:5px 10px 6px;
+  }
+}
+        @media (max-width:600px) {
+            .services-list {
+                grid-template-columns: 1fr;
+            }
+            .section-card {
+                padding: 18px 6px 8px 6px;
+            }
+  .header{
+    padding:10px 0 6px;
+  }
+  .logo h1{
+    font-size:1.55rem;
+  }
+  .logo p{
+    font-size:0.9rem;
+  }
+}
+                /* ---- إصلاح خروج محتوى الهواتف والبادجات (حل A) ---- */
+        .service-card { overflow:hidden; }
 
-  <!-- Google Analytics (keep as-is) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-FX6BSCQ8KQ"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-FX6BSCQ8KQ', { 'anonymize_ip': true });
-  </script>
+        .service-phone {
+            display:flex;
+            flex-wrap:wrap;
+            align-items:center;
+            gap:6px 8px;
+            line-height:1.4;
+        }
+        .service-phone a {
+            color:#007bff;
+            text-decoration:none;
+            font-weight:600;
+            direction:ltr;
+            unicode-bidi:plaintext;
+            white-space:nowrap;
+            font-size:0.95em;
+        }
+        .service-phone a:hover { text-decoration:underline; }
+
+        .service-phone .label {
+            background:#4a90e2;
+            color:#fff;
+            border-radius:6px;
+            padding:3px 8px 4px;
+            font-size:0.75rem;
+            line-height:1.2;
+            display:inline-flex;
+            align-items:center;
+            white-space:nowrap;
+            margin:2px 0;
+            order:2;
+        }
+        .service-phone .label:first-of-type {
+            flex-basis:100%;
+            margin-top:4px;
+        }
+        .service-phone .label:first-of-type + .label {
+            flex-basis:100%;
+        }
+        .service-phone a[target="_blank"] {
+            background:#0d7d2a;
+            color:#fff;
+            padding:4px 10px;
+            border-radius:6px;
+            font-size:0.72rem;
+            font-weight:600;
+            white-space:nowrap;
+            order:3;
+            text-decoration:none;
+        }
+        .service-phone a[target="_blank"]:hover {
+            background:#0a5c20;
+        }
+    </style>
 </head>
-<body>
-  <h1>Welcome to our Cleaning Services</h1>
-  <p>We offer premium cleaning services tailored to your needs.</p>
+<body data-page="cleaning">
+    <header class="header">
+        <div class="logo">
+            <h1>بوابة الكنزاوية</h1>
+            <p>دليل المغاسل والدراي كلين</p>
+        </div>
+        <div style="width:100%; display:flex; justify-content:flex-start; align-items:center; padding-right:35px; margin-top:1px;">
+            <a href="../index.html" class="icon-btn" data-tooltip="العودة للصفحة الرئيسية" style="background:rgba(255,255,255,0.2);color:#fff; font-size:2rem; margin-right:10px;">
+                <i class="fas fa-home"></i>
+            </a>
+        </div>
+    </header>
+
+    <main class="main-content" style="max-width:950px;">
+        <section class="section-card">
+            <h2 style="font-size:1.6rem;margin-bottom:7px;">
+                <i class="fa-solid fa-soap" style="color:#4a90e2;margin-left:8px;"></i>
+                مغاسل ودراي كلين
+            </h2>
+            <p style="color:#555;margin-bottom:16px;font-size:1.05em;line-height:1.55;text-align:center;">
+                اكتشف أفضل المغاسل وخدمات الدراي كلين حول الكمبوند، اطلع على تجارب السكان وأضف تقييمك وتعليقك لدعم تحسين الخدمة.
+            </p>
+
+            <div class="services-list">
+                <!-- 1 مغسلة دريم -->
+                <div class="service-card">
+                    <div class="service-title">مغسلة دريم</div>
+                    <div class="service-address">كمبوند الرباب</div>
+                    <div class="service-phone">
+                        <i class="fa-solid fa-phone-volume"></i>
+                        <a href="tel:01092545294">01092545294</a>
+                    </div>
+                    <div class="old-likes-info" id="old-likes-426">
+                        👍 <span class="like-count">0</span> | 👎 <span class="dislike-count">0</span>
+                        <small style="color:#888;display:block;">هذا التقييم بنظام الإعجاب/عدم الإعجاب (قديم)</small>
+                    </div>
+                    <div class="star-rating-comment" data-service-id="426">
+                        <div class="star-rating">
+                            <span class="star" data-value="1">★</span><span class="star" data-value="2">★</span>
+                            <span class="star" data-value="3">★</span><span class="star" data-value="4">★</span>
+                            <span class="star" data-value="5">★</span>
+                        </div>
+                        <textarea class="comment-text" placeholder="اكتب تعليقك عن المحل..."></textarea>
+                        <button class="submit-rating">إرسال التقييم</button>
+                        <div class="all-comments"></div>
+                    </div>
+                </div>
+
+                <!-- 2 دراي كلين المركز العالمي -->
+                <div class="service-card">
+                    <div class="service-title">دراي كلين المركز العالمي</div>
+                    <div class="service-address">مول الجوهرة</div>
+                    <div class="service-phone">
+                        <i class="fa-solid fa-phone-volume"></i>
+                        <a href="tel:01145848418">01145848418</a>
+                    </div>
+                    <div class="old-likes-info" id="old-likes-427">
+                        👍 <span class="like-count">0</span> | 👎 <span class="dislike-count">0</span>
+                        <small style="color:#888;display:block;">هذا التقييم بنظام الإعجاب/عدم الإعجاب (قديم)</small>
+                    </div>
+                    <div class="star-rating-comment" data-service-id="427">
+                        <div class="star-rating">
+                            <span class="star" data-value="1">★</span><span class="star" data-value="2">★</span>
+                            <span class="star" data-value="3">★</span><span class="star" data-value="4">★</span>
+                            <span class="star" data-value="5">★</span>
+                        </div>
+                        <textarea class="comment-text" placeholder="اكتب تعليقك عن المحل..."></textarea>
+                        <button class="submit-rating">إرسال التقييم</button>
+                        <div class="all-comments"></div>
+                    </div>
+                </div>
+
+                <!-- 3 دراي كلين سبلاش -->
+                <div class="service-card">
+                    <div class="service-title">دراي كلين سبلاش</div>
+                    <div class="service-address">شارع المنتزة</div>
+                    <div class="service-phone">
+                        <i class="fa-solid fa-phone-volume"></i>
+                        <a href="tel:01096390084">01096390084</a>
+                    </div>
+                    <div class="old-likes-info" id="old-likes-428">
+                        👍 <span class="like-count">0</span> | 👎 <span class="dislike-count">0</span>
+                        <small style="color:#888;display:block;">هذا التقييم بنظام الإعجاب/عدم الإعجاب (قديم)</small>
+                    </div>
+                    <div class="star-rating-comment" data-service-id="428">
+                        <div class="star-rating">
+                            <span class="star" data-value="1">★</span><span class="star" data-value="2">★</span>
+                            <span class="star" data-value="3">★</span><span class="star" data-value="4">★</span>
+                            <span class="star" data-value="5">★</span>
+                        </div>
+                        <textarea class="comment-text" placeholder="اكتب تعليقك عن المحل..."></textarea>
+                        <button class="submit-rating">إرسال التقييم</button>
+                        <div class="all-comments"></div>
+                    </div>
+                </div>
+
+                <!-- 4 دراي كلين دجلة -->
+                <div class="service-card">
+                    <div class="service-title">دراي كلين دجلة</div>
+                    <div class="service-address">كمبوند دجلة جاردنز</div>
+                    <div class="service-phone">
+                        <i class="fa-solid fa-phone-volume"></i>
+                        <a href="tel:01019805416">01019805416</a>
+                    </div>
+                    <div class="old-likes-info" id="old-likes-429">
+                        👍 <span class="like-count">0</span> | 👎 <span class="dislike-count">0</span>
+                        <small style="color:#888;display:block;">هذا التقييم بنظام الإعجاب/عدم الإعجاب (قديم)</small>
+                    </div>
+                    <div class="star-rating-comment" data-service-id="429">
+                        <div class="star-rating">
+                            <span class="star" data-value="1">★</span><span class="star" data-value="2">★</span>
+                            <span class="star" data-value="3">★</span><span class="star" data-value="4">★</span>
+                            <span class="star" data-value="5">★</span>
+                        </div>
+                        <textarea class="comment-text" placeholder="اكتب تعليقك عن المحل..."></textarea>
+                        <button class="submit-rating">إرسال التقييم</button>
+                        <div class="all-comments"></div>
+                    </div>
+                </div>
+
+                <!-- 5 دراي كلين اللوتس -->
+                <div class="service-card">
+                    <div class="service-title">دراي كلين اللوتس</div>
+                    <div class="service-address">كمبوند اللوتس</div>
+                    <div class="service-phone">
+                        <i class="fa-solid fa-phone-volume"></i>
+                        <a href="tel:01012275734">01012275734</a>
+                    </div>
+                    <div class="old-likes-info" id="old-likes-430">
+                        👍 <span class="like-count">0</span> | 👎 <span class="dislike-count">0</span>
+                        <small style="color:#888;display:block;">هذا التقييم بنظام الإعجاب/عدم الإعجاب (قديم)</small>
+                    </div>
+                    <div class="star-rating-comment" data-service-id="430">
+                        <div class="star-rating">
+                            <span class="star" data-value="1">★</span><span class="star" data-value="2">★</span>
+                            <span class="star" data-value="3">★</span><span class="star" data-value="4">★</span>
+                            <span class="star" data-value="5">★</span>
+                        </div>
+                        <textarea class="comment-text" placeholder="اكتب تعليقك عن المحل..."></textarea>
+                        <button class="submit-rating">إرسال التقييم</button>
+                        <div class="all-comments"></div>
+                    </div>
+                </div>
+
+                <!-- 6 مغسلة بابيلز -->
+                <div class="service-card">
+                    <div class="service-title">مغسلة بابيلز</div>
+                    <div class="service-address">مول كمبوند بيت المصرية</div>
+                    <div class="service-phone">
+                        <i class="fa-solid fa-phone-volume"></i>
+                        <a href="tel:01097289282">01097289282</a>
+                    </div>
+                    <div class="old-likes-info" id="old-likes-431">
+                        👍 <span class="like-count">0</span> | 👎 <span class="dislike-count">0</span>
+                        <small style="color:#888;display:block;">هذا التقييم بنظام الإعجاب/عدم الإعجاب (قديم)</small>
+                    </div>
+                    <div class="star-rating-comment" data-service-id="431">
+                        <div class="star-rating">
+                            <span class="star" data-value="1">★</span><span class="star" data-value="2">★</span>
+                            <span class="star" data-value="3">★</span><span class="star" data-value="4">★</span>
+                            <span class="star" data-value="5">★</span>
+                        </div>
+                        <textarea class="comment-text" placeholder="اكتب تعليقك عن المحل..."></textarea>
+                        <button class="submit-rating">إرسال التقييم</button>
+                        <div class="all-comments"></div>
+                    </div>
+                </div>
+
+                <!-- 7 دراي كلين الجوهرة -->
+                <div class="service-card">
+                    <div class="service-title">دراي كلين الجوهرة</div>
+                    <div class="service-address">مول الجوهرة</div>
+                    <div class="service-phone">
+                        <i class="fa-solid fa-phone-volume"></i>
+                        <a href="tel:01124608990">01124608990</a>
+                    </div>
+                    <div class="old-likes-info" id="old-likes-433">
+                        👍 <span class="like-count">0</span> | 👎 <span class="dislike-count">0</span>
+                        <small style="color:#888;display:block;">هذا التقييم بنظام الإعجاب/عدم الإعجاب (قديم)</small>
+                    </div>
+                    <div class="star-rating-comment" data-service-id="433">
+                        <div class="star-rating">
+                            <span class="star" data-value="1">★</span><span class="star" data-value="2">★</span>
+                            <span class="star" data-value="3">★</span><span class="star" data-value="4">★</span>
+                            <span class="star" data-value="5">★</span>
+                        </div>
+                        <textarea class="comment-text" placeholder="اكتب تعليقك عن المحل..."></textarea>
+                        <button class="submit-rating">إرسال التقييم</button>
+                        <div class="all-comments"></div>
+                    </div>
+                </div>
+
+                <!-- 8 دراي كلين A ONE -->
+                <div class="service-card">
+                    <div class="service-title">دراي كلين A ONE</div>
+                    <div class="service-address">مول بيتا جرينز</div>
+                    <div class="service-phone">
+                        <i class="fa-solid fa-phone-volume"></i>
+                        <a href="tel:01080302725">01080302725</a>
+                    </div>
+                    <div class="old-likes-info" id="old-likes-432">
+                        👍 <span class="like-count">0</span> | 👎 <span class="dislike-count">0</span>
+                        <small style="color:#888;display:block;">هذا التقييم بنظام الإعجاب/عدم الإعجاب (قديم)</small>
+                    </div>
+                    <div class="star-rating-comment" data-service-id="432">
+                        <div class="star-rating">
+                            <span class="star" data-value="1">★</span><span class="star" data-value="2">★</span>
+                            <span class="star" data-value="3">★</span><span class="star" data-value="4">★</span>
+                            <span class="star" data-value="5">★</span>
+                        </div>
+                        <textarea class="comment-text" placeholder="اكتب تعليقك عن المحل..."></textarea>
+                        <button class="submit-rating">إرسال التقييم</button>
+                        <div class="all-comments"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer dir="rtl">
+        <p>Copyright © 2024 GENIUS Tech All Rights Reserved</p>
+    </footer>
+    <script>
+document.addEventListener('DOMContentLoaded', function () {
+  const section = document.querySelector('.section-card');
+  if(!section) return;
+
+  // أول h2 داخل القسم
+  const h2 = section.querySelector('h2');
+  const list = section.querySelector('.services-list');
+  if(!h2 || !list) return;
+
+  const count = list.querySelectorAll('.service-card').length;
+  // تفادي تكرار الشارة لو أُعيد تنفيذ السكربت
+  if(h2.querySelector('.count-badge')) return;
+
+  const badge = document.createElement('span');
+  badge.className = 'count-badge';
+  badge.textContent = 'العدد الحالي: ' + count;
+  h2.appendChild(badge);
+});
+</script>
 </body>
 </html>
