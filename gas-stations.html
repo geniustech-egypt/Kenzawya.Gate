@@ -11,36 +11,17 @@
   <link rel="stylesheet" href="libs/leaflet/leaflet.css">
   <style>
     body { margin:0; font-family:'Cairo',sans-serif; background:#f6f9fc; color:#123; }
-    header {
-      position: sticky; top:0; z-index:1000; background:#4a90e2;
-      color:#fff; padding:14px 16px; box-shadow:0 2px 8px rgba(0,0,0,0.08);
-      display:flex; justify-content:space-between; align-items:center; gap:10px;
-    }
+    header { position: sticky; top:0; z-index:1000; background:#4a90e2; color:#fff; padding:14px 16px; box-shadow:0 2px 8px rgba(0,0,0,0.08); display:flex; justify-content:space-between; align-items:center; gap:10px; }
     header .title { display:flex; align-items:center; gap:10px; font-weight:800; font-size:1.1rem; }
     header a { color:#fff; text-decoration:none; font-size:1.4rem; }
-    .page {
-      max-width:1100px; margin:14px auto 32px; padding:0 14px;
-    }
-    .card {
-      background:#fff; border-radius:14px; box-shadow:0 6px 18px rgba(0,0,0,0.08);
-      padding:14px; margin-bottom:12px;
-    }
+    .page { max-width:1100px; margin:14px auto 32px; padding:0 14px; }
+    .card { background:#fff; border-radius:14px; box-shadow:0 6px 18px rgba(0,0,0,0.08); padding:14px; margin-bottom:12px; }
     #stations-map { width:100%; height:70vh; border-radius:12px; overflow:hidden; }
-    .controls {
-      display:flex; flex-wrap:wrap; gap:8px; margin-bottom:10px;
-    }
-    .btn {
-      background:#031a8e; color:#f9fdff; border:1px solid #cfdbe5;
-      padding:8px 12px; border-radius:6px; cursor:pointer; font-weight:700;
-      display:inline-flex; align-items:center; gap:6px; font-size:0.9rem;
-      transition:background .2s, box-shadow .2s;
-    }
+    .controls { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:10px; }
+    .btn { background:#031a8e; color:#f9fdff; border:1px solid #cfdbe5; padding:8px 12px; border-radius:6px; cursor:pointer; font-weight:700; display:inline-flex; align-items:center; gap:6px; font-size:0.9rem; transition:background .2s, box-shadow .2s; }
     .btn:hover { background:#0c2461; box-shadow:0 4px 12px rgba(0,0,0,0.15); }
     .list { display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:10px; }
-    .station-item {
-      background:#f7fbff; border:1px solid #e2ecf5; border-radius:10px; padding:10px;
-      display:flex; flex-direction:column; gap:6px;
-    }
+    .station-item { background:#f7fbff; border:1px solid #e2ecf5; border-radius:10px; padding:10px; display:flex; flex-direction:column; gap:6px; }
     .station-item h3 { margin:0; font-size:1rem; color:#1f5f9e; }
     .station-item .addr { color:#666; font-size:0.92rem; }
     .station-item .meta { color:#444; font-size:0.9rem; }
@@ -74,12 +55,30 @@
 <!-- نسخة محلية من Leaflet -->
 <script src="libs/leaflet/leaflet.js"></script>
 <script>
-// بيانات محطات البنزين (إحداثيات تقريبية حول الكمبوند)
+const defaultIcon = L.icon({
+  iconRetinaUrl: '/libs/leaflet/images/marker-icon-2x.png',
+  iconUrl:      '/libs/leaflet/images/marker-icon.png',
+  shadowUrl:    '/libs/leaflet/images/marker-shadow.png',
+  iconSize:     [25, 41],
+  iconAnchor:   [12, 41],
+  popupAnchor:  [1, -34],
+  shadowSize:   [41, 41]
+});
+
+// اجعل هذا هو الأيقون الافتراضي لكل الماركرات
+L.Marker.prototype.options.icon = defaultIcon;
+</script>
+<script>
+// قائمة المحطات (أقرب للكمبوند)
 const stations = [
-  { name: "محطة موبيل - مدخل الحي الإيطالي", lat: 29.97262, lng: 31.04255, address: "مدخل الحي الإيطالي - طريق البترول", brand: "Mobil" },
-  { name: "محطة وطنية - طريق الواحات", lat: 29.95526, lng: 31.04690, address: "طريق الواحات - قبل دريم", brand: "Watanyia" },
-  { name: "محطة شيل أوت - طريق الواحات", lat: 29.94962, lng: 31.05085, address: "طريق الواحات - مقابل دريم لاند", brand: "Chillout" },
-  { name: "محطة وطنية - محور 26 يوليو (قريبة)", lat: 29.98940, lng: 31.03490, address: "محور 26 يوليو", brand: "Watanyia" }
+  { name: "محطة شل أوت - طريق الفيوم",                      lat: 29.953193921896396, lng: 31.104572117198536, address: "طريق الفيوم", brand: "Chillout" },
+  { name: "محطة بنزين الشرق",                               lat: 29.94931075783546,   lng: 31.091890752971786, address: "طريق الفيوم", brand: "Al Sharq" },
+  { name: "محطة شل أوت - طريق الواحات",                     lat: 29.952680568458383,  lng: 31.086499512857248, address: "طريق الواحات", brand: "Chillout" },
+  { name: "محطة موبيل - صينية البترول مدخل الحي الإيطالي", lat: 29.930878197661887, lng: 31.04355332321315,  address: "صينية البترول - مدخل الحي الإيطالي", brand: "Mobil" },
+  { name: "محطة موبيل - طريق الواحات مدخل مدينة الفردوس",   lat: 29.95730491495708,  lng: 31.056997776021593, address: "طريق الواحات - مدخل مدينة الفردوس", brand: "Mobil" },
+  { name: "محطة وطنية - دريم بارك طريق الواحات",            lat: 29.958080790643184, lng: 31.063873283558863, address: "طريق الواحات - دريم بارك", brand: "Watanyia" },
+  { name: "محطة وطنية - أمام دريم لاند طريق الواحات",       lat: 29.96191534610792,  lng: 31.041162013765828, address: "طريق الواحات - أمام دريم لاند", brand: "Watanyia" },
+  { name: "محطة إيني - بجوار كمبوند دار مصر طريق وادي النطرون", lat: 29.946716845821584, lng: 31.022515296682396, address: "طريق وادي النطرون - بجوار كمبوند دار مصر", brand: "ENI" }
 ];
 
 const map = L.map('stations-map', { zoomControl:true }).setView([29.9669, 31.0438], 13);
