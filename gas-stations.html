@@ -40,7 +40,7 @@
   <div class="card">
     <div class="controls">
       <button id="locate-me" class="btn"><i class="fa-solid fa-location-crosshairs"></i> موقعي الآن</button>
-      <button id="nearest-station" class="btn"><i class="fa-solid fa-route"></i>  أقرب محطة للكمبوند</button>
+      <button id="nearest-station" class="btn"><i class="fa-solid fa-route"></i> أقرب محطة للكمبوند</button>
       <button id="reset-view" class="btn"><i class="fa-solid fa-rotate-left"></i> عرض كل المحطات</button>
     </div>
     <div id="stations-map"></div>
@@ -52,6 +52,7 @@
   </div>
 </div>
 
+<!-- نسخة محلية من Leaflet -->
 <script src="libs/leaflet/leaflet.js"></script>
 <script>
 const defaultIcon = L.icon({
@@ -63,8 +64,6 @@ const defaultIcon = L.icon({
   popupAnchor:  [1, -34],
   shadowSize:   [41, 41]
 });
-
-// اجعل هذا هو الأيقون الافتراضي لكل الماركرات
 L.Marker.prototype.options.icon = defaultIcon;
 </script>
 <script>
@@ -134,7 +133,7 @@ function getNearestStation(pos){
   let best = null, bestDist = Infinity;
   stations.forEach((st,i)=>{
     const d = distance(pos.lat, pos.lng, st.lat, st.lng);
-    if(d < bestDist){ bestDist = d; best = { st, i }; }
+    if(d < bestDist){ bestDist = d; best = { st, i, dist: d }; }
   });
   return best;
 }
@@ -151,6 +150,12 @@ function distance(lat1, lon1, lat2, lon2){
 function goToNearest(pos){
   const nearest = getNearestStation(pos);
   if(!nearest) return;
+
+  // تنبيه إذا كانت المسافة أكبر من 35 كم
+  if(nearest.dist > 35){
+    alert(`أنت تبعد حوالي ${nearest.dist.toFixed(1)} كم عن أقرب محطة من القائمة. تأكد من اختيار محطة أقرب لموقعك.`);
+  }
+
   zoomToStation(nearest.i);
 }
 
@@ -163,7 +168,11 @@ function withLocation(cb){
   }
   navigator.geolocation.getCurrentPosition(
     (res)=> cb({lat: res.coords.latitude, lng: res.coords.longitude}),
-    ()=> alert("تعذر الحصول على موقعك الحالي.")
+    (err)=> {
+      console.error('Geolocation error', err);
+      alert("تعذر الحصول على موقعك الحالي. تأكد من تفعيل الموقع ومنح الإذن للمتصفح.");
+    },
+    { enableHighAccuracy: true, timeout: 10000 }
   );
 }
 
@@ -184,5 +193,3 @@ document.getElementById('nearest-station').onclick = ()=>{
 </script>
 </body>
 </html>
-
-
