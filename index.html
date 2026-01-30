@@ -650,12 +650,12 @@ footer.site-footer {
         <button id="traffic-button" class="icon-btn" data-tooltip="من و إلي الكمبوند" aria-label="من وإلى الكمبوند">
             <i class="fas fa-car-side" style="color:#fefefc;"></i>
         </button>
-                <a href="gas-stations.html" class="icon-btn" data-tooltip="محطات بنزين" aria-label="محطات بنزين">
+        <!-- الأيقونة الجديدة لمحطات البنزين -->
+        <a href="gas-stations.html" class="icon-btn" data-tooltip="محطات بنزين" aria-label="محطات بنزين">
             <i class="fa-solid fa-gas-pump" style="color:#fefefc;"></i>
         </a>
         <div class="icon-with-card-container">
             <button id="emergency-button" class="icon-btn" data-tooltip="أرقام الطوارئ" aria-label="أرقام الطوارئ">
-
                 <i class="fa-solid fa-phone-volume" style="color:#fefefc;"></i>
             </button>
             <div id="emergency-card" class="floating-info-card">
@@ -679,6 +679,7 @@ footer.site-footer {
         </div>
     </div>
 </header>
+
 <section id="ramadan-countdown" class="section-card ramadan-section">
   <div class="ramadan-bg">
     <div class="ramadan-overlay">
@@ -705,11 +706,14 @@ footer.site-footer {
       <p id="ramadan-message" class="ramadan-message" style="display:none;">
         🌙 رمضان كريم كل عام وانتم بخير يا كنزااااوية 🌙
       </p>
+    <!-- رابط إمساكية رمضان داخل العداد -->
+      <button id="open-imsakiya" type="button" class="imsakiya-btn">
+        📅 إمساكية رمضان
+      </button>
     </div>
   </div>
 </section>
-
-  <!-- ====== Navigation Bar ====== -->
+    <!-- ====== Navigation Bar ====== -->
     <nav class="nav-bar">
         <div class="info-bar">
             <div class="marquee">
@@ -720,9 +724,9 @@ footer.site-footer {
                 <span><span style="color:lightgreen;"> #أخبار خفيفة#</span> 1-تم افتتاح محطة وقود موبيل مدخل طريق الحي الايطالي من ناحية صينية البترول</span>                
                 <span>2- تم افتتاح أحدث فروع حلواني اكسبشن بجوار محطة وقود موبيل الجديدة - صينية البترول</span>
                 <span>3- يتم حاليا رفع كفاءة طريق الحي الايطالي وفصل الاتجاهات والتشجير.. جاري الانتهاء منه كما هو معلن في 31 يناير 2026 </span>
-                <span>4- قريبا افتتاح احدث فروع حلواني العبد بأول طريق زويل من ناحية صينية البترول بجوار مطعم مشاوينا.. الافتتاح الرسمي 1-2-2024 </span>
+                <span>4- قريبا افتتاح احدث فروع حلواني العبد بأول طريق زويل من ناحية صينية البترول بجوار مطعم مشاوينا.. الافتتاح الرسمي 1-2-2026 </span>
                 <span style="color:rgb(246, 236, 57);">**تاريخ أخر تحديث للموقع : 30 / 1 / 2026</span>
-            </div
+            </div>
         </div>
         <div class="nav-container">
         </div>
@@ -1203,15 +1207,43 @@ renderCarousel();
   </a>
 </div>
 <script src="/visitor-stats.js" defer></script>
+
+<!-- نافذة إمساكية رمضان (Modal) -->
+<div id="imsakiya-modal" class="imsakiya-modal" aria-hidden="true" role="dialog" aria-modal="true">
+  <div class="imsakiya-panel" role="document" aria-labelledby="imsakiya-title">
+    <div class="imsakiya-header">
+      <h3 id="imsakiya-title">إمساكية رمضان</h3>
+      <button type="button" class="imsakiya-close" id="imsakiya-close" aria-label="إغلاق">×</button>
+    </div>
+
+    <div class="imsakiya-body" id="imsakiya-body">
+      <p style="margin-top:0;margin-bottom:10px;font-weight:600;color:#234;">
+        إمساكية رمضان الخاصة بمنطقة 6 أكتوبر.
+      </p>
+
+      <!-- زر لفتح الإمساكية في تبويب جديد -->
+      <button type="button"
+              class="imsakiya-open-pdf-btn"
+              onclick="window.open('6october.pdf','_blank','noopener')">
+        📄 فتح الإمساكية (PDF) في تبويب جديد
+      </button>
+
+      <!-- معاينة داخلية للـ PDF (إن ك��ن المتصفح يدعم) -->
+      <div class="imsakiya-pdf-frame-wrapper">
+        <iframe src="6october.pdf"
+                title="إمساكية رمضان – حدائق أكتوبر"
+                loading="lazy"></iframe>
+      </div>
+
+      <p style="margin-top:8px;font-size:0.8rem;color:#666;">
+        * في حال لم تظهر المعاينة أعلاه، استخدم زر "فتح الإمساكية" لعرض الملف ��باشرة.
+      </p>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
-
-
-
-
-
-
-
 
 
 
