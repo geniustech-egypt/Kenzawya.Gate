@@ -52,37 +52,53 @@ a:hover {
   transition: padding .25s ease;
 }
 
-/* طبقة التدرّج كأوفرلاي فوق الصورة */
-.header::before {
+/* طبقة زينة رمضان فوق الهيدر (فوانيس + نجوم) */
+.header::after {
   content: "";
   position: absolute;
-  inset: 0;
-  background: linear-gradient(rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0));
-  pointer-events: none;
-  z-index: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 120px;                 /* ارتفاع شريط الزينة الافتراضي */
+  background-image: url('ramadan-decor.png'); /* عدّل المسار لو مختلف */
+  background-repeat: repeat-x;   /* تكرار أفقي */
+  background-position: center top;
+  background-size: auto 120px;   /* ارتفاع الصورة = 120px، العرض حسب نسبتها ويتكرر */
+  pointer-events: none;          /* لا يمنع الضغط على العناصر تحته */
+  z-index: 1;                    /* تحت محتوى الهيدر، فوق الخلفية */
 }
-.header > * { position: relative; z-index: 1; }
 
-/* شاشات لاب إلى متوسطة: كبّر الصورة قليلًا لتقليل الفراغات مع قص بسيط مقبول */
-@media (min-width: 992px) and (max-width: 1199px) {
-  .header {
-    /* كبّر العرض عن 100% لتقليل الفراغات */
-    background-size: 110% auto;
-    background-position: center 20%;
-    min-height: 80px; /* زوّد الارتفاع قليلاً لتقليل القص */
+/* تأكد أن عناصر الهيدر فوق الزينة */
+.header > * {
+  position: relative;
+  z-index: 2;
+}
+
+/* موبايل: قلّل ارتفاع شريط الزينة عشان ما يأكلش مساحة كبيرة */
+@media (max-width: 600px) {
+  .header::after {
+    height: 80px;
+    background-size: auto 80px;
+    background-position: center 0;
   }
 }
 
-/* شاشات كبيرة: تحكم مرن في الحجم مع حد أدنى وأقصى + ارتفاع مرن لتقليل القص */
+/* شاشات لاب إلى متوسطة: كبّر الصورة الخلفية للهيدر قليلاً لتقليل الفراغات */
+@media (min-width: 992px) and (max-width: 1199px) {
+  .header {
+    background-size: 110% auto;
+    background-position: center 20%;
+    min-height: 80px;
+  }
+}
+
+/* شاشات كبيرة: تحكم مرن في حجم خلفية الهيدر (ليس الزينة) */
 @media (min-width: 1200px) {
   .header {
-    /* كبّر عرض الخلفية بنِسب مرنة: */
-    /* - أقل شيء 1200px، المفضل 90vw، وأقصى 1800px */
     background-size: clamp(1200px, 90vw, 1800px) auto;
     background-position: center 20%;
     min-height: clamp(20px, 38vh, 20px);
   }
-  /* أثناء التصغير لا نجبر ارتفاع كبير */
   .header.shrink {
     min-height: auto;
   }
@@ -2059,7 +2075,4 @@ mark {
     height: 65vh;
   }
 }
-
-
-
 
