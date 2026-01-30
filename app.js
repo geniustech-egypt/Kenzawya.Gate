@@ -1039,3 +1039,47 @@ window.addEventListener('scroll', () => {
     ticking = true;
   }
 }, { passive: true });
+
+// ===== عدّاد تنازلي لرمضان =====
+(function setupRamadanCountdown() {
+  const daysEl    = document.getElementById('days');
+  const hoursEl   = document.getElementById('hours');
+  const minsEl    = document.getElementById('minutes');
+  const secsEl    = document.getElementById('seconds');
+  const messageEl = document.getElementById('ramadan-message');
+
+  if (!daysEl || !hoursEl || !minsEl || !secsEl) return;
+
+  // غيّر التاريخ حسب بداية رمضان الفعلية
+  const ramadanStart = new Date("2026-02-18T00:00:00");
+
+  function updateCountdown() {
+    const now = new Date().getTime();
+    const diff = ramadanStart.getTime() - now;
+
+    if (diff <= 0) {
+      daysEl.textContent  = "0";
+      hoursEl.textContent = "0";
+      minsEl.textContent  = "0";
+      secsEl.textContent  = "0";
+      if (messageEl) messageEl.style.display = 'block';
+      clearInterval(timerId);
+      return;
+    }
+
+    const totalSeconds = Math.floor(diff / 1000);
+    const days   = Math.floor(totalSeconds / (60 * 60 * 24));
+    const hours  = Math.floor((totalSeconds % (60 * 60 * 24)) / (60 * 60));
+    const mins   = Math.floor((totalSeconds % (60 * 60)) / 60);
+    const secs   = totalSeconds % 60;
+
+    daysEl.textContent  = days;
+    hoursEl.textContent = hours.toString().padStart(2,'0');
+    minsEl.textContent  = mins.toString().padStart(2,'0');
+    secsEl.textContent  = secs.toString().padStart(2,'0');
+  }
+
+  const timerId = setInterval(updateCountdown, 1000);
+  updateCountdown();
+})();
+
