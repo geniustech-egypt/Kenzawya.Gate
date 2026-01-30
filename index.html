@@ -679,10 +679,37 @@ footer.site-footer {
         </div>
     </div>
 </header>
-  <div id="static-santa">
-  <img src="photo/giphy.gif" alt="Santa GIF">
-</div>
-    <!-- ====== Navigation Bar ====== -->
+<section id="ramadan-countdown" class="section-card ramadan-section">
+  <div class="ramadan-bg">
+    <div class="ramadan-overlay">
+      <h2>مرحب شهر الصوم مرحب</h2>
+      <p class="ramadan-dua">اللهم بلغنا رمضان ونحن في صحة وسلامة وراحة بال</p>
+      <div id="ramadan-timer">
+        <div class="time-box">
+          <span id="days">0</span>
+          <label>يوم</label>
+        </div>
+        <div class="time-box">
+          <span id="hours">0</span>
+          <label>ساعة</label>
+        </div>
+        <div class="time-box">
+          <span id="minutes">0</span>
+          <label>دقيقة</label>
+        </div>
+        <div class="time-box">
+          <span id="seconds">0</span>
+          <label>ثانية</label>
+        </div>
+      </div>
+      <p id="ramadan-message" class="ramadan-message" style="display:none;">
+        🌙 رمضان كريم كل عام وانتم بخير يا كنزااااوية 🌙
+      </p>
+    </div>
+  </div>
+</section>
+
+  <!-- ====== Navigation Bar ====== -->
     <nav class="nav-bar">
         <div class="info-bar">
             <div class="marquee">
@@ -1178,6 +1205,7 @@ renderCarousel();
 <script src="/visitor-stats.js" defer></script>
 </body>
 </html>
+
 
 
 
