@@ -1806,6 +1806,7 @@ mark {
     max-width: 60%; /* تصغير الصورة قليلاً للشاشات الكبيرة */
   }
 }
+
 /* ===== قسم العدّاد التنازلي لرمضان ===== */
 .ramadan-section {
   padding: 0;
@@ -1918,8 +1919,146 @@ mark {
   }
 }
 
+/* ===== زر إمساكية رمضان داخل العداد ===== */
+.imsakiya-btn {
+  margin-top: 10px;
+  background: rgba(255, 235, 59, 0.12);
+  color: #ffeb3b;
+  border: 1px solid rgba(255, 235, 59, 0.5);
+  padding: 8px 16px;
+  border-radius: 999px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.35);
+  transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
+}
+.imsakiya-btn:hover {
+  background: rgba(255, 235, 59, 0.25);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.45);
+  transform: translateY(-1px);
+}
+.imsakiya-btn:active {
+  transform: translateY(1px) scale(0.98);
+}
 
+/* ===== نافذة (Modal) إمساكية رمضان ===== */
+.imsakiya-modal {
+  position: fixed;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(7, 11, 15, 0.65);
+  z-index: 13000;
+  padding: 20px;
+}
+.imsakiya-modal.open {
+  display: flex;
+}
 
+.imsakiya-panel {
+  width: min(900px, 96vw);
+  max-height: 90vh;
+  background: #ffffff;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.45);
+  direction: rtl;
+  display: flex;
+  flex-direction: column;
+}
+
+.imsakiya-header {
+  padding: 10px 14px;
+  background: linear-gradient(90deg, #0b66b3, #4a90e2);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.imsakiya-header h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.imsakiya-close {
+  background: transparent;
+  border: 0;
+  font-size: 20px;
+  color: #fff;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 6px;
+}
+.imsakiya-close:hover {
+  background: rgba(255,255,255,0.12);
+}
+
+.imsakiya-body {
+  padding: 14px;
+  overflow: auto;
+  background: #f8fbff;
+}
+
+/* موبايل */
+@media (max-width: 600px) {
+  .imsakiya-panel {
+    width: 100%;
+    max-height: 94vh;
+  }
+  .imsakiya-body {
+    padding: 10px;
+  }
+}
+
+/* زر فتح PDF داخل نافذة الإمساكية */
+.imsakiya-open-pdf-btn {
+  display: inline-block;
+  margin-bottom: 10px;
+  background: #0b66b3;
+  color: #fff;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+  transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
+}
+.imsakiya-open-pdf-btn:hover {
+  background: #084e87;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+  transform: translateY(-1px);
+}
+.imsakiya-open-pdf-btn:active {
+  transform: translateY(1px) scale(0.98);
+}
+
+/* غلاف iframe لمعاينة PDF */
+.imsakiya-pdf-frame-wrapper {
+  width: 100%;
+  max-height: 70vh;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 3px 16px rgba(0,0,0,0.25);
+  background: #fff;
+}
+.imsakiya-pdf-frame-wrapper iframe {
+  width: 100%;
+  height: 60vh;
+  border: none;
+}
+
+/* موبايل */
+@media (max-width: 600px) {
+  .imsakiya-pdf-frame-wrapper iframe {
+    height: 65vh;
+  }
+}
 
 
 
