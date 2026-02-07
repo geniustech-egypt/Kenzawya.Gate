@@ -2076,3 +2076,77 @@ mark {
   }
 }
 
+/* ===== سكشن إعلانات الشقق في الصفحة الرئيسية ===== */
+.apartments-highlight {
+  background: linear-gradient(135deg, #fff3f8 0%, #fce4ec 40%, #f8f9ff 100%);
+  border-radius: 18px;
+  box-shadow: 0 6px 20px rgba(194, 24, 91, 0.15);
+  margin-top: 26px;
+}
+
+.apartments-highlight .eb-content h2 {
+  color: #c2185b; /* لون مختلف عن مشروعات الكنزاوية */
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: center;
+  margin-bottom: 8px;
+}
+
+.apartments-highlight .apartments-text {
+  margin: 0 0 14px;
+  font-size: 0.95rem;
+  line-height: 1.8;
+  color: #5b2940;
+  text-align: center;
+}
+
+.apartments-cta-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.apartments-cta-main {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 16px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #c2185b, #e91e63);
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-decoration: none;
+  box-shadow: 0 4px 14px rgba(233, 30, 99, 0.35);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.25s ease;
+}
+
+.apartments-cta-main:hover {
+  background: linear-gradient(135deg, #ad1457, #d81b60);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(233, 30, 99, 0.45);
+}
+
+.apartments-hint {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #7b425a;
+  text-align: center;
+}
+
+/* موبايل */
+@media (max-width: 600px) {
+  .apartments-highlight {
+    padding: 24px 16px;
+  }
+  .apartments-highlight .apartments-text {
+    font-size: 0.9rem;
+  }
+  .apartments-cta-main {
+    width: 100%;
+    justify-content: center;
+    font-size: 0.88rem;
+  }
+}
