@@ -1,0 +1,1228 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>إعلانات الشقق | بوابة الكنزاوية</title>
+  <meta name="description" content="قسم مخصص لإعلانات شقق كمبوند كنز: بيع أو إيجار، مع عرض بيانات التواصل، البحث والفلترة.">
+  <link rel="canonical" href="https://geniustech-egypt.github.io/Kenzawya.Gate/apartments.html" />
+  <link href="styles.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet"/>
+
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-FX6BSCQ8KQ"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-FX6BSCQ8KQ', { 'anonymize_ip': true });
+  </script>
+
+  <!-- سكربت الصفحة: Realtime DB + Storage + رفع صور فقط من الجهاز -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+    import {
+      getDatabase,
+      ref,
+      push,
+      set,
+      onValue,
+      get
+    } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+    import {
+      getStorage,
+      ref as storageRef,
+      uploadBytes,
+      getDownloadURL
+    } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-storage.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCnRLUzLraNE-AR94ZlRGIAFOKks74ZtyQ",
+      authDomain: "kenz--project.firebaseapp.com",
+      databaseURL: "https://kenz--project-default-rtdb.firebaseio.com",
+      projectId: "kenz--project",
+      storageBucket: "kenz--project.firebasestorage.app",
+      messagingSenderId: "435317870255",
+      appId: "1:435317870255:web:f521650dcfeb63a7378e5a",
+      measurementId: "G-FX6BSCQ8KQ"
+    };
+
+    const app      = initializeApp(firebaseConfig);
+    const database = getDatabase(app);
+    const storage  = getStorage(app);
+
+    let deviceId = localStorage.getItem('deviceId');
+    if (!deviceId) {
+      deviceId = 'device-' + Date.now();
+      localStorage.setItem('deviceId', deviceId);
+    }
+
+    function normalize(str) {
+      return (str || '')
+        .replace(/[أإآ]/g,'ا')
+        .replace(/ى/g,'ي')
+        .replace(/ة/g,'ه')
+        .replace(/َ|ً|ُ|ٌ|ِ|ٍ|ْ|ّ/g,'')
+        .toLowerCase()
+        .trim();
+    }
+
+    // تنضيف المدخلات من سكربتات
+    function sanitizeInput(str) {
+      if (!str) return '';
+      let s = String(str);
+      s = s.replace(/<\s*script/gi, '[ممنوع]');
+      s = s.replace(/<\s*\/\s*script\s*>/gi, '[ممنوع]');
+      s = s.replace(/\son\w+\s*=/gi, ' [ممنوع]=');
+      s = s.replace(/<\s*(iframe|img|object|embed)/gi, '[ممنوع-$1]');
+      s = s.replace(/</g, '‹').replace(/>/g, '›');
+      return s.trim();
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const form          = document.getElementById('apt-form');
+      const listEl        = document.getElementById('apt-list');
+      const emptyEl       = document.getElementById('apt-empty');
+      const searchInput   = document.getElementById('apt-search');
+      const filterType    = document.getElementById('filter-type');
+      const filterBar     = document.getElementById('filter-bar');
+      const filterFloor   = document.getElementById('filter-floor');
+      const toggleFormBtn = document.getElementById('toggle-apt-form');
+
+      const waNotifyBox  = document.getElementById('wa-notify-box');
+      const waNotifyLink = document.getElementById('wa-notify-link');
+
+      const filesInput   = document.getElementById('apt-images-files');
+
+      // مودال عرض الصور
+      const imagesModal   = document.getElementById('apt-images-modal');
+      const modalImg      = document.getElementById('apt-modal-image');
+      const modalCounter  = document.getElementById('apt-image-counter');
+      const modalPrevBtn  = document.getElementById('apt-prev-image');
+      const modalNextBtn  = document.getElementById('apt-next-image');
+      const modalCloseBtn = document.querySelector('.apt-images-close');
+      const modalBackdrop = document.querySelector('.apt-images-backdrop');
+
+      let currentImages = [];
+      let currentIndex  = 0;
+
+      function updateModalImage() {
+        if (!currentImages.length) return;
+        modalImg.src = currentImages[currentIndex];
+        modalCounter.textContent = (currentIndex + 1) + ' / ' + currentImages.length;
+      }
+
+      function openImagesModal(images) {
+        if (!images || !images.length) return;
+        currentImages = images;
+        currentIndex  = 0;
+        updateModalImage();
+        imagesModal.classList.add('open');
+        imagesModal.setAttribute('aria-hidden', 'false');
+      }
+
+      function closeImagesModal() {
+        imagesModal.classList.remove('open');
+        imagesModal.setAttribute('aria-hidden', 'true');
+        currentImages = [];
+        currentIndex  = 0;
+        modalImg.src  = '';
+      }
+
+      if (modalPrevBtn) {
+        modalPrevBtn.addEventListener('click', () => {
+          if (!currentImages.length) return;
+          currentIndex = (currentIndex - 1 + currentImages.length) % currentImages.length;
+          updateModalImage();
+        });
+      }
+      if (modalNextBtn) {
+        modalNextBtn.addEventListener('click', () => {
+          if (!currentImages.length) return;
+          currentIndex = (currentIndex + 1) % currentImages.length;
+          updateModalImage();
+        });
+      }
+      if (modalCloseBtn) {
+        modalCloseBtn.addEventListener('click', closeImagesModal);
+      }
+      if (modalBackdrop) {
+        modalBackdrop.addEventListener('click', closeImagesModal);
+      }
+      document.addEventListener('keydown', (e) => {
+        if (!imagesModal.classList.contains('open')) return;
+        if (e.key === 'Escape') closeImagesModal();
+        if (e.key === 'ArrowRight') modalNextBtn?.click();
+        if (e.key === 'ArrowLeft')  modalPrevBtn?.click();
+      });
+
+      let allAds = [];
+
+      // فتح/غلق فورم الإعلان
+      if (toggleFormBtn && form) {
+        toggleFormBtn.addEventListener('click', () => {
+          const hidden = form.hasAttribute('hidden');
+          if (hidden) {
+            form.removeAttribute('hidden');
+            toggleFormBtn.setAttribute('aria-expanded', 'true');
+            toggleFormBtn.innerHTML = '<i class="fa-solid fa-minus"></i> إخفاء نموذج الإعلان';
+            form.scrollIntoView({ behavior:'smooth', block:'start' });
+          } else {
+            form.setAttribute('hidden', 'true');
+            toggleFormBtn.setAttribute('aria-expanded', 'false');
+            toggleFormBtn.innerHTML = '<i class="fa-solid fa-plus"></i> إضافة إعلان شقة';
+          }
+        });
+      }
+
+      const adsRef = ref(database, 'apartmentAds');
+
+      onValue(adsRef, snapshot => {
+        const data = snapshot.val() || {};
+        const ads = [];
+        Object.keys(data).forEach(key => {
+          ads.push({ id:key, ...data[key] });
+        });
+        ads.sort((a,b) => (b.createdAt || 0) - (a.createdAt || 0));
+        allAds = ads;
+        renderAds();
+      });
+
+      function applyFilters() {
+        const term   = normalize(searchInput?.value || '');
+        const type   = filterType?.value || 'all';
+        const bar    = normalize(filterBar?.value || '');
+        const floor  = normalize(filterFloor?.value || '');
+        const status = 'approved';
+
+        return allAds.filter(ad => {
+          if (status === 'approved' && ad.status !== 'approved') return false;
+          if (type !== 'all' && ad.type !== type) return false;
+
+          if (term) {
+            const hay = normalize(
+              (ad.title || '') + ' ' +
+              (ad.description || '') + ' ' +
+              (ad.location || '')
+            );
+            if (!hay.includes(term)) return false;
+          }
+
+          if (bar) {
+            const locNorm = normalize(ad.location || '');
+            if (!locNorm.includes(bar)) return false;
+          }
+
+          if (floor) {
+            const floorNorm = normalize(ad.floor || '');
+            const locNorm   = normalize(ad.location || '');
+            if (!floorNorm.includes(floor) && !locNorm.includes(floor)) return false;
+          }
+
+          return true;
+        });
+      }
+
+      function renderAds() {
+        const filtered = applyFilters();
+        listEl.innerHTML = '';
+
+        if (!filtered.length) {
+          emptyEl.style.display = 'block';
+          listEl.appendChild(emptyEl);
+          return;
+        }
+        emptyEl.style.display = 'none';
+
+        filtered.forEach(ad => {
+          const card = document.createElement('article');
+          card.className = 'apartment-card';
+
+          const body = document.createElement('div');
+          body.className = 'apartment-body';
+
+          const headerRow = document.createElement('div');
+          headerRow.className = 'apt-header-row';
+
+          const h = document.createElement('h3');
+          h.className = 'apartment-title';
+          h.textContent = ad.title || 'إعلان شقة';
+          headerRow.appendChild(h);
+
+          const typeTag = document.createElement('span');
+          typeTag.className = 'apartment-tag';
+          typeTag.textContent = ad.type === 'sale' ? 'شقة للبيع' : 'شقة للإيجار';
+          headerRow.appendChild(typeTag);
+
+          body.appendChild(headerRow);
+
+          const meta = document.createElement('div');
+          meta.className = 'apartment-meta';
+
+          if (ad.location) {
+            const item = document.createElement('div');
+            item.innerHTML = `<span class="meta-label"><i class="fa-solid fa-location-dot"></i> الموقع:</span> <span>${ad.location}</span>`;
+            meta.appendChild(item);
+          }
+          if (ad.floor) {
+            const item = document.createElement('div');
+            item.innerHTML = `<span class="meta-label"><i class="fa-solid fa-stairs"></i> الدور:</span> <span>${ad.floor}</span>`;
+            meta.appendChild(item);
+          }
+          if (ad.area) {
+            const item = document.createElement('div');
+            item.innerHTML = `<span class="meta-label"><i class="fa-solid fa-ruler-combined"></i> المساحة:</span> <span>${ad.area}</span>`;
+            meta.appendChild(item);
+          }
+          if (ad.rooms) {
+            const item = document.createElement('div');
+            item.innerHTML = `<span class="meta-label"><i class="fa-solid fa-bed"></i> عدد الغرف:</span> <span>${ad.rooms}</span>`;
+            meta.appendChild(item);
+          }
+          if (ad.price) {
+            const item = document.createElement('div');
+            item.innerHTML = `<span class="meta-label"><i class="fa-solid fa-tag"></i> السعر التقريبي:</span> <span>${ad.price}</span>`;
+            meta.appendChild(item);
+          }
+          body.appendChild(meta);
+
+          if (ad.description) {
+            const desc = document.createElement('p');
+            desc.className = 'apartment-desc';
+            desc.textContent = ad.description;
+            body.appendChild(desc);
+          }
+
+          if (ad.createdAt) {
+            const d = new Date(ad.createdAt);
+            const timeEl = document.createElement('div');
+            timeEl.className = 'apartment-created';
+            timeEl.textContent = 'تم الإضافة في: ' + d.toLocaleString('ar-EG');
+            body.appendChild(timeEl);
+          }
+
+          // زر عرض الصور إن وُجدت
+          if (ad.images && Array.isArray(ad.images) && ad.images.length) {
+            const imagesBtnWrap = document.createElement('div');
+            imagesBtnWrap.className = 'apt-images-btn-wrap';
+
+            const imagesBtn = document.createElement('button');
+            imagesBtn.type = 'button';
+            imagesBtn.className = 'apt-images-btn';
+            imagesBtn.innerHTML = '<i class="fa-regular fa-images"></i> عرض الصور (' + ad.images.length + ')';
+
+            imagesBtn.addEventListener('click', () => {
+              openImagesModal(ad.images);
+            });
+
+            imagesBtnWrap.appendChild(imagesBtn);
+            body.appendChild(imagesBtnWrap);
+          }
+
+          const contactBox = document.createElement('div');
+          contactBox.className = 'apartment-contact-box';
+
+          const contactTitle = document.createElement('div');
+          contactTitle.className = 'contact-title';
+          contactTitle.innerHTML = '<i class="fa-solid fa-phone-volume"></i> بيانات التواصل';
+          contactBox.appendChild(contactTitle);
+
+          const contact = document.createElement('div');
+          contact.className = 'apartment-contact';
+
+          if (ad.phone) {
+            const aPhone = document.createElement('a');
+            aPhone.className = 'phone';
+            aPhone.href = 'tel:' + ad.phone;
+            aPhone.innerHTML = '<i class="fa-solid fa-phone"></i><span>'+ad.phone+'</span>';
+            contact.appendChild(aPhone);
+          }
+          if (ad.whatsapp) {
+            const numWa = ad.whatsapp.replace(/[^0-9]/g,'');
+            const waHref = 'https://wa.me/2' + numWa;
+            const aWa = document.createElement('a');
+            aWa.className = 'wa';
+            aWa.href = waHref;
+            aWa.target = '_blank';
+            aWa.rel = 'noopener';
+            aWa.innerHTML = '<i class="fa-brands fa-whatsapp"></i><span>واتساب</span>';
+            contact.appendChild(aWa);
+          }
+
+          contactBox.appendChild(contact);
+          body.appendChild(contactBox);
+
+          card.appendChild(body);
+          listEl.appendChild(card);
+        });
+      }
+
+      [searchInput, filterType, filterBar, filterFloor].forEach(el => {
+        if (!el) return;
+        el.addEventListener('input', renderAds);
+        el.addEventListener('change', renderAds);
+      });
+
+      // رفع صور الإعلان إلى Firebase Storage
+      async function uploadImagesForAd(adId) {
+        const files = Array.from(filesInput?.files || []);
+        const urls = [];
+
+        if (!files.length) return urls;
+
+        if (files.length > 6) {
+          throw new Error('يمكن رفع حتى 6 صور فقط لكل إعلان.');
+        }
+
+        for (let i = 0; i < files.length; i++) {
+          const file = files[i];
+
+          // حجم أقصى 3 ميجا للصورة
+          if (file.size > 3 * 1024 * 1024) {
+            throw new Error('أقصى حجم للصورة الواحدة 3 ميجا. برجاء تقليل حجم الملف: ' + file.name);
+          }
+
+          const ext = file.name.split('.').pop() || 'jpg';
+          const safeName = 'img_' + (i+1) + '_' + Date.now() + '.' + ext;
+          const path = `apartmentImages/${adId}/${safeName}`;
+          const sRef = storageRef(storage, path);
+
+          await uploadBytes(sRef, file);
+          const url = await getDownloadURL(sRef);
+          urls.push(url);
+        }
+
+        return urls;
+      }
+
+      // حفظ إعلان جديد + حد / مهلة + رفع صور
+      if (form) {
+        form.addEventListener('submit', async e => {
+          e.preventDefault();
+
+          const title   = sanitizeInput(document.getElementById('apt-title').value.trim());
+          const type    = document.getElementById('apt-type').value;
+          const loc     = sanitizeInput(document.getElementById('apt-location').value.trim());
+          const price   = sanitizeInput(document.getElementById('apt-price').value.trim());
+          const floor   = sanitizeInput(document.getElementById('apt-floor').value.trim());
+          const area    = sanitizeInput(document.getElementById('apt-area').value.trim());
+          const rooms   = sanitizeInput(document.getElementById('apt-rooms').value.trim());
+          const phone   = sanitizeInput(document.getElementById('apt-phone').value.trim());
+          const wa      = sanitizeInput(document.getElementById('apt-whatsapp').value.trim());
+          const desc    = sanitizeInput(document.getElementById('apt-desc').value.trim());
+
+          if (!title || !phone || !desc) {
+            alert('برجاء إدخال عنوان الإعلان، رقم الهاتف، ووصف الشقة.');
+            return;
+          }
+
+          // مهلة 5 دقائق + حد 3 إعلانات للجهاز
+          const lastAdTs = Number(localStorage.getItem('apt_last_ad_ts') || 0);
+          const now      = Date.now();
+          const FIVE_MIN = 5 * 60 * 1000;
+
+          if (now - lastAdTs < FIVE_MIN) {
+            const remainingSec = Math.ceil((FIVE_MIN - (now - lastAdTs)) / 1000);
+            const remainingMin = Math.ceil(remainingSec / 60);
+            alert('من فضلك انتظر ' + remainingMin + ' دقيقة تقريبًا قبل إضافة إعلان جديد من هذا الجهاز.');
+            return;
+          }
+
+          try {
+            const snapshot = await get(adsRef);
+            let countForDevice = 0;
+            snapshot.forEach(child => {
+              const ad = child.val();
+              if (ad && ad.createdBy === deviceId) {
+                countForDevice++;
+              }
+            });
+
+            if (countForDevice >= 3) {
+              alert('لقد وصلت للحد الأقصى (3 إعلانات) من هذا الجهاز. من فضلك احذف إعلان قديم أو تواصل مع إدارة الموقع.');
+              return;
+            }
+          } catch (err) {
+            console.warn('تعذر التحقق من عدد الإعلانات لهذا الجهاز:', err);
+            alert('تعذر التحقق من عدد الإعلانات لهذا الجهاز. حاول مرة أخرى بعد قليل.');
+            return;
+          }
+
+          const submitBtn = form.querySelector('.af-submit-btn');
+          if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'جاري رفع الصور وحفظ الإعلان...';
+          }
+
+          try {
+            const newRef = push(adsRef);
+            const adId   = newRef.key;
+            const nowTs  = Date.now();
+
+            // رفع الصور للـ Storage
+            let storageImages = [];
+            try {
+              storageImages = await uploadImagesForAd(adId);
+            } catch (uploadErr) {
+              console.error('خطأ في رفع الصور:', uploadErr);
+              alert(uploadErr.message || 'حدث خطأ أثناء رفع الصور، برجاء المحاولة مرة أخرى.');
+              if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'إرسال الإعلان للمراجعة';
+              }
+              return;
+            }
+
+            const newAd = {
+              title,
+              type,
+              location: loc,
+              price,
+              floor,
+              area,
+              rooms,
+              phone,
+              whatsapp: wa,
+              description: desc,
+              images: storageImages,
+              createdAt: nowTs,
+              status: 'pending',
+              createdBy: deviceId
+            };
+
+            await set(newRef, newAd);
+            localStorage.setItem('apt_last_ad_ts', String(nowTs));
+
+            alert('تم إرسال إعلانك، وسيتم مراجعته قبل النشر.');
+
+            if (waNotifyBox && waNotifyLink) {
+              const msg = encodeURIComponent(
+                'السلام عليكم، أنا أضفت إعلان شقة على بوابة الكنزاوية وأحتاج موافقة على نشر الإعلان.'
+              );
+              const adminNumber = '201001790590'; // 2 + 01001790590
+              waNotifyLink.href = 'https://wa.me/' + adminNumber + '?text=' + msg;
+              waNotifyBox.style.display = 'flex';
+            }
+
+            form.reset();
+            if (filesInput) filesInput.value = '';
+          } catch (err) {
+            console.error('خطأ في حفظ الإعلان:', err);
+            alert('حدث خطأ أثناء حفظ الإعلان. حاول مرة أخرى.');
+          } finally {
+            if (submitBtn) {
+              submitBtn.disabled = false;
+              submitBtn.textContent = 'إرسال الإعلان للمراجعة';
+            }
+          }
+        });
+      }
+    });
+  </script>
+
+  <style>
+    body {
+      font-family:'Cairo',system-ui,sans-serif;
+      margin:0;
+      background:#f3f6fb;
+      color:#1d3342;
+    }
+    .apt-header {
+      position: fixed;
+      top: 0;
+      right: 0;
+      left: 0;
+      padding: 10px 14px;
+      background: url('KC30.jpg') center bottom/cover no-repeat #123042;
+      box-shadow: 0 2px 8px rgba(0,0,0,.08);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .apt-header .logo {
+      padding: 0;
+      flex: 1 1 auto;
+    }
+    .apt-header .logo h1 {
+      margin:0;
+      font-size:1.8rem;
+      color:#f9fdff;
+      font-weight:700;
+    }
+    .apt-header .logo p {
+      margin:2px 0 0;
+      color:#e8f5ff;
+      font-size:.9rem;
+    }
+    .back-home {
+      flex:0 0 auto;
+      margin-right:8px;
+      background:rgba(0,0,0,0.4);
+      color:#fff;
+      border-radius:50%;
+      width:38px;
+      height:38px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-decoration:none;
+      cursor:pointer;
+      z-index:1100;
+    }
+    .back-home i {
+      pointer-events:none;
+    }
+
+    .apt-main {
+      max-width:1100px;
+      margin:0 auto;
+      padding:110px 16px 32px;
+      box-sizing:border-box;
+    }
+    .apt-section {
+      background:#ffffff;
+      border-radius:20px;
+      box-shadow:0 8px 24px rgba(0,0,0,.06);
+      padding:22px 20px 26px;
+    }
+    .apt-section h2 {
+      margin:0 0 10px;
+      font-size:1.6rem;
+      text-align:center;
+      color:#1e6397;
+    }
+    .apt-section p.intro {
+      margin:0 0 18px;
+      text-align:center;
+      font-size:.92rem;
+      color:#455a64;
+    }
+
+    .apt-toolbar {
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+      align-items:center;
+      margin-bottom:16px;
+    }
+    .apt-search-box {
+      flex:1 1 280px;
+      display:flex;
+      align-items:center;
+      gap:6px;
+      background:#f3f8fb;
+      border:1px solid #d2dde6;
+      border-radius:999px;
+      padding:0 12px;
+      height:40px;
+    }
+    .apt-search-box input {
+      border:0;
+      background:transparent;
+      outline:none;
+      width:100%;
+      font:inherit;
+      font-size:.8rem;
+    }
+    .apt-filters-row {
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+    }
+    .apt-filters-row select,
+    .apt-filters-row input {
+      border:1px solid #c9d9e6;
+      border-radius:999px;
+      padding:6px 10px;
+      font-size:.8rem;
+      background:#fff;
+    }
+
+    #toggle-apt-form {
+      margin-right:auto;
+      border:1px solid #b9d4ec;
+      background:#fff;
+      color:#1e6397;
+      border-radius:10px;
+      padding:7px 11px;
+      font-size:.8rem;
+      font-weight:700;
+      cursor:pointer;
+      display:flex;
+      align-items:center;
+      gap:6px;
+      white-space:nowrap;
+    }
+
+    #apt-form {
+      margin-top:10px;
+      background:#f7fbff;
+      border:1px solid #d6e4f1;
+      border-radius:14px;
+      padding:14px 12px 16px;
+      transition:max-height .4s ease, opacity .3s ease, padding .3s ease, margin .3s ease, border-width .3s ease;
+    }
+    #apt-form[hidden] {
+      display:block;
+      max-height:0;
+      opacity:0;
+      padding-top:0;
+      padding-bottom:0;
+      overflow:hidden;
+      border-width:0;
+      margin-top:0;
+    }
+
+    .af-row {
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px 18px;
+      margin-bottom:10px;
+    }
+    .af-field {
+      flex:1 1 220px;
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+    }
+    .af-field.full {
+      flex:1 1 100%;
+    }
+    .af-field label {
+      font-size:.78rem;
+      font-weight:700;
+      color:#294863;
+    }
+    .af-field input,
+    .af-field select,
+    .af-field textarea {
+      border:1px solid #c9d9e6;
+      border-radius:10px;
+      padding:8px 10px;
+      font-family:'Cairo',sans-serif;
+      font-size:.85rem;
+      background:#fff;
+      box-sizing:border-box;
+    }
+    .af-field textarea {
+      resize:vertical;
+      min-height:70px;
+    }
+    .af-actions {
+      margin-top:8px;
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .af-submit-btn {
+      background:#4a90e2;
+      color:#fff;
+      border:0;
+      padding:9px 18px;
+      border-radius:10px;
+      font-size:.9rem;
+      font-weight:700;
+      cursor:pointer;
+      box-shadow:0 3px 10px rgba(74,144,226,.35);
+    }
+    .af-submit-btn:hover {
+      background:#3579c6;
+    }
+    .apt-note {
+      font-size:.74rem;
+      color:#607d8b;
+      margin-top:6px;
+    }
+
+    .apartments-list {
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+      gap:18px;
+    }
+
+    .apartment-card {
+      background:linear-gradient(135deg,#f0f5ff,#e6f4ff);
+      border-radius:18px;
+      box-shadow:0 6px 18px rgba(15,35,52,0.12);
+      padding:12px 14px 14px;
+      display:flex;
+      flex-direction:column;
+      border:1px solid rgba(30,99,151,0.12);
+    }
+
+    .apartment-body {
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      color:#123042;
+    }
+    .apt-header-row {
+      display:flex;
+      justify-content:space-between;
+      gap:8px;
+      align-items:flex-start;
+    }
+    .apartment-title {
+      font-weight:800;
+      font-size:1rem;
+      color:#0f3d73;
+      margin:0;
+      line-height:1.4;
+    }
+    .apartment-tag {
+      display:inline-flex;
+      align-items:center;
+      gap:5px;
+      padding:3px 9px;
+      border-radius:999px;
+      background:rgba(255,255,255,0.85);
+      color:#1d5d92;
+      font-size:.75rem;
+      font-weight:700;
+      white-space:nowrap;
+      border:1px solid rgba(30,93,146,0.18);
+    }
+    .apartment-meta {
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+      gap:4px 12px;
+      font-size:.8rem;
+      color:#234159;
+      margin-top:4px;
+    }
+    .meta-label {
+      font-weight:700;
+      color:#0f3d73;
+      margin-left:4px;
+    }
+    .meta-label i {
+      margin-left:4px;
+      color:#5c7ea4;
+    }
+    .apartment-desc {
+      font-size:.87rem;
+      color:#223344;
+      margin-top:6px;
+      line-height:1.6;
+    }
+    .apartment-created {
+      margin-top:4px;
+      font-size:.75rem;
+      color:#5c6f82;
+    }
+
+    .apartment-contact-box {
+      margin-top:10px;
+      padding-top:8px;
+      border-top:1px solid rgba(179,197,219,0.8);
+    }
+    .contact-title {
+      font-size:.8rem;
+      font-weight:700;
+      color:#0f3d73;
+      margin-bottom:4px;
+      display:flex;
+      align-items:center;
+      gap:6px;
+    }
+    .contact-title i {
+      color:#2e7d32;
+    }
+
+    .apartment-contact {
+      display:flex;
+      flex-wrap:wrap;
+      gap:6px;
+      direction:ltr;
+    }
+    .apartment-contact a {
+      display:inline-flex;
+      align-items:center;
+      gap:5px;
+      padding:6px 10px;
+      border-radius:10px;
+      font-size:.78rem;
+      text-decoration:none;
+      cursor:pointer;
+    }
+    .apartment-contact a.phone {
+      background:#e3f0ff;
+      color:#1d5d92;
+    }
+    .apartment-contact a.wa {
+      background:#25D366;
+      color:#fff;
+    }
+
+    .apt-images-btn-wrap {
+      margin-top: 6px;
+    }
+    .apt-images-btn {
+      border: 0;
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-size: .78rem;
+      font-weight: 700;
+      cursor: pointer;
+      background: #ffffff;
+      color: #1d5d92;
+      box-shadow: 0 2px 6px rgba(15,35,52,0.18);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .apt-images-btn i {
+      color: #4a90e2;
+    }
+
+    .wa-notify-box {
+      display:none;
+      margin-top:10px;
+      padding:8px 10px;
+      border-radius:10px;
+      background:#e8f5e9;
+      border:1px solid #c8e6c9;
+      font-size:.78rem;
+      color:#2e7d32;
+      align-items:center;
+      justify-content:space-between;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+    .wa-notify-box strong {
+      font-weight:700;
+    }
+    .wa-notify-link {
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      background:#25D366;
+      color:#fff;
+      text-decoration:none;
+      padding:6px 10px;
+      border-radius:999px;
+      font-size:.78rem;
+      font-weight:700;
+    }
+
+    /* مودال عرض الصور */
+    .apt-images-modal {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+    }
+    .apt-images-modal.open {
+      display: flex;
+    }
+    .apt-images-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.55);
+    }
+    .apt-images-dialog {
+      position: relative;
+      background: #ffffff;
+      border-radius: 14px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+      padding: 10px 10px 12px;
+      max-width: 90vw;
+      max-height: 90vh;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .apt-images-main {
+      width: 80vw;
+      max-width: 480px;
+      height: 60vh;
+      max-height: 420px;
+      background: #eceff4;
+      border-radius: 10px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .apt-images-main img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      background: #000;
+    }
+    .apt-images-controls {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      font-size: .8rem;
+    }
+    .apt-images-controls button {
+      border: 0;
+      border-radius: 999px;
+      padding: 5px 12px;
+      font-size: .78rem;
+      cursor: pointer;
+      background: #e3f0ff;
+      color: #1d5d92;
+    }
+    .apt-images-close {
+      position: absolute;
+      top: 4px;
+      left: 6px;
+      border: 0;
+      background: transparent;
+      font-size: 1.2rem;
+      cursor: pointer;
+      color: #546e7a;
+    }
+
+    @media(max-width:640px){
+      .apt-main {
+        padding:96px 10px 24px;
+      }
+      .apt-section {
+        padding:18px 10px 20px;
+        border-radius:18px;
+      }
+
+      .apt-toolbar {
+        flex-direction:column;
+        align-items:stretch;
+        gap:10px;
+        margin-bottom:12px;
+      }
+
+      .apt-search-box {
+        flex:0 0 auto;
+        height:36px;
+        border-radius:12px;
+        padding:0 10px;
+        font-size:.78rem;
+      }
+      .apt-search-box i {
+        font-size:.75rem !important;
+      }
+      .apt-search-box input {
+        font-size:.78rem;
+      }
+
+      .apt-filters-row {
+        width:100%;
+        gap:6px;
+      }
+      .apt-filters-row select,
+      .apt-filters-row input {
+        flex:1 1 calc(50% - 6px);
+        min-width:0;
+        font-size:.76rem;
+        padding:5px 8px;
+        border-radius:10px;
+      }
+
+      #toggle-apt-form {
+        width:100%;
+        justify-content:center;
+        font-size:.8rem;
+        padding:7px 10px;
+      }
+
+      .apartments-list {
+        grid-template-columns:1fr;
+        gap:12px;
+      }
+
+      .apartment-card {
+        padding:10px 10px 12px;
+        border-radius:16px;
+      }
+
+      .wa-notify-box {
+        flex-direction:column;
+        align-items:stretch;
+      }
+      .wa-notify-link {
+        justify-content:center;
+      }
+
+      .apt-images-main {
+        width: 92vw;
+        height: 55vh;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="apt-header">
+    <div class="logo">
+      <h1>بوابة الكنزاوية</h1>
+      <p>إعلانات الشقق (بيع / إيجار)</p>
+    </div>
+    <a href="index.html" class="back-home" aria-label="العودة للرئيسية">
+      <i class="fas fa-home"></i>
+    </a>
+  </header>
+
+  <main class="apt-main">
+    <section class="apt-section">
+      <h2>إعلانات الشقق داخل كمبوند كنز</h2>
+      <p class="intro">
+       تقدر تشوف إعلانات الشقق المتاحة للبيع أو الإيجار داخل الكمبوند
+        مع إمكانية البحث والتصفية... إذا حابب تضيف إعلانك اضغط على
+        <strong>"إضافة إعلان شقة"</strong>.
+      </p>
+
+      <!-- شريط البحث والفلترة -->
+      <div class="apt-toolbar">
+        <div class="apt-search-box">
+          <i class="fa-solid fa-magnifying-glass" style="color:#4a90e2;font-size:.85rem;"></i>
+          <input id="apt-search" type="text" placeholder="ابحث بعنوان الإعلان، الوصف، أو الموقع..." />
+        </div>
+
+        <div class="apt-filters-row">
+          <select id="filter-type">
+            <option value="all">الكل (بيع + إيجار)</option>
+            <option value="rent">إيجار فقط</option>
+            <option value="sale">بيع فقط</option>
+          </select>
+
+          <input id="filter-bar" type="text" placeholder="بار / منطقة (مثال: بار K)" />
+          <input id="filter-floor" type="text" placeholder="الدور (مثال: رابع)" />
+        </div>
+
+        <button id="toggle-apt-form" type="button" aria-expanded="false" aria-controls="apt-form">
+          <i class="fa-solid fa-plus"></i> إضافة إعلان شقة
+        </button>
+      </div>
+
+      <!-- نموذج إضافة إعلان -->
+      <form id="apt-form" hidden>
+        <div class="af-row">
+          <div class="af-field">
+            <label for="apt-title">عنوان الإعلان</label>
+            <input id="apt-title" type="text" required placeholder="مثال: شقة للإيجار - بار K - الدور الثالث"/>
+          </div>
+          <div class="af-field">
+            <label for="apt-type">نوع الإعلان</label>
+            <select id="apt-type" required>
+              <option value="rent">إيجار</option>
+              <option value="sale">بيع</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="af-row">
+          <div class="af-field">
+            <label for="apt-location">الموقع داخل الكمبوند</label>
+            <input id="apt-location" type="text" placeholder="مثال: بار K - عمارة 12 - بجوار النادي"/>
+          </div>
+          <div class="af-field">
+            <label for="apt-floor">الدور</label>
+            <input id="apt-floor" type="text" placeholder="مثال: أرضي / ثالث / أخير"/>
+          </div>
+        </div>
+
+        <div class="af-row">
+          <div class="af-field">
+            <label for="apt-area">مساحة الشقة (متر مربع)</label>
+            <input id="apt-area" type="text" placeholder="مثال: 140 م²"/>
+          </div>
+          <div class="af-field">
+            <label for="apt-rooms">عدد الغرف</label>
+            <input id="apt-rooms" type="text" placeholder="مثال: 3 غرف"/>
+          </div>
+        </div>
+
+        <div class="af-row">
+          <div class="af-field">
+            <label for="apt-price">السعر التقريبي (اختياري)</label>
+            <input id="apt-price" type="text" placeholder="مثال: 7,000 إيجار شهري / 2,000,000 بيع"/>
+          </div>
+          <div class="af-field">
+            <label for="apt-phone">هاتف للتواصل</label>
+            <input id="apt-phone" type="tel" required placeholder="مثال: 0100xxxxxxx"/>
+          </div>
+        </div>
+
+        <div class="af-row">
+          <div class="af-field">
+            <label for="apt-whatsapp">واتساب (اختياري)</label>
+            <input id="apt-whatsapp" type="tel" placeholder="مثال: 0100xxxxxxx"/>
+          </div>
+          <div class="af-field full">
+            <label for="apt-desc">وصف مختصر للشقة</label>
+            <textarea id="apt-desc" rows="3" required placeholder="مثال: شقة 3 غرف + 2 حمام، تشطيب سوبر لوكس، مطلة على النادي..."></textarea>
+          </div>
+        </div>
+
+        <!-- رفع الصور إلى Firebase Storage -->
+        <div class="af-row">
+          <div class="af-field full">
+            <label for="apt-images-files">
+              صور الشقة (بحد أقصى 6 صور، حجم كل صورة حتى 3 ميجا)
+            </label>
+            <input
+              id="apt-images-files"
+              type="file"
+              accept="image/*"
+              multiple
+            />
+          </div>
+        </div>
+
+        <div class="af-actions">
+          <button type="submit" class="af-submit-btn">إرسال الإعلان للمراجعة</button>
+          <span class="apt-note">
+            سيتم مراجعة الإعلان من إدارة الموقع قبل نشره.
+          </span>
+        </div>
+
+        <!-- صندوق مراسلة الإدارة على واتساب بعد الإرسال -->
+        <div id="wa-notify-box" class="wa-notify-box">
+          <span>
+            <strong>ملحوظة:</strong>
+            لو حابب تسرّع المراجعة يمكنك الضغط على الزر لإرسال رسالة واتساب لإدارة الموقع.
+          </span>
+          <a id="wa-notify-link" class="wa-notify-link" href="#" target="_blank" rel="noopener">
+            <i class="fa-brands fa-whatsapp"></i>
+            تواصل مع إدارة الموقع على واتساب
+          </a>
+        </div>
+      </form>
+
+      <hr style="margin:20px 0; border:none; border-top:1px solid #e0e6ee;"/>
+
+      <!-- قائمة الإعلانات -->
+      <div id="apt-list" class="apartments-list" aria-live="polite">
+        <p id="apt-empty" style="text-align:center;color:#607d8b;">
+          لا توجد إعلانات بعد أو لا توجد نتائج مطابقة للفلاتر الحالية.
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <!-- نافذة عرض صور الإعلان -->
+  <div id="apt-images-modal" class="apt-images-modal" aria-hidden="true">
+    <div class="apt-images-backdrop"></div>
+    <div class="apt-images-dialog" role="dialog" aria-modal="true">
+      <button type="button" class="apt-images-close" aria-label="إغلاق">
+        ×
+      </button>
+      <div class="apt-images-main">
+        <img id="apt-modal-image" src="" alt="صورة الشقة" />
+      </div>
+      <div class="apt-images-controls">
+        <button type="button" id="apt-prev-image">السابق</button>
+        <span id="apt-image-counter">1 / 1</span>
+        <button type="button" id="apt-next-image">التالي</button>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

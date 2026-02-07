@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>لوحة إدارة إعلانات الشقق | بوابة الكنزاوية</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet"/>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+    import { getDatabase, ref, onValue, update, set } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCnRLUzLraNE-AR94ZlRGIAFOKks74ZtyQ",
+      authDomain: "kenz--project.firebaseapp.com",
+      databaseURL: "https://kenz--project-default-rtdb.firebaseio.com",
+      projectId: "kenz--project",
+      storageBucket: "kenz--project.firebasestorage.app",
+      messagingSenderId: "435317870255",
+      appId: "1:435317870255:web:f521650dcfeb63a7378e5a",
+      measurementId: "G-FX6BSCQ8KQ"
+    };
+
+    const app   = initializeApp(firebaseConfig);
+    const auth  = getAuth(app);
+    const db    = getDatabase(app);
+
+    function normalize(str) {
+      return (str || '')
+        .replace(/[أإآ]/g,'ا')
+        .replace(/ى/g,'ي')
+        .replace(/ة/g,'ه')
+        .replace(/َ|ً|ُ|ٌ|ِ|ٍ|ْ|ّ/g,'')
+        .toLowerCase()
+        .trim();
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const loginSection   = document.getElementById('admin-login-section');
+      const panelSection   = document.getElementById('admin-panel-section');
+      const loginForm      = document.getElementById('admin-login-form');
+      const emailInput     = document.getElementById('admin-email');
+      const passInput      = document.getElementById('admin-password');
+      const loginError     = document.getElementById('admin-login-error');
+      const logoutBtn      = document.getElementById('admin-logout');
+
+      const pendingCountEl = document.getElementById('pending-count');
+      const totalCountEl   = document.getElementById('total-count');
+
+      const adsContainer   = document.getElementById('ads-list');
+      const searchInput    = document.getElementById('search-text');
+      const filterStatus   = document.getElementById('filter-status');
+      const filterType     = document.getElementById('filter-type');
+      const filterBar      = document.getElementById('filter-bar');
+      const filterFloor    = document.getElementById('filter-floor');
+
+      // عناصر مودال الصور
+      const imgModal       = document.getElementById('admin-img-modal');
+      const imgModalBackdrop = document.getElementById('admin-img-backdrop');
+      const imgModalImg    = document.getElementById('admin-img');
+      const imgModalTitle  = document.getElementById('admin-img-title');
+      const imgModalPrev   = document.getElementById('admin-img-prev');
+      const imgModalNext   = document.getElementById('admin-img-next');
+      const imgModalClose  = document.getElementById('admin-img-close');
+      const imgModalCounter= document.getElementById('admin-img-counter');
+
+      let currentImages = [];
+      let currentImgIndex = 0;
+
+      function openImgModal(images, startIndex, title) {
+        if (!images || !images.length) return;
+        currentImages = images;
+        currentImgIndex = startIndex || 0;
+        imgModalTitle.textContent = title || 'صور الإعلان';
+        updateImgModal();
+        imgModal.classList.add('open');
+      }
+      function updateImgModal() {
+        if (!currentImages.length) return;
+        imgModalImg.src = currentImages[currentImgIndex];
+        imgModalCounter.textContent = (currentImgIndex + 1) + ' / ' + currentImages.length;
+      }
+      function closeImgModal() {
+        imgModal.classList.remove('open');
+        imgModalImg.src = '';
+        currentImages = [];
+        currentImgIndex = 0;
+      }
+
+      if (imgModalPrev) {
+        imgModalPrev.addEventListener('click', () => {
+          if (!currentImages.length) return;
+          currentImgIndex = (currentImgIndex - 1 + currentImages.length) % currentImages.length;
+          updateImgModal();
+        });
+      }
+      if (imgModalNext) {
+        imgModalNext.addEventListener('click', () => {
+          if (!currentImages.length) return;
+          currentImgIndex = (currentImgIndex + 1) % currentImages.length;
+          updateImgModal();
+        });
+      }
+      if (imgModalClose) {
+        imgModalClose.addEventListener('click', closeImgModal);
+      }
+      if (imgModalBackdrop) {
+        imgModalBackdrop.addEventListener('click', closeImgModal);
+      }
+      document.addEventListener('keydown', (e) => {
+        if (!imgModal.classList.contains('open')) return;
+        if (e.key === 'Escape') closeImgModal();
+        if (e.key === 'ArrowRight') imgModalNext?.click();
+        if (e.key === 'ArrowLeft')  imgModalPrev?.click();
+      });
+
+      let unsubscribeAds = null;
+      let allAds = [];
+
+      function applyFilters() {
+        const term   = normalize(searchInput.value || '');
+        const status = filterStatus.value || 'all';
+        const type   = filterType.value || 'all';
+        const bar    = normalize(filterBar.value || '');
+        const floor  = normalize(filterFloor.value || '');
+
+        return allAds.filter(ad => {
+          if (status !== 'all' && ad.status !== status) return false;
+          if (type   !== 'all' && ad.type   !== type)   return false;
+
+          if (term) {
+            const hay = normalize(
+              (ad.title || '') + ' ' +
+              (ad.description || '') + ' ' +
+              (ad.location || '') + ' ' +
+              (ad.price || '') + ' ' +
+              (ad.phone || '')
+            );
+            if (!hay.includes(term)) return false;
+          }
+
+          if (bar) {
+            const locNorm = normalize(ad.location || '');
+            if (!locNorm.includes(bar)) return false;
+          }
+
+          if (floor) {
+            const floorNorm = normalize(ad.floor || '');
+            const locNorm   = normalize(ad.location || '');
+            if (!floorNorm.includes(floor) && !locNorm.includes(floor)) return false;
+          }
+
+          return true;
+        });
+      }
+
+      function renderAds() {
+        const filtered = applyFilters();
+        adsContainer.innerHTML = '';
+
+        if (!filtered.length) {
+          adsContainer.innerHTML = '<p class="empty">لا توجد إعلانات مطابقة للفلاتر الحالية.</p>';
+          return;
+        }
+
+        filtered.forEach(ad => {
+          const card = document.createElement('article');
+          card.className = 'ad-card';
+
+          const header = document.createElement('div');
+          header.className = 'ad-header';
+          header.innerHTML = `
+            <div>
+              <h3>${ad.title || 'إعلان شقة'}</h3>
+              <div class="ad-status ad-status-${ad.status || 'unknown'}">
+                الحالة: ${ad.status === 'approved' ? 'منشور' : ad.status === 'pending' ? 'قيد المراجعة' : ad.status === 'rejected' ? 'مرفوض' : '-'}
+              </div>
+            </div>
+            <span class="ad-type">${ad.type === 'sale' ? 'بيع' : 'إيجار'}</span>
+          `;
+          card.appendChild(header);
+
+          const meta = document.createElement('div');
+          meta.className = 'ad-meta';
+          meta.innerHTML = `
+            <div><strong>الموقع:</strong> ${ad.location || '-'}</div>
+            <div><strong>الدور:</strong> ${ad.floor || '-'}</div>
+            <div><strong>المساحة:</strong> ${ad.area || '-'}</div>
+            <div><strong>عدد الغرف:</strong> ${ad.rooms || '-'}</div>
+            <div><strong>السعر:</strong> ${ad.price || '-'}</div>
+            <div><strong>هاتف:</strong> ${ad.phone || '-'}</div>
+            <div><strong>واتساب:</strong> ${ad.whatsapp || '-'}</div>
+          `;
+          card.appendChild(meta);
+
+          // عرض معلومات عن الصور إن وُجدت
+          if (ad.images && Array.isArray(ad.images) && ad.images.length) {
+            const imgsRow = document.createElement('div');
+            imgsRow.className = 'ad-images-row';
+
+            const infoSpan = document.createElement('span');
+            infoSpan.className = 'ad-images-info';
+            infoSpan.textContent = `عدد الصور: ${ad.images.length}`;
+
+            const viewBtn = document.createElement('button');
+            viewBtn.type = 'button';
+            viewBtn.className = 'ad-images-view-btn';
+            viewBtn.innerHTML = '<i class="fa-regular fa-images"></i> عرض الصور';
+            viewBtn.addEventListener('click', () => {
+              openImgModal(ad.images, 0, ad.title || 'صور الإعلان');
+            });
+
+            imgsRow.appendChild(infoSpan);
+            imgsRow.appendChild(viewBtn);
+            card.appendChild(imgsRow);
+          }
+
+          if (ad.description) {
+            const desc = document.createElement('p');
+            desc.className = 'ad-desc';
+            desc.textContent = ad.description;
+            card.appendChild(desc);
+          }
+
+          if (ad.createdAt) {
+            const d = new Date(ad.createdAt);
+            const info = document.createElement('div');
+            info.className = 'ad-created';
+            info.textContent = 'تم الإضافة في: ' + d.toLocaleString('ar-EG');
+            card.appendChild(info);
+          }
+
+          /* نموذج التعديل */
+          const editForm = document.createElement('form');
+          editForm.className = 'ad-edit-form';
+          editForm.innerHTML = `
+            <div class="ad-edit-grid">
+              <label>
+                العنوان
+                <input type="text" name="title" value="${ad.title || ''}">
+              </label>
+              <label>
+                نوع الإعلان
+                <select name="type">
+                  <option value="rent" ${ad.type === 'rent' ? 'selected' : ''}>إيجار</option>
+                  <option value="sale" ${ad.type === 'sale' ? 'selected' : ''}>بيع</option>
+                </select>
+              </label>
+              <label>
+                الموقع
+                <input type="text" name="location" value="${ad.location || ''}">
+              </label>
+              <label>
+                الدور
+                <input type="text" name="floor" value="${ad.floor || ''}">
+              </label>
+              <label>
+                المساحة
+                <input type="text" name="area" value="${ad.area || ''}">
+              </label>
+              <label>
+                عدد الغرف
+                <input type="text" name="rooms" value="${ad.rooms || ''}">
+              </label>
+              <label>
+                السعر التقريبي
+                <input type="text" name="price" value="${ad.price || ''}">
+              </label>
+              <label>
+                هاتف للتواصل
+                <input type="text" name="phone" value="${ad.phone || ''}">
+              </label>
+              <label>
+                واتساب
+                <input type="text" name="whatsapp" value="${ad.whatsapp || ''}">
+              </label>
+            </div>
+            <label class="ad-edit-desc">
+              وصف الشقة
+              <textarea name="description" rows="2">${ad.description || ''}</textarea>
+            </label>
+            <div class="ad-edit-actions">
+              <button type="submit" class="save">حفظ التعديلات</button>
+              <button type="button" class="cancel">إلغاء</button>
+            </div>
+          `;
+          editForm.style.display = 'none';
+          card.appendChild(editForm);
+
+          /* أزرار الإجراءات */
+          const actions = document.createElement('div');
+          actions.className = 'ad-actions';
+
+          const approveBtn = document.createElement('button');
+          approveBtn.className = 'approve';
+          approveBtn.textContent = 'قبول (نشر)';
+          approveBtn.disabled = ad.status === 'approved';
+          approveBtn.title = ad.status === 'approved' ? 'الإعلان منشور بالفعل' : '';
+          approveBtn.onclick = async () => {
+            if (!confirm('تأكيد نشر هذا الإعلان؟')) return;
+            const adRef = ref(db, 'apartmentAds/' + ad.id);
+            await update(adRef, {
+              status: 'approved',
+              reviewedAt: Date.now(),
+              reviewedBy: auth.currentUser.email || 'admin'
+            });
+          };
+
+          const rejectBtn = document.createElement('button');
+          rejectBtn.className = 'reject';
+          rejectBtn.textContent = 'رفض (عدم نشر)';
+          rejectBtn.disabled = ad.status === 'rejected';
+          rejectBtn.title = ad.status === 'rejected' ? 'الإعلان مرفوض بالفعل' : '';
+          rejectBtn.onclick = async () => {
+            if (!confirm('تأكيد رفض هذا الإعلان؟')) return;
+            const adRef = ref(db, 'apartmentAds/' + ad.id);
+            await update(adRef, {
+              status: 'rejected',
+              reviewedAt: Date.now(),
+              reviewedBy: auth.currentUser.email || 'admin'
+            });
+          };
+
+          const deleteBtn = document.createElement('button');
+          deleteBtn.className = 'delete';
+          deleteBtn.textContent = 'حذف نهائي';
+          deleteBtn.onclick = async () => {
+            if (!confirm('سيتم حذف هذا الإعلان نهائيًا من قاعدة البيانات، هل أنت متأكد؟')) return;
+            const adRef = ref(db, 'apartmentAds/' + ad.id);
+            await set(adRef, null);
+          };
+
+          const editToggleBtn = document.createElement('button');
+          editToggleBtn.className = 'edit';
+          editToggleBtn.type = 'button';
+          editToggleBtn.textContent = 'تعديل';
+
+          editToggleBtn.onclick = () => {
+            const visible = editForm.style.display === 'block';
+            editForm.style.display = visible ? 'none' : 'block';
+            editToggleBtn.textContent = visible ? 'تعديل' : 'إخفاء التعديل';
+          };
+
+          actions.appendChild(approveBtn);
+          actions.appendChild(rejectBtn);
+          actions.appendChild(deleteBtn);
+          actions.appendChild(editToggleBtn);
+
+          card.appendChild(actions);
+
+          /* أحداث نموذج التعديل */
+          const cancelBtn = editForm.querySelector('.cancel');
+          if (cancelBtn) {
+            cancelBtn.addEventListener('click', () => {
+              editForm.style.display = 'none';
+              editToggleBtn.textContent = 'تعديل';
+            });
+          }
+
+          editForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(editForm);
+
+            const updated = {
+              title:       (formData.get('title') || '').toString().trim(),
+              type:        (formData.get('type') || 'rent'),
+              location:    (formData.get('location') || '').toString().trim(),
+              floor:       (formData.get('floor') || '').toString().trim(),
+              area:        (formData.get('area') || '').toString().trim(),
+              rooms:       (formData.get('rooms') || '').toString().trim(),
+              price:       (formData.get('price') || '').toString().trim(),
+              phone:       (formData.get('phone') || '').toString().trim(),
+              whatsapp:    (formData.get('whatsapp') || '').toString().trim(),
+              description: (formData.get('description') || '').toString().trim(),
+              lastEditedAt: Date.now(),
+              lastEditedBy: auth.currentUser?.email || 'admin'
+            };
+
+            if (!updated.title || !updated.phone || !updated.description) {
+              alert('برجاء التأكد من وجود عنوان، هاتف، ووصف.');
+              return;
+            }
+
+            try {
+              const adRef = ref(db, 'apartmentAds/' + ad.id);
+              await update(adRef, updated);
+              alert('تم حفظ التعديلات بنجاح.');
+              editForm.style.display = 'none';
+              editToggleBtn.textContent = 'تعديل';
+            } catch (err) {
+              console.error('خطأ في تحديث الإعلان:', err);
+              alert('حدث خطأ أثناء حفظ التعديلات، حاول مرة أخرى.');
+            }
+          });
+
+          adsContainer.appendChild(card);
+        });
+      }
+
+      function attachFilterListeners() {
+        [searchInput, filterStatus, filterType, filterBar, filterFloor].forEach(el => {
+          if (!el) return;
+          el.addEventListener('input', renderAds);
+          el.addEventListener('change', renderAds);
+        });
+      }
+
+      // مراقبة حالة تسجيل الدخول
+      onAuthStateChanged(auth, (user) => {
+        if (user) {
+          loginSection.style.display = 'none';
+          panelSection.style.display = 'block';
+
+          const adsRef = ref(db, 'apartmentAds');
+          if (unsubscribeAds) unsubscribeAds();
+
+          unsubscribeAds = onValue(adsRef, (snapshot) => {
+            const data = snapshot.val() || {};
+            const ads = [];
+            Object.keys(data).forEach(id => {
+              const ad = data[id];
+              if (ad) ads.push({ id, ...ad });
+            });
+
+            ads.sort((a,b) => (b.createdAt || 0) - (a.createdAt || 0));
+            allAds = ads;
+
+            const pendingCount = ads.filter(a => a.status === 'pending').length;
+            pendingCountEl.textContent = pendingCount.toString();
+            totalCountEl.textContent   = ads.length.toString();
+
+            renderAds();
+          });
+
+        } else {
+          panelSection.style.display = 'none';
+          loginSection.style.display = 'block';
+          if (unsubscribeAds) {
+            unsubscribeAds();
+            unsubscribeAds = null;
+          }
+        }
+      });
+
+      // إرسال نموذج الدخول
+      if (loginForm) {
+        loginForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          loginError.textContent = '';
+
+          const email = emailInput.value.trim();
+          const pass  = passInput.value.trim();
+
+          if (!email || !pass) {
+            loginError.textContent = 'برجاء إدخال البريد وكلمة السر.';
+            return;
+          }
+
+          try {
+            await signInWithEmailAndPassword(auth, email, pass);
+          } catch (err) {
+            console.error('Login error:', err);
+            if (err.code === 'auth/user-not-found') {
+              loginError.textContent = 'هذا البريد غير مسجل كمستخدم في Firebase.';
+            } else if (err.code === 'auth/wrong-password') {
+              loginError.textContent = 'كلمة السر غير صحيحة.';
+            } else if (err.code === 'auth/invalid-email') {
+              loginError.textContent = 'صيغة البريد الإلكتروني غير صحيحة.';
+            } else {
+              loginError.textContent = 'حدث خطأ أثناء تسجيل الدخول: ' + (err.code || '');
+            }
+          }
+        });
+      }
+
+      // تسجيل خروج
+      if (logoutBtn) {
+        logoutBtn.addEventListener('click', async () => {
+          await signOut(auth);
+        });
+      }
+
+      attachFilterListeners();
+    });
+  </script>
+
+  <style>
+    body {
+      margin:0;
+      font-family:'Cairo',system-ui,sans-serif;
+      background:#f5f7fb;
+      color:#123042;
+    }
+    header {
+      background:#123042;
+      color:#fff;
+      padding:12px 16px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+    }
+    header h1 {
+      margin:0;
+      font-size:1.3rem;
+    }
+    header a {
+      color:#fff;
+      text-decoration:none;
+      font-size:.85rem;
+    }
+
+    main {
+      max-width:1000px;
+      margin:0 auto;
+      padding:20px 12px 32px;
+    }
+
+    .card {
+      background:#fff;
+      border-radius:14px;
+      box-shadow:0 4px 12px rgba(0,0,0,.06);
+      padding:18px 16px;
+      margin-bottom:18px;
+    }
+
+    #admin-login-section {
+      max-width:400px;
+      margin:40px auto;
+    }
+    #admin-login-form label {
+      display:block;
+      font-size:.8rem;
+      margin-bottom:4px;
+    }
+    #admin-login-form input {
+      width:100%;
+      border:1px solid #c5d3e4;
+      border-radius:10px;
+      padding:8px 10px;
+      margin-bottom:10px;
+      font-family:'Cairo',sans-serif;
+      font-size:.85rem;
+      box-sizing:border-box;
+    }
+    #admin-login-form button {
+      width:100%;
+      background:#4a90e2;
+      color:#fff;
+      border:0;
+      border-radius:10px;
+      padding:9px 0;
+      font-size:.9rem;
+      font-weight:700;
+      cursor:pointer;
+    }
+    #admin-login-error {
+      margin-top:6px;
+      font-size:.8rem;
+      color:#c62828;
+    }
+
+    #admin-panel-section {
+      display:none;
+    }
+
+    .panel-header {
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      margin-bottom:10px;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .panel-header h2 {
+      margin:0;
+      font-size:1.1rem;
+    }
+    .badge {
+      background:#ff9800;
+      color:#fff;
+      border-radius:999px;
+      padding:3px 10px;
+      font-size:.8rem;
+      font-weight:700;
+    }
+    .badge.total {
+      background:#4a90e2;
+    }
+    #admin-logout {
+      background:#e0e7f5;
+      border:0;
+      border-radius:999px;
+      padding:4px 10px;
+      font-size:.78rem;
+      cursor:pointer;
+    }
+
+    .filters-bar {
+      margin-top:10px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      align-items:center;
+    }
+    .filters-bar .search-box {
+      flex:1 1 260px;
+      display:flex;
+      align-items:center;
+      gap:6px;
+      background:#f3f7ff;
+      border:1px solid #d0ddf0;
+      border-radius:999px;
+      padding:0 10px;
+      height:34px;
+    }
+    .filters-bar .search-box input {
+      border:0;
+      background:transparent;
+      outline:none;
+      width:100%;
+      font-size:.8rem;
+    }
+    .filters-row {
+      display:flex;
+      flex-wrap:wrap;
+      gap:6px;
+      margin-top:6px;
+    }
+    .filters-row select,
+    .filters-row input {
+      border:1px solid #c5d3e4;
+      border-radius:999px;
+      padding:5px 9px;
+      font-size:.78rem;
+      background:#fff;
+    }
+
+    .ad-list {
+      margin-top:14px;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+    .ad-card {
+      border-radius:12px;
+      border:1px solid #dde5f1;
+      padding:10px 10px 12px;
+      background:linear-gradient(135deg,#f0f5ff,#e6f4ff);
+      box-shadow:0 4px 14px rgba(15,35,52,.08);
+    }
+    .ad-header {
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      align-items:flex-start;
+      margin-bottom:6px;
+    }
+    .ad-header h3 {
+      margin:0;
+      font-size:.95rem;
+      color:#0f3d73;
+    }
+    .ad-type {
+      background:#fff;
+      color:#1f5f92;
+      padding:3px 8px;
+      border-radius:999px;
+      font-size:.75rem;
+      font-weight:700;
+      border:1px solid rgba(31,95,146,0.2);
+    }
+    .ad-status {
+      font-size:.75rem;
+      margin-top:3px;
+    }
+    .ad-status-approved {
+      color:#1b5e20;
+    }
+    .ad-status-pending {
+      color:#e65100;
+    }
+    .ad-status-rejected {
+      color:#b71c1c;
+    }
+    .ad-meta {
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+      gap:4px 10px;
+      font-size:.78rem;
+      color:#455a64;
+      margin-bottom:4px;
+    }
+    .ad-meta strong {
+      color:#1f3f5c;
+    }
+
+    /* صف الصور في الكارت */
+    .ad-images-row {
+      margin:4px 0 2px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:8px;
+      font-size:.78rem;
+    }
+    .ad-images-info {
+      color:#455a64;
+    }
+    .ad-images-view-btn {
+      border:0;
+      border-radius:999px;
+      padding:4px 10px;
+      font-size:.78rem;
+      cursor:pointer;
+      background:#fff;
+      color:#1e88e5;
+      display:flex;
+      align-items:center;
+      gap:4px;
+      box-shadow:0 2px 6px rgba(15,35,52,.18);
+    }
+
+    .ad-desc {
+      font-size:.8rem;
+      margin:4px 0;
+      color:#37474f;
+    }
+    .ad-created {
+      font-size:.72rem;
+      color:#78909c;
+      margin-top:4px;
+    }
+    .ad-actions {
+      margin-top:8px;
+      display:flex;
+      gap:6px;
+      flex-wrap:wrap;
+    }
+    .ad-actions button {
+      border:0;
+      border-radius:8px;
+      padding:5px 10px;
+      font-size:.78rem;
+      cursor:pointer;
+    }
+    .ad-actions .approve {
+      background:#c8e6c9;
+      color:#1b5e20;
+    }
+    .ad-actions .approve:disabled {
+      opacity:.6;
+      cursor:default;
+    }
+    .ad-actions .reject {
+      background:#ffe0b2;
+      color:#e65100;
+    }
+    .ad-actions .reject:disabled {
+      opacity:.6;
+      cursor:default;
+    }
+    .ad-actions .delete {
+      background:#ffcdd2;
+      color:#b71c1c;
+    }
+    .ad-actions .edit {
+      background:#e3f2fd;
+      color:#1e88e5;
+    }
+
+    /* نموذج التعديل */
+    .ad-edit-form {
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px dashed #c0ccd9;
+      font-size: .78rem;
+    }
+    .ad-edit-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit,minmax(160px,1fr));
+      gap: 6px 10px;
+    }
+    .ad-edit-grid label {
+      display:flex;
+      flex-direction:column;
+      gap:2px;
+    }
+    .ad-edit-grid input,
+    .ad-edit-grid select {
+      border:1px solid #c5d3e4;
+      border-radius:8px;
+      padding:4px 6px;
+      font-size:.78rem;
+      font-family:'Cairo',sans-serif;
+      box-sizing:border-box;
+    }
+    .ad-edit-desc {
+      display:flex;
+      flex-direction:column;
+      gap:2px;
+      margin-top:6px;
+    }
+    .ad-edit-desc textarea {
+      border:1px solid #c5d3e4;
+      border-radius:8px;
+      padding:4px 6px;
+      font-size:.78rem;
+      font-family:'Cairo',sans-serif;
+      resize:vertical;
+      box-sizing:border-box;
+    }
+    .ad-edit-actions {
+      margin-top:6px;
+      display:flex;
+      gap:6px;
+      flex-wrap:wrap;
+    }
+    .ad-edit-actions .save {
+      border:0;
+      border-radius:8px;
+      padding:5px 10px;
+      font-size:.78rem;
+      cursor:pointer;
+      background:#4caf50;
+      color:#fff;
+    }
+    .ad-edit-actions .cancel {
+      border:0;
+      border-radius:8px;
+      padding:5px 10px;
+      font-size:.78rem;
+      cursor:pointer;
+      background:#eceff1;
+      color:#37474f;
+    }
+
+    .empty {
+      font-size:.85rem;
+      color:#607d8b;
+    }
+
+    /* مودال عرض الصور للأدمن */
+    #admin-img-modal {
+      position:fixed;
+      inset:0;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      z-index:3000;
+    }
+    #admin-img-modal.open {
+      display:flex;
+    }
+    #admin-img-backdrop {
+      position:absolute;
+      inset:0;
+      background:rgba(0,0,0,.6);
+    }
+    .admin-img-dialog {
+      position:relative;
+      z-index:1;
+      background:#fff;
+      border-radius:12px;
+      box-shadow:0 10px 30px rgba(0,0,0,.35);
+      padding:10px 12px 12px;
+      max-width:90vw;
+      max-height:90vh;
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+    }
+    .admin-img-dialog h3 {
+      margin:0;
+      font-size:.9rem;
+      color:#123042;
+    }
+    .admin-img-main {
+      width:80vw;
+      max-width:520px;
+      height:60vh;
+      max-height:420px;
+      background:#000;
+      border-radius:10px;
+      overflow:hidden;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .admin-img-main img {
+      width:100%;
+      height:100%;
+      object-fit:contain;
+    }
+    .admin-img-controls {
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      font-size:.78rem;
+      margin-top:4px;
+    }
+    .admin-img-controls button {
+      border:0;
+      border-radius:999px;
+      padding:4px 11px;
+      font-size:.76rem;
+      cursor:pointer;
+      background:#e3f0ff;
+      color:#1d5d92;
+    }
+    #admin-img-close {
+      position:absolute;
+      top:4px;
+      left:6px;
+      border:0;
+      background:transparent;
+      font-size:1.1rem;
+      cursor:pointer;
+      color:#546e7a;
+    }
+
+    @media(max-width:600px){
+      header h1 { font-size:1.1rem; }
+      main { padding:14px 8px 24px; }
+
+      .filters-bar {
+        flex-direction:column;
+        align-items:stretch;
+      }
+      .filters-row select,
+      .filters-row input {
+        flex:1 1 calc(50% - 6px);
+        min-width:0;
+      }
+
+      .admin-img-main {
+        width:92vw;
+        height:55vh;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>لوحة إدارة إعلانات الشقق</h1>
+    <a href="apartments.html">العودة لواجهة الإعلانات</a>
+  </header>
+
+  <main>
+    <!-- نموذج دخول الأدمن -->
+    <section id="admin-login-section" class="card">
+      <h2 style="margin-top:0;margin-bottom:10px;font-size:1rem;">تسجيل دخول الأدمن</h2>
+      <form id="admin-login-form">
+        <label for="admin-email">البريد الإلكتروني</label>
+        <input id="admin-email" type="email" autocomplete="username" required />
+
+        <label for="admin-password">كلمة السر</label>
+        <input id="admin-password" type="password" autocomplete="current-password" required />
+
+        <button type="submit">دخول</button>
+        <div id="admin-login-error"></div>
+      </form>
+    </section>
+
+    <!-- لوحة الإدارة -->
+    <section id="admin-panel-section" class="card">
+      <div class="panel-header">
+        <div>
+          <h2>إدارة جميع الإعلانات</h2>
+          <div style="font-size:.8rem;color:#607d8b;">
+            يمكنك البحث، الفلترة، قبول، رفض، حذف، تعديل الإعلانات، ومراجعة الصور قبل النشر.
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+          <span class="badge">
+            قيد المراجعة: <span id="pending-count">0</span>
+          </span>
+          <span class="badge total">
+            إجمالي الإعلانات: <span id="total-count">0</span>
+          </span>
+          <button id="admin-logout" type="button">تسجيل خروج</button>
+        </div>
+      </div>
+
+      <!-- شريط البحث والفلترة -->
+      <div class="filters-bar">
+        <div class="search-box">
+          <i class="fa-solid fa-magnifying-glass" style="color:#4a90e2;font-size:.8rem;"></i>
+          <input id="search-text" type="text" placeholder="ابحث بعنوان الإعلان، الوصف، الموقع، السعر، الهاتف..." />
+        </div>
+      </div>
+      <div class="filters-row">
+        <select id="filter-status">
+          <option value="all">كل الحالات</option>
+          <option value="pending">قيد المراجعة</option>
+          <option value="approved">منشورة</option>
+          <option value="rejected">مرفوضة</option>
+        </select>
+
+        <select id="filter-type">
+          <option value="all">الكل (بيع + إيجار)</option>
+          <option value="rent">إيجار فقط</option>
+          <option value="sale">بيع فقط</option>
+        </select>
+
+        <input id="filter-bar" type="text" placeholder="بار / منطقة (مثال: بار K)" />
+        <input id="filter-floor" type="text" placeholder="الدور (مثال: رابع)" />
+      </div>
+
+      <div id="ads-list" class="ad-list">
+        <p class="empty">جارٍ تحميل الإعلانات...</p>
+      </div>
+    </section>
+  </main>
+
+  <!-- مودال عرض الصور للأدمن -->
+  <div id="admin-img-modal">
+    <div id="admin-img-backdrop"></div>
+    <div class="admin-img-dialog" role="dialog" aria-modal="true">
+      <button id="admin-img-close" type="button" aria-label="إغلاق">×</button>
+      <h3 id="admin-img-title">صور الإعلان</h3>
+      <div class="admin-img-main">
+        <img id="admin-img" src="" alt="صورة من صور الإعلان" />
+      </div>
+      <div class="admin-img-controls">
+        <button type="button" id="admin-img-prev">السابق</button>
+        <span id="admin-img-counter">1 / 1</span>
+        <button type="button" id="admin-img-next">التالي</button>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
