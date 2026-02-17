@@ -1051,7 +1051,7 @@ window.addEventListener('scroll', () => {
   if (!daysEl || !hoursEl || !minsEl || !secsEl) return;
 
   // غيّر التاريخ حسب بداية رمضان الفعلية
-  const ramadanStart = new Date("2026-02-18T00:00:00");
+  const ramadanStart = new Date("2026-02-19T00:00:00");
 
   function updateCountdown() {
     const now = new Date().getTime();
