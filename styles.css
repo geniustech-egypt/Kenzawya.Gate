@@ -2150,3 +2150,1310 @@ mark {
     font-size: 0.88rem;
   }
 }
+/* ===== أنماط المساعد الذكي عم عارف (نسخة محسّنة كاملة) ===== */
+:root {
+    --garef-primary: #1e40af;
+    --garef-primary-light: #3b82f6;
+    --garef-accent-orange: #f59e0b;
+    --garef-accent-yellow: #fbbf24;
+    --garef-bg: #f8fafc;
+    --garef-border: #e2e8f0;
+}
+
+/* ===== زر تشغيل المساعد ===== */
+#chat-widget-launcher {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    z-index: 1150;
+    cursor: pointer;
+    pointer-events: auto !important;
+}
+
+#chat-widget-launcher > div {
+    background: linear-gradient(135deg, #1e40af, #3b82f6);
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 20px rgba(30, 64, 175, 0.35);
+    border: 3px solid #fff;
+    position: relative;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    pointer-events: auto !important;
+}
+
+#chat-widget-launcher > div:hover {
+    transform: scale(1.08);
+    box-shadow: 0 6px 28px rgba(30, 64, 175, 0.5);
+}
+
+/* النبض المتوهج */
+#chat-widget-launcher.attention > div::before {
+    content: '';
+    position: absolute;
+    inset: -6px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(30, 64, 175, 0.5), transparent 70%);
+    animation: pulse-glow 2s ease-in-out infinite;
+    z-index: -1;
+    pointer-events: none !important;
+}
+
+@keyframes pulse-glow {
+    0%, 100% { 
+        transform: scale(1);
+        opacity: 0.7;
+    }
+    50% { 
+        transform: scale(1.4);
+        opacity: 0;
+    }
+}
+
+/* رسالة التلميح */
+#chat-widget-launcher .tooltip-hint {
+    position: absolute;
+    bottom: 75px;
+    left: 50%;
+    transform: translateX(-50%) translateY(10px);
+    background: #1e40af;
+    color: white;
+    padding: 10px 15px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.25);
+    opacity: 0;
+    pointer-events: none !important;
+    font-family: 'Cairo', sans-serif;
+    z-index: 999;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+#chat-widget-launcher .tooltip-hint::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-top: 8px solid #1e40af;
+}
+
+#chat-widget-launcher.attention .tooltip-hint {
+    animation: tooltipPop 8s ease-in-out infinite;
+}
+
+@keyframes tooltipPop {
+    0%, 100% { 
+        opacity: 0;
+        transform: translateX(-50%) translateY(10px);
+    }
+    2%, 48% { 
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+    50% {
+        opacity: 0;
+        transform: translateX(-50%) translateY(10px);
+    }
+}
+
+#chat-widget-launcher:hover > div::before {
+    animation: none;
+    opacity: 0;
+}
+
+#chat-widget-launcher:hover .tooltip-hint {
+    animation: none !important;
+    opacity: 0 !important;
+}
+
+/* ===== نافذة المساعد ===== */
+#garef-chat-widget {
+    display: none;
+    position: fixed;
+    bottom: 90px;
+    left: 20px;
+    width: 400px;
+    max-width: 90vw;
+    height: 550px;
+    max-height: 75vh;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.2);
+    z-index: 1200;
+    flex-direction: column;
+    overflow: hidden;
+    border: 1px solid var(--garef-border);
+    font-family: 'Cairo', sans-serif;
+}
+
+#garef-chat-widget.active {
+    display: flex;
+    animation: slideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* ===== رأس المساعد ===== */
+.chat-header {
+    background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+    color: white;
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.chat-header-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+#garef-avatar-mini {
+    background: white;
+    border-radius: 50%;
+    width: 38px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    transition: transform 0.3s;
+}
+
+.thinking-active #garef-avatar-mini {
+    animation: bounce-mini 0.6s infinite alternate;
+}
+
+@keyframes bounce-mini {
+    from { transform: scale(1) rotate(0deg); }
+    to { transform: scale(1.15) rotate(5deg); }
+}
+
+.chat-header-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.chat-title {
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: 0.3px;
+}
+
+.chat-subtitle {
+    font-size: 11px;
+    opacity: 0.85;
+}
+
+.chat-close-btn {
+    background: rgba(255,255,255,0.1);
+    border: none;
+    color: white;
+    cursor: pointer;
+    font-size: 22px;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s, transform 0.2s;
+    border-radius: 8px;
+}
+
+.chat-close-btn:hover {
+    background: rgba(255,255,255,0.2);
+    transform: rotate(90deg);
+}
+
+/* زر محادثة جديدة */
+.new-chat-btn {
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.25);
+    color: white;
+    cursor: pointer;
+    font-size: 11px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    transition: all 0.2s;
+    font-family: 'Cairo', sans-serif;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.new-chat-btn:hover {
+    background: rgba(255,255,255,0.25);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+.new-chat-btn i {
+    font-size: 12px;
+}
+
+/* ===== منطقة المحادثة ===== */
+#chatWindow {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    background: var(--garef-bg);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    scroll-behavior: smooth;
+}
+
+#chatWindow::-webkit-scrollbar {
+    width: 6px;
+}
+
+#chatWindow::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 10px;
+}
+
+#chatWindow::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
+}
+
+#chatWindow::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* ===== رسائل المستخدم ===== */
+.user-message {
+    background: linear-gradient(135deg, #1e40af, #3b82f6) !important;
+    color: white !important;
+    padding: 12px 16px;
+    border-radius: 18px 18px 4px 18px;
+    align-self: flex-end;
+    font-size: 14px;
+    max-width: 80%;
+    box-shadow: 0 3px 10px rgba(30, 64, 175, 0.25);
+    font-weight: 500;
+    line-height: 1.5;
+}
+
+/* ===== رسائل المساعد ===== */
+.bot-message {
+    background: white;
+    color: #1f2937;
+    padding: 14px 16px;
+    border-radius: 18px 18px 18px 4px;
+    align-self: flex-start;
+    font-size: 14px;
+    max-width: 85%;
+    border: 1px solid var(--garef-border);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    line-height: 1.6;
+}
+
+.bot-message p {
+    margin: 8px 0;
+    line-height: 1.7;
+}
+
+.bot-message p:first-child {
+    margin-top: 0;
+}
+
+.bot-message p:last-child {
+    margin-bottom: 0;
+}
+
+.bot-message strong {
+    color: #1e40af;
+    font-weight: 700;
+}
+
+/* ===== تنسيق الجدول الاحترافي المحسّن (4 أعمدة بدون scroll) ===== */
+
+.table-wrapper {
+    overflow-x: auto;
+    margin: 14px 0;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    border: 1px solid #e2e8f0;
+    background: white;
+    -webkit-overflow-scrolling: touch;
+}
+
+.bot-message table {
+    width: 100%; /* ✅ عرض كامل بدون min-width ثابت */
+    border-collapse: collapse;
+    font-size: 13px;
+    background: white;
+    table-layout: auto; /* ✅ عرض تلقائي حسب المحتوى */
+}
+
+/* ===== رأس الجدول مع ألوان مخصصة لكل عمود ===== */
+.bot-message table thead {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+/* ✅ Header مشترك */
+.bot-message table th {
+    color: #ffffff;
+    font-weight: 700;
+    padding: 14px 12px;
+    text-align: right;
+    font-size: 13px;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+    border-bottom: 2px solid rgba(255,255,255,0.3);
+}
+
+/* ✅ ألوان مخصصة لكل عمود في الـ header */
+
+/* عمود 1: الخدمة - أزرق */
+.bot-message table th:nth-child(1) {
+    background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+}
+
+/* عمود 2: التليفون - أخضر */
+.bot-message table th:nth-child(2) {
+    background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+}
+
+/* عمود 3: العنوان - أصفر/برتقالي */
+.bot-message table th:nth-child(3) {
+    background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+}
+
+/* عمود 4: فتح - برتقالي غامق */
+.bot-message table th:nth-child(4) {
+    background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+}
+
+/* ===== تخصيص الأعمدة (عرض ديناميكي) ===== */
+
+/* عمود 1: الخدمة */
+.bot-message table th:nth-child(1),
+.bot-message table td:nth-child(1) {
+    width: auto;
+    min-width: 140px;
+    max-width: 220px;
+    padding-right: 14px;
+}
+
+.bot-message table td:nth-child(1) {
+    font-weight: 700;
+    color: #1e293b;
+    font-size: 13.5px;
+}
+
+/* عمود 2: التليفون */
+.bot-message table th:nth-child(2),
+.bot-message table td:nth-child(2) {
+    width: auto;
+    min-width: 115px;
+    max-width: 140px;
+    text-align: center;
+}
+
+.bot-message table td:nth-child(2) {
+    font-family: 'Courier New', Courier, monospace;
+    direction: ltr;
+    font-weight: 600;
+    color: #1e293b;
+    font-size: 13px;
+    letter-spacing: 0.5px;
+}
+
+/* عمود 3: العنوان */
+.bot-message table th:nth-child(3),
+.bot-message table td:nth-child(3) {
+    width: auto;
+    min-width: 150px;
+    max-width: 250px;
+}
+
+.bot-message table td:nth-child(3) {
+    color: #1e293b;
+    font-size: 12.5px;
+    line-height: 1.5;
+}
+
+/* عمود 4: فتح */
+.bot-message table th:nth-child(4),
+.bot-message table td:nth-child(4) {
+    width: auto;
+    min-width: 75px;
+    max-width: 90px;
+    text-align: center;
+    padding: 10px 8px;
+}
+
+/* ===== خلايا الجدول ===== */
+.bot-message table td {
+    padding: 12px 10px;
+    border-bottom: 1px solid #f1f5f9;
+    vertical-align: middle;
+}
+
+.bot-message table tbody tr {
+    transition: background 0.2s ease, transform 0.1s ease;
+}
+
+.bot-message table tbody tr:nth-child(even) {
+    background-color: #f8fafc;
+}
+
+.bot-message table tbody tr:hover {
+    background-color: #dbeafe;
+    transform: scale(1.005);
+}
+
+.bot-message table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* ===== رابط "فتح" الاحترافي ===== */
+.bot-message table td:nth-child(4) a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 12px;
+    background: linear-gradient(135deg, #020a61 0%, #532402 100%);
+    color: white !important;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 13px;
+    text-decoration: none;
+    transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 0 2px 8px rgba(234, 88, 12, 0.25);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    white-space: nowrap;
+}
+
+.bot-message table td:nth-child(4) a:hover {
+    background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+    transform: translateY(-2px) scale(1.08);
+    box-shadow: 0 6px 16px rgba(234, 88, 12, 0.45);
+}
+
+.bot-message table td:nth-child(4) a:active {
+    transform: translateY(0) scale(0.96);
+}
+
+/* ===== إضافة أيقونات للـ header ===== */
+.bot-message table th:nth-child(1)::before {
+    content: '🏪 ';
+    margin-left: 6px;
+}
+
+.bot-message table th:nth-child(2)::before {
+    content: '📞 ';
+    margin-left: 6px;
+}
+
+.bot-message table th:nth-child(3)::before {
+    content: '📍 ';
+    margin-left: 6px;
+}
+
+.bot-message table th:nth-child(4)::before {
+    content: '🔗 ';
+    margin-left: 6px;
+}
+
+/* ===== تأثيرات Hover المحسّنة ===== */
+.bot-message table tbody tr:hover td:nth-child(1) {
+    color: #1e40af;
+    font-weight: 800;
+}
+
+.bot-message table tbody tr:hover td:nth-child(2) {
+    font-weight: 700;
+}
+
+.bot-message table tbody tr:hover td:nth-child(3) {
+}
+
+/* ===== Animation للجدول عند الظهور ===== */
+.table-wrapper {
+    animation: tableSlideIn 0.4s ease-out;
+}
+
+@keyframes tableSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ===== خطوط فاصلة بين الأعمدة (اختياري) ===== */
+.bot-message table td {
+    border-left: 1px solid #f1f5f9;
+}
+
+.bot-message table td:first-child {
+    border-left: none;
+}
+
+/* ===== Responsive للموبايل ===== */
+@media (max-width: 600px) {
+    .bot-message table {
+        min-width: 100%;
+        font-size: 11px;
+    }
+    
+    .bot-message table th {
+        padding: 10px 6px;
+        font-size: 11px;
+    }
+    
+    .bot-message table td {
+        padding: 10px 6px;
+        font-size: 11px;
+    }
+    
+    /* تقليل عرض الأعمدة */
+    .bot-message table th:nth-child(1),
+    .bot-message table td:nth-child(1) {
+        min-width: 100px;
+        max-width: 150px;
+        font-size: 11.5px;
+    }
+    
+    .bot-message table th:nth-child(2),
+    .bot-message table td:nth-child(2) {
+        min-width: 95px;
+        max-width: 120px;
+        font-size: 10.5px;
+    }
+    
+    .bot-message table th:nth-child(3),
+    .bot-message table td:nth-child(3) {
+        min-width: 110px;
+        max-width: 160px;
+        font-size: 10.5px;
+    }
+    
+    .bot-message table th:nth-child(4),
+    .bot-message table td:nth-child(4) {
+        min-width: 55px;
+        max-width: 70px;
+        padding: 6px 4px;
+    }
+    
+    /* زر أصغر على الموبايل */
+    .bot-message table td:nth-child(4) a {
+        padding: 6px 8px;
+        font-size: 11px;
+    }
+    
+    .table-wrapper {
+        margin: 10px -4px;
+        border-radius: 10px;
+    }
+}
+
+/* موبايل صغير جداً */
+@media (max-width: 380px) {
+    .bot-message table {
+        font-size: 10px;
+    }
+    
+    .bot-message table th,
+    .bot-message table td {
+        padding: 8px 4px;
+    }
+    
+    .bot-message table th:nth-child(1),
+    .bot-message table td:nth-child(1) {
+        min-width: 85px;
+    }
+    
+    .bot-message table th:nth-child(2),
+    .bot-message table td:nth-child(2) {
+        min-width: 80px;
+        font-size: 9.5px;
+    }
+    
+    .bot-message table th:nth-child(3),
+    .bot-message table td:nth-child(3) {
+        min-width: 90px;
+        font-size: 10px;
+    }
+    
+    .bot-message table td:nth-child(4) a {
+        padding: 5px 6px;
+        font-size: 10px;
+    }
+}
+
+/* ===== تحسين للاب توب والشاشات المتوسطة ===== */
+@media (min-width: 601px) and (max-width: 1024px) {
+    .bot-message table {
+        font-size: 12px;
+    }
+    
+    .bot-message table th,
+    .bot-message table td {
+        padding: 11px 9px;
+    }
+    
+    .bot-message table th:nth-child(1),
+    .bot-message table td:nth-child(1) {
+        width: 32%;
+    }
+    
+    .bot-message table th:nth-child(2),
+    .bot-message table td:nth-child(2) {
+        width: 26%;
+    }
+    
+    .bot-message table th:nth-child(3),
+    .bot-message table td:nth-child(3) {
+        width: 30%;
+    }
+    
+    .bot-message table th:nth-child(4),
+    .bot-message table td:nth-child(4) {
+        width: 12%;
+    }
+}
+
+/* ===== شاشات كبيرة (لاب توب) ===== */
+@media (min-width: 1025px) {
+    .bot-message table {
+        font-size: 13px;
+    }
+    
+    /* عرض نسبي للأعمدة بدون scroll */
+    .bot-message table th:nth-child(1),
+    .bot-message table td:nth-child(1) {
+        width: 30%;
+    }
+    
+    .bot-message table th:nth-child(2),
+    .bot-message table td:nth-child(2) {
+        width: 25%;
+    }
+    
+    .bot-message table th:nth-child(3),
+    .bot-message table td:nth-child(3) {
+        width: 32%;
+    }
+    
+    .bot-message table th:nth-child(4),
+    .bot-message table td:nth-child(4) {
+        width: 13%;
+    }
+}
+
+/* ===== إزالة حدود أقصى من الأعمدة للاب توب ===== */
+@media (min-width: 769px) {
+    .bot-message table th:nth-child(1),
+    .bot-message table td:nth-child(1) {
+        max-width: none; /* ✅ بدون حد أقصى */
+    }
+    
+    .bot-message table th:nth-child(2),
+    .bot-message table td:nth-child(2) {
+        max-width: none;
+    }
+    
+    .bot-message table th:nth-child(3),
+    .bot-message table td:nth-child(3) {
+        max-width: none;
+    }
+}
+
+/* ===== تحسين scroll للجدول على كل الأجهزة ===== */
+.table-wrapper::-webkit-scrollbar {
+    height: 8px;
+}
+
+.table-wrapper::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 10px;
+}
+
+.table-wrapper::-webkit-scrollbar-thumb {
+    background: linear-gradient(90deg, #3b82f6, #60a5fa);
+    border-radius: 10px;
+}
+
+.table-wrapper::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(90deg, #2563eb, #3b82f6);
+}
+
+/* ===== Animation للجدول ===== */
+.table-wrapper {
+    animation: tableSlideIn 0.4s ease-out;
+}
+
+@keyframes tableSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ===== تأثيرات Hover للصفوف ===== */
+.bot-message table tbody tr:hover td:nth-child(2) {
+    font-weight: 700;
+    transform: scale(1.01);
+}
+
+.bot-message table tbody tr:hover td:nth-child(3) {
+}
+
+/* ===== حدود ناعمة بين الخلايا ===== */
+.bot-message table td {
+    border-left: 1px solid #f1f5f9;
+}
+
+.bot-message table td:first-child {
+    border-left: none;
+}
+
+.bot-message table tbody tr:hover td {
+    border-left-color: #cbd5e1;
+}
+
+/* ===== منطقة الإدخال ===== */
+.chat-input-area {
+    padding: 16px;
+    background: white;
+    border-top: 1px solid var(--garef-border);
+    box-shadow: 0 -2px 8px rgba(0,0,0,0.04);
+}
+
+#chatForm {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+    align-items: center;
+}
+
+#userInput {
+    flex: 1;
+    border: 2px solid #e2e8f0;
+    border-radius: 24px;
+    padding: 10px 16px;
+    outline: none;
+    font-size: 14px;
+    font-family: 'Cairo', sans-serif;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    background: #f8fafc;
+}
+
+#userInput:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+    background: white;
+}
+
+#userInput::placeholder {
+    color: #94a3b8;
+    font-size: 13px;
+}
+
+.chat-send-btn {
+    background: linear-gradient(135deg, #1e40af, #3b82f6);
+    color: white;
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    box-shadow: 0 2px 8px rgba(30, 64, 175, 0.25);
+    position: relative;
+    overflow: hidden;
+}
+
+.chat-send-btn:hover {
+    background: linear-gradient(135deg, #1e3a8a, #2563eb);
+    transform: scale(1.08);
+    box-shadow: 0 4px 12px rgba(30, 64, 175, 0.35);
+}
+
+.chat-send-btn:disabled {
+    background: #cbd5e1;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.chat-send-btn::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.4);
+    transform: translate(-50%, -50%);
+    transition: width 0.5s, height 0.5s;
+}
+
+.chat-send-btn:active::before {
+    width: 200px;
+    height: 200px;
+}
+
+/* ===== حالة التفكير ===== */
+#garef-chat-widget.thinking-active .chat-input-area {
+    pointer-events: none;
+    opacity: 0.6;
+}
+
+#garef-chat-widget.thinking-active #garef-avatar-mini {
+    animation: think-bounce 0.6s ease-in-out infinite;
+}
+
+@keyframes think-bounce {
+    0%, 100% {
+        transform: translateY(0) scale(1);
+    }
+    50% {
+        transform: translateY(-6px) scale(1.12);
+    }
+}
+
+/* ===== أنيميشن ظهور الرسائل ===== */
+.bot-message {
+    animation: fadeInUp 0.4s ease-out;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(15px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ===== Responsive للموبايل ===== */
+@media (max-width: 600px) {
+    #chat-widget-launcher {
+        bottom: 15px;
+        left: 15px;
+    }
+    
+    #chat-widget-launcher > div {
+        width: 54px;
+        height: 54px;
+    }
+    
+    #chat-widget-launcher .tooltip-hint {
+        font-size: 11px;
+        padding: 8px 12px;
+        bottom: 65px;
+    }
+    
+    #garef-chat-widget {
+        bottom: 75px;
+        left: 10px;
+        right: 10px;
+        width: auto;
+        max-width: none;
+        height: 500px;
+        max-height: 70vh;
+    }
+    
+    /* ===== الجدول على الموبايل ===== */
+    .bot-message table {
+        min-width: 100%;
+        font-size: 11px;
+        table-layout: auto;
+    }
+    
+    .bot-message table th {
+        padding: 10px 6px;
+        font-size: 11px;
+    }
+    
+    .bot-message table td {
+        padding: 10px 6px;
+        font-size: 11px;
+    }
+    
+    /* تعديل عرض الأعمدة للموبايل */
+    .bot-message table th:nth-child(1),
+    .bot-message table td:nth-child(1) {
+        width: 32%;
+        min-width: 100px;
+        padding-right: 8px;
+    }
+    
+    .bot-message table td:nth-child(1) {
+        font-size: 11.5px;
+    }
+    
+    .bot-message table th:nth-child(2),
+    .bot-message table td:nth-child(2) {
+        width: 26%;
+        min-width: 95px;
+        font-size: 10.5px;
+    }
+    
+    .bot-message table th:nth-child(3),
+    .bot-message table td:nth-child(3) {
+        width: 30%;
+        min-width: 100px;
+        font-size: 10.5px;
+    }
+    
+    .bot-message table th:nth-child(4),
+    .bot-message table td:nth-child(4) {
+        width: 12%;
+        min-width: 55px;
+        padding: 6px 4px;
+    }
+    
+    /* زر الرابط أصغر */
+    .bot-message table td:nth-child(4) a {
+        padding: 6px 10px;
+        font-size: 11px;
+        min-width: 45px;
+    }
+    
+    .table-wrapper {
+        margin: 10px -4px;
+        border-radius: 10px;
+    }
+    
+    .user-message,
+    .bot-message {
+        max-width: 90%;
+        font-size: 13px;
+    }
+}
+
+/* موبايل صغير جداً */
+@media (max-width: 380px) {
+    .bot-message table {
+        font-size: 10px;
+    }
+    
+    .bot-message table th,
+    .bot-message table td {
+        padding: 8px 4px;
+    }
+    
+    .bot-message table th:nth-child(1),
+    .bot-message table td:nth-child(1) {
+        min-width: 85px;
+    }
+    
+    .bot-message table th:nth-child(2),
+    .bot-message table td:nth-child(2) {
+        min-width: 80px;
+        font-size: 9.5px;
+    }
+    
+    .bot-message table th:nth-child(3),
+    .bot-message table td:nth-child(3) {
+        min-width: 85px;
+        font-size: 10px;
+    }
+    
+    .bot-message table td:nth-child(4) a {
+        padding: 5px 8px;
+        font-size: 10px;
+    }
+}
+
+/* ===== تنسيق خاص للروابط داخل النص ===== */
+.bot-message a:not(table a) {
+    color: #1e40af;
+    font-weight: 600;
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+    transition: border-color 0.2s;
+}
+
+.bot-message a:not(table a):hover {
+    border-bottom-color: #3b82f6;
+}
+
+/* ===== تنسيق القوائم ===== */
+.bot-message ul,
+.bot-message ol {
+    margin: 10px 0;
+    padding-right: 20px;
+}
+
+.bot-message ul li,
+.bot-message ol li {
+    margin-bottom: 6px;
+    line-height: 1.6;
+}
+
+/* ===== تنسيق الكود ===== */
+.bot-message code {
+    background: #f1f5f9;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 12px;
+    color: #e11d48;
+}
+
+/* ===== تنسيق Emoji ===== */
+.bot-message p:has(span:contains("😊")),
+.bot-message p:has(span:contains("💊")),
+.bot-message p:has(span:contains("🛒")) {
+    font-weight: 600;
+}
+
+/* ===== تحسين Landscape للموبايل ===== */
+@media (max-width: 915px) and (orientation: landscape) {
+    #garef-chat-widget {
+        width: 450px;
+        height: 85vh;
+    }
+    
+    .bot-message table {
+        min-width: 450px;
+    }
+}
+
+/* ===== تنسيق خاص للتنبيهات ===== */
+.bot-message p:contains("⚠️"),
+.bot-message p:contains("معلش"),
+.bot-message p:contains("مفيش") {
+    background: #fef3c7;
+    padding: 8px 12px;
+    border-radius: 8px;
+    border-right: 4px solid #f59e0b;
+    margin: 10px 0;
+}
+
+/* ===== ظلال وتأثيرات إضافية ===== */
+.bot-message table tbody tr {
+    position: relative;
+}
+
+.bot-message table tbody tr::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #e2e8f0 20%, #e2e8f0 80%, transparent);
+}
+
+.bot-message table tbody tr:last-child::after {
+    display: none;
+}
+
+/* ===== تنسيق أرقام الهواتف ===== */
+.bot-message table td:nth-child(2) {
+}
+
+/* ===== Animation للجدول عند الظهور ===== */
+.table-wrapper {
+    animation: tableSlideIn 0.4s ease-out;
+}
+
+@keyframes tableSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ===== تحسين الطباعة (Print) ===== */
+@media print {
+    #chat-widget-launcher,
+    #garef-chat-widget {
+        display: none !important;
+    }
+}
+
+/* ===== Dark mode support (اختياري) ===== */
+@media (prefers-color-scheme: dark) {
+    #garef-chat-widget {
+        background: #1e293b;
+        border-color: #334155;
+    }
+    
+    .chat-header {
+        background: linear-gradient(135deg, #0f172a, #1e293b);
+    }
+    
+    #chatWindow {
+        background: #0f172a;
+    }
+    
+    .bot-message {
+        background: #1e293b;
+        color: #e2e8f0;
+        border-color: #334155;
+    }
+    
+    .bot-message table {
+        background: #1e293b;
+    }
+    
+    .bot-message table td {
+        color: #cbd5e1;
+        border-bottom-color: #334155;
+    }
+    
+    .user-message {
+        background: linear-gradient(135deg, #3b82f6, #60a5fa) !important;
+    }
+}
+
+/* ===== إصلاح overflow على الأجهزة الصغيرة ===== */
+@media (max-width: 480px) {
+    .table-wrapper {
+        margin: 10px -8px;
+        border-radius: 8px;
+    }
+    
+    #chatWindow {
+        padding: 12px 8px;
+    }
+    
+    .bot-message,
+    .user-message {
+        padding: 10px 12px;
+        max-width: 92%;
+    }
+}
+
+/* ===== تحسين accessibility ===== */
+.chat-send-btn:focus-visible,
+.chat-close-btn:focus-visible,
+.new-chat-btn:focus-visible {
+    outline: 2px solid #fbbf24;
+    outline-offset: 2px;
+}
+
+.bot-message table td:nth-child(4) a:focus-visible {
+    outline: 2px solid #fbbf24;
+    outline-offset: 2px;
+}
+
+/* ===== Loading state للجدول ===== */
+.table-wrapper.loading {
+    opacity: 0.6;
+    pointer-events: none;
+    position: relative;
+}
+
+.table-wrapper.loading::after {
+    content: '⏳';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 32px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: translate(-50%, -50%) rotate(0deg); }
+    to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* ===== تحسين للـ Safari ===== */
+@supports (-webkit-backdrop-filter: blur(10px)) {
+    .chat-header {
+        -webkit-backdrop-filter: blur(10px);
+        backdrop-filter: blur(10px);
+    }
+}
+
+/* ===== تأثير Hover على الصفوف ===== */
+.bot-message table tbody tr {
+    cursor: default;
+}
+
+.bot-message table tbody tr:hover td:nth-child(1) {
+    color: #1e40af;
+    font-weight: 800;
+}
+
+.bot-message table tbody tr:hover td:nth-child(2) {
+    transform: scale(1.02);
+    font-weight: 700;
+}
+
+/* ===== إضافة أيقونات للأعمدة ===== */
+.bot-message table th:nth-child(1)::before {
+    content: '🏪 ';
+    margin-left: 4px;
+}
+
+.bot-message table th:nth-child(2)::before {
+    content: '📞 ';
+    margin-left: 4px;
+}
+
+.bot-message table th:nth-child(3)::before {
+    content: '📍 ';
+    margin-left: 4px;
+}
+
+.bot-message table th:nth-child(4)::before {
+    content: '🔗 ';
+    margin-left: 4px;
+}
+
+/* ===== تحسين التباين للقراءة ===== */
+.bot-message table td:nth-child(3) {
+}
+
+/* ===== حدود ناعمة للخلايا ===== */
+.bot-message table td {
+    border-right: 1px solid transparent;
+    border-left: 1px solid transparent;
+}
+
+.bot-message table tbody tr:hover td {
+    border-right-color: #e0f2fe;
+    border-left-color: #e0f2fe;
+}
