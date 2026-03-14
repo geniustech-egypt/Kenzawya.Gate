@@ -2170,7 +2170,8 @@ mark {
     pointer-events: auto !important;
 }
 
-#chat-widget-launcher > div {
+/* ✅ تعديل مهم: تطبيق ستايل الدائرة على زر الأيقونة فقط (أول div) */
+#chat-widget-launcher > div:first-child {
     background: linear-gradient(135deg, #1e40af, #3b82f6);
     width: 60px;
     height: 60px;
@@ -2185,13 +2186,14 @@ mark {
     pointer-events: auto !important;
 }
 
-#chat-widget-launcher > div:hover {
+/* ✅ hover على زر الأيقونة فقط */
+#chat-widget-launcher > div:first-child:hover {
     transform: scale(1.08);
     box-shadow: 0 6px 28px rgba(30, 64, 175, 0.5);
 }
 
-/* النبض المتوهج */
-#chat-widget-launcher.attention > div::before {
+/* ✅ النبض المتوهج على زر الأيقونة فقط */
+#chat-widget-launcher.attention > div:first-child::before {
     content: '';
     position: absolute;
     inset: -6px;
@@ -2264,7 +2266,8 @@ mark {
     }
 }
 
-#chat-widget-launcher:hover > div::before {
+/* ✅ إيقاف الـ glow عند hover على زر الأيقونة فقط */
+#chat-widget-launcher:hover > div:first-child::before {
     animation: none;
     opacity: 0;
 }
@@ -2720,25 +2723,19 @@ mark {
    Keep the exact icon from index.html (👴)
    =========================== */
 
-#chat-widget-launcher > div {
-  /* حافظ على نفس القياسات على كل الأجهزة */
+/* ✅ تعديل مهم: استهداف زر الأيقونة فقط */
+#chat-widget-launcher > div:first-child {
   width: 60px;
   height: 60px;
 }
 
-#chat-widget-launcher > div > span {
-  /* أهم جزء: تثبيت طريقة عرض الإيموجي */
+/* ✅ تثبيت عرض الإيموجي داخل زر الأيقونة فقط */
+#chat-widget-launcher > div:first-child > span {
   font-size: 30px !important;
   line-height: 1 !important;
   display: block !important;
-
-  /* اختياري لكنه مفيد: يمنع أي transform غريب على النص */
   transform: none !important;
-
-  /* خلي الإيموجي يعتمد خطوط الإيموجي القياسية قدر الإمكان */
   font-family: "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif !important;
-
-  /* تحسين وضوح */
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
@@ -2749,11 +2746,11 @@ mark {
     bottom: 20px;
     left: 20px;
   }
-  #chat-widget-launcher > div {
+  #chat-widget-launcher > div:first-child {
     width: 60px;
     height: 60px;
   }
-  #chat-widget-launcher > div > span {
+  #chat-widget-launcher > div:first-child > span {
     font-size: 30px !important;
   }
 }
