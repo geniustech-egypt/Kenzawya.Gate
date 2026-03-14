@@ -1331,16 +1331,10 @@ renderCarousel();
 <script>
 /*
   ===== عم عارف | مساعد بوابة الكنزاوية (نسخة كاملة) =====
-  ✅ تم إصلاح:
-  - إزالة التكرار اللي كان بيكسر الصفحة (duplicate const/let)
-  - إضافة bind() لربط الأيقونة وارسال الرسائل
-  - دعم:
-    1) طوارئ من DOM
-    2) إجراءات حكومية من DOM
-    3) مشروعات الكنزاوية من kenzawya-pj.html
-    4) خدمات services/*.html + بحث
-    5) "دكتور" => كل الدكاترة (بدون مستشفيات/معامل/مراكز)
-    6) Hybrid لـ other_services.html (ميكانيكي/كهرباء سيارات/صالون/بيطري...) بناءً على فلاتر الصفحة + synonyms
+  ✅ تم إصلاح/تطوير:
+  - Auto-loader لتخصصات العيادات من services/clinics.html (data-type) => مفيش تخصصات وهمية
+  - Guard احترافي: "دكتور/طبيب/أخصائي/استشاري + تخصص" غير موجود => رسالة قصيرة فقط
+  - باقي الوظائف كما هي: طوارئ/إجراءات/مشروعات/خدمات/Hybrid other_services
 */
 (function () {
   "use strict";
@@ -1384,7 +1378,7 @@ renderCarousel();
   // =========================================
   const LIMITS = {
     MESSAGES_PER_5MIN: 5,
-    DAILY_LIMIT: 15,
+    DAILY_LIMIT: 100,
     COOLDOWN_SECONDS: 2
   };
 
@@ -1561,6 +1555,8 @@ renderCarousel();
 
       // background loads
       if (!projectsCache?.items?.length) fetchProjectsFromProjectsPage().catch(()=>{});
+      // preload clinics types (اختياري)
+      // loadClinicsTypesFromPage().catch(()=>{});
     }
   };
 
@@ -2061,25 +2057,159 @@ renderCarousel();
     return "";
   }
 
-  function resolveClinicTypeFromUserText(raw) {
+  // =========================================
+  // ✅ Clinics AUTO types loader + resolver (NEW)
+  // =========================================
+  let clinicsTypesCache = null;
+  // { typesRaw: string[], tokensSet: Set<string>, loadedAt:number }
+
+  async function loadClinicsTypesFromPage() {
+    if (clinicsTypesCache?.typesRaw?.length) return clinicsTypesCache;
+
+    const pagePath = "services/clinics.html";
+    const urls = [
+      pagePath,
+      `https://raw.githubusercontent.com/${repoOwner}/${repoName}/main/${pagePath}`
+    ];
+
+    let html = "";
+    for (const u of urls) {
+      try {
+        const res = await fetch(u, { cache: "no-store" });
+        if (!res.ok) continue;
+        html = await res.text();
+        if (html) break;
+      } catch (e) {}
+    }
+
+    if (!html) {
+      clinicsTypesCache = { typesRaw: [], tokensSet: new Set(), loadedAt: Date.now() };
+      return clinicsTypesCache;
+    }
+
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, "text/html");
+
+    const rawSet = new Set();
+    doc.querySelectorAll(".service-card").forEach(card => {
+      const raw = (card.getAttribute("data-type") || "").trim();
+      if (raw) rawSet.add(raw);
+    });
+
+    const typesRaw = Array.from(rawSet);
+
+    const tokensSet = new Set();
+    typesRaw.forEach(r => {
+      String(r).split(/\s+/).map(t => t.trim()).filter(Boolean).forEach(t => {
+        tokensSet.add(normalizeArabic(t));
+      });
+    });
+
+    clinicsTypesCache = { typesRaw, tokensSet, loadedAt: Date.now() };
+    return clinicsTypesCache;
+  }
+
+  function resolveClinicTypeCandidateFromText(raw) {
     const q = normalizeArabic(raw);
 
     const rules = [
-      { keys: ["نساء","نسائي","توليد","حمل","ولاده","ولادة"], type: "obgyn" },
-      { keys: ["اطفال","أطفال","حديثي الولاده","حديثي الولادة","رضع","طفل"], type: "pediatrics" },
-      { keys: ["عيون","رمد","نظر","ليزك"], type: "eye" },
-      { keys: ["اسنان","أسنان","سنان","دنتال","تقويم","حشو","خلع"], type: "dental" },
-      { keys: ["باطنه","باطنة","باطني","باطنى","داخليه","داخلية","هضمي","كبد","سكر","ضغط"], type: "internal" },
-      { keys: ["جراحه","جراحة","عمليات","جراح","مخ","اعصاب","أعصاب"], type: "surgery" },
+      { keys: ["نساء","نسائي","توليد","حمل","ولاده","ولادة","نسا"], type: "obgyn" },
+      { keys: ["اطفال","أطفال","رضع","طفل","حديثي الولاده","حديثي الولادة"], type: "pediatrics" },
+      { keys: ["عيون","رمد","نظر","ليزك","شبكيه","شبكية"], type: "eye" },
+      { keys: ["اسنان","أسنان","سنان","دنتال","تقويم","حشو","خلع","تركيبات","زراعه اسنان","زراعة اسنان"], type: "dental" },
+      { keys: ["باطنه","باطنة","باطني","باطنى","داخليه","داخلية","كبد","سكر","ضغط","هضمي","هضمى"], type: "internal" },
+      { keys: ["جراحه","جراحة","عمليات","جراح"], type: "surgery" },
+
       { keys: ["مستشفى","مستشفي","مستشفيات"], type: "hospital" },
-      { keys: ["معمل","تحاليل","اشعه","أشعة","اشعة وتحاليل","تحاليل واشعة"], type: "lab" },
-      { keys: ["مركز طبي","مراكز طبيه","مراكز طبية","عيادات تخصصيه","عيادات تخصصية","مركز"], type: "multi" }
+      { keys: ["معمل","تحاليل","تحليل","اشعه","أشعة","سونار","رنين","مقطعيه","مقطعية","ct","xray"], type: "lab" },
+      { keys: ["مركز طبي","مراكز طبيه","مراكز طبية","مركز","عيادات تخصصيه","عيادات تخصصية"], type: "multi" },
+
+      // تخصصات إضافية (لن تُستخدم إلا لو كانت موجودة فعليًا في clinics.html)
+      { keys: ["عظام","مفاصل","كسور","غضروف","ركبه","ركبة","انزلاق غضروفي","إنزلاق غضروفي"], type: "orthopedics" },
+      { keys: ["قلب","اوعيه","أوعية"], type: "cardiology" },
+      { keys: ["جلديه","جلدية","بشرة","حب الشباب","اكزيما","إكزيما"], type: "dermatology" },
+      { keys: ["انف","أذن","اذن","حنجره","حنجرة","لوز","جيوب"], type: "ent" },
+      { keys: ["مخ","اعصاب","أعصاب","مخ واعصاب","مخ وأعصاب"], type: "neuro" }
     ];
 
-    for (const r of rules) for (const k of r.keys) {
-      if (q.includes(normalizeArabic(k))) return r.type;
+    for (const r of rules) {
+      for (const k of r.keys) {
+        if (q.includes(normalizeArabic(k))) return r.type;
+      }
     }
     return "";
+  }
+
+  async function resolveClinicTypeFromUserText(raw) {
+    const cand = resolveClinicTypeCandidateFromText(raw);
+    if (!cand) return "";
+
+    const meta = await loadClinicsTypesFromPage().catch(() => ({ tokensSet: new Set() }));
+    const set = meta.tokensSet || new Set();
+
+    if (set.has(normalizeArabic(cand))) return cand;
+    return "";
+  }
+
+  // =========================================
+  // ✅ Doctor unknown specialty guard (NEW)
+  // =========================================
+  const DOCTOR_TERMS = [
+    "دكتور","طبيب","دكتوره","دكتورة","دكاتره","دكاترة","اطباء","أطباء",
+    "اخصائي","أخصائي","اختصاصي","إختصاصي",
+    "استشاري","إستشاري",
+    "بروفيسور","بروفسير","بروف",
+    "د.","د/",
+    "عياده","عيادة","عيادات",
+    "حجز","موعد","ميعاد","كشف","كشفية"
+  ];
+
+  function containsAnyDoctorTerm(qNorm) {
+    return DOCTOR_TERMS.some(t => qNorm.includes(normalizeArabic(t)));
+  }
+
+  function hasDoctorWithFollowingTextAnywhere(raw) {
+    const qNorm = normalizeArabic(raw);
+    if (!containsAnyDoctorTerm(qNorm)) return false;
+
+    let rest = qNorm;
+    DOCTOR_TERMS.forEach(t => { rest = rest.replaceAll(normalizeArabic(t), " "); });
+    rest = rest.replace(/\s+/g, " ").trim();
+
+    const toks = rest.split(" ").filter(x => x.length >= 2);
+    return toks.length >= 1;
+  }
+
+  function extractDoctorSpecialtyAnywhere(raw) {
+    const s = String(raw || "").trim().replace(/^["'“”]+|["'“”]+$/g, "").trim();
+    if (!s) return "";
+
+    const termAlternation = DOCTOR_TERMS
+      .map(t => t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
+      .join("|");
+
+    const re = new RegExp(`(?:${termAlternation})\\s+(.+)$`, "i");
+    const m = s.match(re);
+    let rest = (m && m[1]) ? m[1].trim() : "";
+    if (!rest) return "";
+
+    rest = rest.replace(/[؟?].*$/g, "").trim();
+    rest = rest.replace(/[،,].*$/g, "").trim();
+
+    return rest;
+  }
+
+  async function handleUnknownDoctorSpecialtyOnly(q) {
+    const qNorm = normalizeArabic(q);
+
+    if (!containsAnyDoctorTerm(qNorm)) return { handled: false, reply: "" };
+    if (!hasDoctorWithFollowingTextAnywhere(q)) return { handled: false, reply: "" };
+
+    const clinicTypeKnown = await resolveClinicTypeFromUserText(q);
+    if (clinicTypeKnown) return { handled: false, reply: "" };
+
+    const spec = extractDoctorSpecialtyAnywhere(q) || "ده";
+    return { handled: true, reply: `معلش يا كبير… تخصص **${spec}** مش موجود عندي.` };
   }
 
   // =========================================
@@ -2118,7 +2248,6 @@ renderCarousel();
       const key = (btn.getAttribute("data-filter") || "").trim();
       if (!key || key === "all") return;
 
-      // نص الزر (مثلاً "ميكانيكي" / "كهرباء سيارات")
       const label = (btn.textContent || "").replace(/\s+/g, " ").trim();
       keys.push(key);
       labelsByKey[key] = label;
@@ -2131,7 +2260,6 @@ renderCarousel();
   function resolveOtherServicesTypeFromTextHybrid(raw, availableKeys) {
     const q = normalizeArabic(raw);
 
-    // synonyms (يدوي بسيط)
     const synonymMap = [
       { keys: ["ميكانيكي","ميكانيك"], target: "mechanic" },
       { keys: ["كهربا سيارات","كهرباء سيارات","كهربائي سيارات","بطاريه","بطارية"], target: "car electric" },
@@ -2145,7 +2273,6 @@ renderCarousel();
       }
     }
 
-    // fallback: لو المستخدم كتب key نفسه
     for (const k of availableKeys) {
       if (q.includes(normalizeArabic(k))) return k;
     }
@@ -2191,11 +2318,9 @@ renderCarousel();
 
       const phone = phones.length ? phones.join(" / ") : "-";
 
-      // ✅ NEW: أنواع عامة لكل الخدمات (من data-type)
-      const itemTypesRaw = (card.getAttribute("data-type") || "").trim(); // مثال: "car electric"
+      const itemTypesRaw = (card.getAttribute("data-type") || "").trim();
       const itemTypes = itemTypesRaw.split(/\s+/).map(t => t.trim()).filter(Boolean);
 
-      // clinics specialty label (للعيادات فقط)
       const specialty = (pagePath === "services/clinics.html")
         ? (clinicTypeToArabic(itemTypesRaw) || addr)
         : addr;
@@ -2212,7 +2337,6 @@ renderCarousel();
         itemTypes,
         itemTypesNorm: itemTypes.map(t => normalizeArabic(t)),
 
-        // ✅ compatibility (كود الدكاترة/العيادات الحالي)
         clinicType: itemTypesRaw,
         specialty,
 
@@ -2298,7 +2422,7 @@ renderCarousel();
 
 قواعد:
 - لو السؤال عن أرقام الطوارئ => emergency_numbers
-- لو السؤال عن إجراء حكومي محدد => gov_procedure (procedure_title)
+- لو السؤال عن إجراء حكومي محد => gov_procedure (procedure_title)
 - لو السؤال عن الإجراءات الحكومية بشكل عام => gov_list
 - لو السؤال عن مشروعات الكنزاوية بشكل عام => projects_list
 - لو السؤال عن مشروع محدد => project_lookup (project_name) وقد يذكر project_type
@@ -2364,6 +2488,10 @@ renderCarousel();
       }
     }
 
+    // ✅ Guard: "دكتور + تخصص غير موجود" => رسالة قصيرة فقط
+    const unk = await handleUnknownDoctorSpecialtyOnly(q);
+    if (unk.handled) return unk.reply;
+
     // ✅ Hybrid: فلاتر other_services الداخلية (تلقائي + synonyms)
     const otherMeta = await loadOtherServicesFilters().catch(() => ({ keys: [], labelsByKey: {} }));
     const otherType = resolveOtherServicesTypeFromTextHybrid(q, otherMeta.keys || []);
@@ -2383,9 +2511,8 @@ renderCarousel();
       return renderServicesTable(filtered, title);
     }
 
-    // ✅ NEW: لو المستخدم كتب "دكتور/طبيب/عيادة" بدون تحديد تخصص => رجّع كل الدكاترة فقط
-    // (استبعاد: مستشفيات/معامل/مراكز)
-    const clinicTypeFromText = resolveClinicTypeFromUserText(q);
+    // ✅ "دكتور/طبيب/عيادة" بدون تخصص => كل الدكاترة
+    const clinicTypeFromText = await resolveClinicTypeFromUserText(q);
     if (!clinicTypeFromText) {
       const qNorm = normalizeArabic(q);
       const doctorHints = ["دكتور","طبيب","اطباء","أطباء","دكاترة","عيادة","عيادات"];
@@ -2400,11 +2527,9 @@ renderCarousel();
         const doctorsOnly = clinicsAll.filter(s => {
           const tokens = String(s.clinicType || "").split(/\s+/).map(x => normalizeArabic(x)).filter(Boolean);
 
-          // استبعاد غير الدكاترة
           const excluded = ["hospital", "lab", "multi"];
           if (tokens.some(t => excluded.includes(t))) return false;
 
-          // السماح بتخصصات الدكاترة فقط
           const allowed = ["obgyn", "pediatrics", "eye", "dental", "internal", "surgery"];
           return tokens.some(t => allowed.includes(t));
         });
@@ -2414,8 +2539,8 @@ renderCarousel();
       }
     }
 
-    // ✅ Fast-path: لو كتب تخصص طبي مباشرة (أسنان/باطنة/...) رجّع التخصص فقط
-    const clinicTypeFast = resolveClinicTypeFromUserText(q);
+    // ✅ Fast-path: تخصص طبي مباشر
+    const clinicTypeFast = await resolveClinicTypeFromUserText(q);
     if (clinicTypeFast) {
       updateLocalSummary(q, `خدمات طبية: ${clinicTypeToArabic(clinicTypeFast)}`);
       addMessage("ثواني يا كبير… بدوّر في العيادات 👇", false);
@@ -2461,7 +2586,10 @@ renderCarousel();
 
     // D) services
     if (intent.intent === "services_category") {
-      const clinicTypeWanted = resolveClinicTypeFromUserText(q) || resolveClinicTypeFromUserText(intent.category_hint || "");
+      const clinicTypeWanted =
+        (await resolveClinicTypeFromUserText(q)) ||
+        (await resolveClinicTypeFromUserText(intent.category_hint || ""));
+
       if (clinicTypeWanted) {
         updateLocalSummary(q, `خدمات طبية: ${clinicTypeToArabic(clinicTypeWanted)}`);
         addMessage("ثواني يا كبير… بدوّر في العيادات 👇", false);
