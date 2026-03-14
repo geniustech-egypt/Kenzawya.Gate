@@ -2754,3 +2754,16 @@ mark {
     font-size: 30px !important;
   }
 }
+
+/* Twemoji only for assistant icons */
+#chat-widget-launcher .garef-emoji img.emoji {
+  width: 30px;
+  height: 30px;
+  display: block;
+}
+
+#garef-avatar-mini .garef-emoji img.emoji {
+  width: 22px;   /* مناسب لحجم 38px بتاع الدائرة */
+  height: 22px;
+  display: block;
+}
