@@ -1500,7 +1500,7 @@ renderCarousel();
     if (timeSince < LIMITS.COOLDOWN_SECONDS) {
       return {
         allowed: false,
-        message: `ثواني بس يا كبير… 🙏\nاستنى ${Math.ceil(LIMITS.COOLDOWN_SECONDS - timeSince)} ثانية.`
+        message: `ثواني بس يا كبير… 🙏\nاس��نى ${Math.ceil(LIMITS.COOLDOWN_SECONDS - timeSince)} ثانية.`
       };
     }
 
@@ -1978,6 +1978,57 @@ renderCarousel();
   }
 
   // =========================================
+  // ✅ Clinics taxonomy (مطابق تمامًا لملف clinics.html)
+  // =========================================
+  const CLINIC_TYPE_TO_AR = {
+    obgyn: "نساء وتوليد",
+    pediatrics: "اطفال",
+    eye: "عيون",
+    dental: "اسنان",
+    internal: "باطنه",
+    surgery: "جرا��ه",
+    hospital: "مستشفيات",
+    lab: "معامل/اشعه",
+    multi: "مراكز طبيه"
+  };
+
+  function clinicTypeToArabic(type) {
+    const t = normalizeArabic(type || "");
+    if (!t) return "";
+    // data-type ممكن يكون "eye hospital" — نأخذ أول توكن معروف
+    const parts = (type || "").split(/\s+/).map(x => x.trim()).filter(Boolean);
+    for (const p of parts) {
+      if (CLINIC_TYPE_TO_AR[p]) return CLINIC_TYPE_TO_AR[p];
+    }
+    // fallback: لو type نفسه key
+    return CLINIC_TYPE_TO_AR[type] || "";
+  }
+
+  function resolveClinicTypeFromUserText(raw) {
+    const q = normalizeArabic(raw);
+
+    // mapping ثابت من كلام المستخدم لنفس keys المستخدمة في clinics.html
+    const rules = [
+      { keys: ["نساء","نسائي","توليد","حمل","ولاده","ولادة"], type: "obgyn" },
+      { keys: ["اطفال","اطفال وحديثي الولاده","حديثي الولاده","رضع","طفل"], type: "pediatrics" },
+      { keys: ["عيون","رمد","نظر","ليزك"], type: "eye" },
+      { keys: ["اسنان","سنان","دنتال","تقويم","حشو","خلع"], type: "dental" },
+      { keys: ["باطنه","باطنة","داخليه","داخليه","هضمي","كبد","سكر","ضغط"], type: "internal" },
+      { keys: ["جراحه","جراحة","جراح","عمليات","مخ واعصاب","اعصاب","أعصاب"], type: "surgery" }, // حسب ملفك: المخ والأعصاب داخل surgery
+      { keys: ["مستشفى","مستشفي","مستشفيات","طوارئ مستشفى"], type: "hospital" },
+      { keys: ["معمل","تحاليل","اشعه","أشعة","اشعة وتحاليل","معامل"], type: "lab" },
+      { keys: ["مركز طبي","مراكز","مراكز طبيه","عيادات تخصصيه","متعدد","عيادات"], type: "multi" }
+    ];
+
+    for (const r of rules) {
+      for (const k of r.keys) {
+        if (q.includes(normalizeArabic(k))) return r.type;
+      }
+    }
+    return "";
+  }
+
+  // =========================================
   // Services: fetch from repo pages
   // =========================================
   async function fetchAllGateData() {
@@ -2015,8 +2066,13 @@ renderCarousel();
           if (!id) return;
 
           const name = titleEl.textContent.trim();
-          const phoneMatch = card.textContent.match(/01[0-9]{9}/);
-          const phone = phoneMatch ? phoneMatch[0] : "-";
+
+          // ✅ من ملف clinics.html: الأرقام كلها داخل tel: (وأحيانًا أكثر من رقم)
+          const phones = Array.from(card.querySelectorAll('a[href^="tel:"]'))
+            .map(a => (a.getAttribute("href") || "").replace(/^tel:/i, "").trim())
+            .filter(Boolean);
+
+          const phone = phones.length ? phones.join(" / ") : "-";
 
           // category by path
           let category = "";
@@ -2034,12 +2090,27 @@ renderCarousel();
           else if (fp.includes("general_services")) category = "خدمات عامة";
           else if (fp.includes("other_services")) category = "خدمات أخرى";
 
+          // ✅ NEW: تخصص العيادات من data-type (مطابق لملف clinics.html)
+          let clinicType = "";
+          let specialty = "";
+          if (file.path === "services/clinics.html" && category === "خدمات طبية") {
+            clinicType = (card.getAttribute("data-type") || "").trim();     // مثل: dental / internal / eye hospital
+            specialty  = clinicTypeToArabic(clinicType) || "";              // مثل: اسنان / باطنه ...
+          }
+
           services.push({
             name,
             id,
             page: file.path,
             phone,
             category,
+
+            // clinics extras
+            clinicType,                 // ✅ NEW
+            specialty,                  // ✅ NEW (Arabic label)
+            clinicTypeNorm: normalizeArabic(clinicType || ""),
+            specialtyNorm: normalizeArabic(specialty || ""),
+
             nameNorm: normalizeArabic(name)
           });
         });
@@ -2088,7 +2159,6 @@ renderCarousel();
   function resolveCategoryFromText(raw) {
     const q = normalizeArabic(raw);
 
-    // singular -> plural categories used in our data
     const map = [
       { keys: ["صيدليه","صيدلية","صيدليات"], category: "صيدليات" },
       { keys: ["عياده","عيادة","عيادات","دكتور","دكاتره","دكاترة","طبيب","اطباء","أطباء"], category: "خدمات طبية" },
@@ -2113,10 +2183,18 @@ renderCarousel();
   }
 
   // =========================================
-  // Services table rendering (name + phone only)
+  // Services URL building (✅ clinics.html يدعم ?service=)
   // =========================================
-  function buildServiceUrl(page, id) {
+  function buildServiceUrl(page, id, name) {
     if (!page) return "#";
+
+    // ✅ clinics.html (حسب الملف) بيستخدم query param اسمه service ويعمل highlight بالاسم
+    if (page === "services/clinics.html") {
+      const joiner = page.includes("?") ? "&" : "?";
+      return `${page}${joiner}service=${encodeURIComponent(name || "")}`;
+    }
+
+    // default behavior لباقي الصفحات (إبقاء القديم)
     if (!id) return page;
     const joiner = page.includes("?") ? "&" : "?";
     return `${page}${joiner}id=${encodeURIComponent(id)}`;
@@ -2130,7 +2208,7 @@ renderCarousel();
 
     let out = `${titleText}\n\n| الخدمة | التليفون |\n|---|---|\n`;
     list.forEach(s => {
-      const url = buildServiceUrl(s.page, s.id);
+      const url = buildServiceUrl(s.page, s.id, s.name);
       out += `| [${mdCell(s.name)}](${url}) | ${mdCell(s.phone||"-")} |\n`;
     });
     out += `\n*اضغط على اسم الخدمة للفتح.*`;
@@ -2288,14 +2366,43 @@ renderCarousel();
     }
 
     if (intent.intent === "services_category") {
-      // category resolution by hint OR by text
       const cat = resolveCategoryFromText(intent.category_hint || q) || resolveCategoryFromText(q);
-      if (!cat) return "معلش يا كبير… قولّي الفئة اللي تقصدها زي: صيدليات / مطاعم / سوبرماركت / مكتبات.";
+      if (!cat) return "معلش يا كبير… قولّي الفئة ال��ي تقصدها زي: صيدليات / مطاعم / سوبرماركت / مكتبات.";
 
-      updateLocalSummary(q, cat);
-      const results = servicesAll.filter(s => s.category === cat);
-      if (!results.length) return `معلش يا كبير… فئة **${cat}** مش متاحة عندي دلوقتي.`;
-      return renderServicesTable(results, `تمام يا كبير ✅ دي **${cat}**:`);
+      // ✅ NEW: لو الفئة "خدمات طبية" ونص المستخدم فيه تخصص من اللي في clinics.html
+      // نفلتر على clinicType فقط (وبالتالي يرجع التخصص المطلوب فقط)
+      let clinicTypeWanted = "";
+      if (cat === "خدمات طبية") {
+        clinicTypeWanted = resolveClinicTypeFromUserText(q) || resolveClinicTypeFromUserText(intent.category_hint || "");
+      }
+
+      updateLocalSummary(q, clinicTypeWanted ? `خدمات طبية: ${clinicTypeToArabic(clinicTypeWanted)}` : cat);
+
+      let results = servicesAll.filter(s => s.category === cat);
+
+      if (cat === "خدمات طبية" && clinicTypeWanted) {
+        const wanted = normalizeArabic(clinicTypeWanted);
+        results = results.filter(s => {
+          if (s.page !== "services/clinics.html") return false; // التخصصات دي موجودة في clinics.html
+          // clinicType في الداتا ممكن يكون "eye hospital" => نتحقق بالـ tokens
+          const tokens = String(s.clinicType || "").split(/\s+/).map(x => normalizeArabic(x)).filter(Boolean);
+          return tokens.includes(wanted);
+        });
+      }
+
+      if (!results.length) {
+        if (cat === "خدمات طبية" && clinicTypeWanted) {
+          return `معلش يا كبير… مش لاقي نتائج لتخصص **${clinicTypeToArabic(clinicTypeWanted)}** دلوقتي.`;
+        }
+        return `معلش يا كبير… فئة **${cat}** مش متاحة عندي دلوقتي.`;
+      }
+
+      const title =
+        (cat === "خدمات طبية" && clinicTypeWanted)
+          ? `تمام يا كبير ✅ دي **${clinicTypeToArabic(clinicTypeWanted)}**:`
+          : `تمام يا كبير ✅ دي **${cat}**:`;
+
+      return renderServicesTable(results, title);
     }
 
     if (intent.intent === "services_lookup") {
@@ -2306,7 +2413,6 @@ renderCarousel();
       return `معلش يا كبير… مش لاقي خدمة باسم قريب من **${name}**.\nجرّب تكتب الاسم بشكل تاني أو قول الفئة.`;
     }
 
-    // unknown
     return "معلش يا كبير… مش فاهم قصدك. اكتب: (صيدليات) أو (أرقام الطوارئ) أو (إجراءات حكومية) أو (مشروعات الكنزاوية).";
   }
 
@@ -2320,7 +2426,6 @@ renderCarousel();
     const form = $("chatForm");
     const input = $("userInput");
 
-    // Launcher click
     if (launcher) {
       launcher.style.pointerEvents = "auto";
       launcher.addEventListener("click", function(e){
@@ -2330,11 +2435,9 @@ renderCarousel();
       }, {capture:true});
     }
 
-    // Restore UI chat + history
     loadChatMessages();
     loadConversationHistory();
 
-    // Submit handler
     if (form) {
       form.addEventListener("submit", async function(e){
         e.preventDefault();
@@ -2342,7 +2445,6 @@ renderCarousel();
         const q = (input?.value || "").trim();
         if (!q || isThinking) return;
 
-        // enforce limits BEFORE calling any AI/network
         const check = checkLimits();
         if (!check.allowed) {
           addMessage(q, true);
@@ -2368,7 +2470,6 @@ renderCarousel();
         addMessage(reply, false);
         setTimeout(()=>setGarefFace(FACES.IDLE), 2000);
 
-        // Save minimal context (for intent only)
         conversationHistory.push({ role:"User", content:q });
         conversationHistory.push({ role:"Model", content: reply });
 
@@ -2387,7 +2488,6 @@ renderCarousel();
 </script>
 
 </script>
-
 
 <script defer src="https://cdn.jsdelivr.net/npm/twemoji@14.0.2/dist/twemoji.min.js"></script>
 <script>
