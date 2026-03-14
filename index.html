@@ -1329,17 +1329,19 @@ renderCarousel();
 <!-- ✅ استبدل الجزء التالي بالكامل داخل سكربت عم عارف (كما أرسلته) -->
 
 <script>
-// ===== عم عارف | مساعد بوابة الكنزاوية (نسخة كاملة بدون اختصار)
-// ✅ المطلوب في هذه النسخة:
-// 1) رجوع خدمات فولدر services (فئات + بحث باسم خدمة) + جدول (اسم + تليفون فقط)
-// 2) الإبقاء على:
-//    - طوارئ من index.html (لو سأل عن خدمة طوارئ معينة نعرضها فقط)
-//    - إجراءات حكومية من index.html (نطبع كل الخطوات بالكامل)
-//    - مشروعات الكنزاوية من kenzawya-pj.html
-// 3) ✅ إلغاء "كلام عام" (لا يوجد fallback general_chat إطلاقًا)
-// 4) Limits: 5 أسئلة / 5 دقائق + 15 سؤال يوميًا + cooldown
-// 5) حفظ المحادثة UI + حفظ سياق مختصر (لـ intent فقط)
-// 6) Claude دائمًا لفهم النية (intent) — لكن الرد النهائي من الداتا فقط
+/*
+  ===== عم عارف | مساعد بوابة الكنزاوية (نسخة كاملة) =====
+  ✅ تم إصلاح:
+  - إزالة التكرار اللي كان بيكسر الصفحة (duplicate const/let)
+  - إضافة bind() لربط الأيقونة وارسال الرسائل
+  - دعم:
+    1) طوارئ من DOM
+    2) إجراءات حكومية من DOM
+    3) مشروعات الكنزاوية من kenzawya-pj.html
+    4) خدمات services/*.html + بحث
+    5) "دكتور" => كل الدكاترة (بدون مستشفيات/معامل/مراكز)
+    6) Hybrid لـ other_services.html (ميكانيكي/كهرباء سيارات/صالون/بيطري...) بناءً على فلاتر الصفحة + synonyms
+*/
 (function () {
   "use strict";
 
@@ -1552,15 +1554,13 @@ renderCarousel();
       if (!restored && cw && cw.children.length === 0) {
         cw.innerHTML = `<div class="bot-message">
           <p style="font-weight:800;color:#1e3a8a;margin-bottom:6px;">يا ميت أهلاً يا كبير!</p>
-          <p>أنا <strong style="color:#ea580c;">عم عارف</strong> 👴… تحت أمرك.</p>
+          <p>أنا <strong style="color:#ea580c;">عم عارف</strong> … تحت أمرك.</p>
         </div>`;
         saveChatMessages();
       }
 
       // background loads
       if (!projectsCache?.items?.length) fetchProjectsFromProjectsPage().catch(()=>{});
-      // preload services (اختياري: سيبها lazy لو مش عايز)
-      // ensureAllServicesLoaded().catch(()=>{});
     }
   };
 
@@ -1577,8 +1577,8 @@ renderCarousel();
 
     cw.innerHTML = `<div class="bot-message">
       <p style="font-weight:800;color:#1e3a8a;margin-bottom:6px;">يا ميت أهلاً يا كبير!</p>
-      <p>أنا <strong style="color:#ea580c;">عم عارف</strong> 👴… تحت أمرك.</p>
-      <p style="margin:0;">اسألني عن: خدمات / طوارئ / إجراءات / مشروعات.</p>
+      <p>أنا <strong style="color:#ea580c;">عم عارف</strong> … تحت أمرك.</p>
+      <p style="margin:0;">اسألني عن اللي انت محتاجه.</p>
     </div>`;
 
     saveChatMessages();
@@ -1978,7 +1978,7 @@ renderCarousel();
   }
 
   // =========================================
-  // ✅ Services loader V2 (نفس clinics.html)
+  // ✅ Services loader V2 (نفس clinics.html) + ✅ Hybrid for other_services
   // =========================================
   const SERVICES_PAGES = [
     "services/bookstore.html",
@@ -2039,47 +2039,119 @@ renderCarousel();
     }
     return "";
   }
+
   // ✅ لازم يكون موجود قبل clinicTypeToArabic
-const CLINIC_TYPE_TO_AR = {
-  obgyn: "نساء وتوليد",
-  pediatrics: "أطفال",
-  eye: "عيون",
-  dental: "أسنان",
-  internal: "باطنة",
-  surgery: "جراحة",
-  hospital: "مستشفيات",
-  lab: "معامل/أشعة",
-  multi: "مراكز طبية"
-};
+  const CLINIC_TYPE_TO_AR = {
+    obgyn: "نساء وتوليد",
+    pediatrics: "أطفال",
+    eye: "عيون",
+    dental: "أسنان",
+    internal: "باطنة",
+    surgery: "جراحة",
+    hospital: "مستشفيات",
+    lab: "معامل/أشعة",
+    multi: "مراكز طبية"
+  };
 
   function clinicTypeToArabic(type) {
-  const parts = String(type || "").split(/\s+/).map(x => x.trim()).filter(Boolean);
-  for (const p of parts) {
-    if (CLINIC_TYPE_TO_AR[p]) return CLINIC_TYPE_TO_AR[p];
+    const parts = String(type || "").split(/\s+/).map(x => x.trim()).filter(Boolean);
+    for (const p of parts) {
+      if (CLINIC_TYPE_TO_AR[p]) return CLINIC_TYPE_TO_AR[p];
+    }
+    return "";
   }
-  return "";
-}
 
   function resolveClinicTypeFromUserText(raw) {
-  const q = normalizeArabic(raw);
+    const q = normalizeArabic(raw);
 
-  const rules = [
-    { keys: ["نساء","نسائي","توليد","حمل","ولاده","ولادة"], type: "obgyn" },
-    { keys: ["اطفال","أطفال","حديثي الولاده","حديثي الولادة","رضع","طفل"], type: "pediatrics" },
-    { keys: ["عيون","رمد","نظر","ليزك"], type: "eye" },
-    { keys: ["اسنان","أسنان","سنان","دنتال","تقويم","حشو","خلع"], type: "dental" },
-    { keys: ["باطنه","باطنة","باطني","باطنى","داخليه","داخلية","هضمي","كبد","سكر","ضغط"], type: "internal" },
-    { keys: ["جراحه","جراحة","عمليات","جراح","مخ","اعصاب","أعصاب"], type: "surgery" },
-    { keys: ["مستشفى","مستشفي","مستشفيات"], type: "hospital" },
-    { keys: ["معمل","تحاليل","اشعه","أشعة","اشعة وتحاليل","تحاليل واشعة"], type: "lab" },
-    { keys: ["مركز طبي","مراكز طبيه","مراكز طبية","عيادات تخصصيه","عيادات تخصصية","مركز"], type: "multi" }
-  ];
+    const rules = [
+      { keys: ["نساء","نسائي","توليد","حمل","ولاده","ولادة"], type: "obgyn" },
+      { keys: ["اطفال","أطفال","حديثي الولاده","حديثي الولادة","رضع","طفل"], type: "pediatrics" },
+      { keys: ["عيون","رمد","نظر","ليزك"], type: "eye" },
+      { keys: ["اسنان","أسنان","سنان","دنتال","تقويم","حشو","خلع"], type: "dental" },
+      { keys: ["باطنه","باطنة","باطني","باطنى","داخليه","داخلية","هضمي","كبد","سكر","ضغط"], type: "internal" },
+      { keys: ["جراحه","جراحة","عمليات","جراح","مخ","اعصاب","أعصاب"], type: "surgery" },
+      { keys: ["مستشفى","مستشفي","مستشفيات"], type: "hospital" },
+      { keys: ["معمل","تحاليل","اشعه","أشعة","اشعة وتحاليل","تحاليل واشعة"], type: "lab" },
+      { keys: ["مركز طبي","مراكز طبيه","مراكز طبية","عيادات تخصصيه","عيادات تخصصية","مركز"], type: "multi" }
+    ];
 
-  for (const r of rules) for (const k of r.keys) {
-    if (q.includes(normalizeArabic(k))) return r.type;
+    for (const r of rules) for (const k of r.keys) {
+      if (q.includes(normalizeArabic(k))) return r.type;
+    }
+    return "";
   }
-  return "";
-}
+
+  // =========================================
+  // ✅ Hybrid (auto + synonyms) for other_services.html internal filters
+  // =========================================
+  let otherServicesFiltersCache = null;
+  // { keys: string[], labelsByKey: Record<string,string>, loadedAt:number }
+
+  async function loadOtherServicesFilters() {
+    if (otherServicesFiltersCache?.keys?.length) return otherServicesFiltersCache;
+
+    const pagePath = "services/other_services.html";
+    const urls = [
+      pagePath,
+      `https://raw.githubusercontent.com/${repoOwner}/${repoName}/main/${pagePath}`
+    ];
+
+    let html = "";
+    for (const u of urls) {
+      try {
+        const res = await fetch(u, { cache: "no-store" });
+        if (!res.ok) continue;
+        html = await res.text();
+        if (html) break;
+      } catch (e) {}
+    }
+    if (!html) return { keys: [], labelsByKey: {} };
+
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, "text/html");
+
+    const labelsByKey = {};
+    const keys = [];
+
+    doc.querySelectorAll('#service-filters button[data-filter]').forEach(btn => {
+      const key = (btn.getAttribute("data-filter") || "").trim();
+      if (!key || key === "all") return;
+
+      // نص الزر (مثلاً "ميكانيكي" / "كهرباء سيارات")
+      const label = (btn.textContent || "").replace(/\s+/g, " ").trim();
+      keys.push(key);
+      labelsByKey[key] = label;
+    });
+
+    otherServicesFiltersCache = { keys, labelsByKey, loadedAt: Date.now() };
+    return otherServicesFiltersCache;
+  }
+
+  function resolveOtherServicesTypeFromTextHybrid(raw, availableKeys) {
+    const q = normalizeArabic(raw);
+
+    // synonyms (يدوي بسيط)
+    const synonymMap = [
+      { keys: ["ميكانيكي","ميكانيك"], target: "mechanic" },
+      { keys: ["كهربا سيارات","كهرباء سيارات","كهربائي سيارات","بطاريه","بطارية"], target: "car electric" },
+      { keys: ["صالون","كوافير","حلاق","تجميل"], target: "beauty" },
+      { keys: ["بيطري","بيطريه","عيادة بيطرية","حيوانات"], target: "pet_clinic" }
+    ];
+
+    for (const row of synonymMap) {
+      if (row.keys.some(k => q.includes(normalizeArabic(k)))) {
+        if (availableKeys.includes(row.target)) return row.target;
+      }
+    }
+
+    // fallback: لو المستخدم كتب key نفسه
+    for (const k of availableKeys) {
+      if (q.includes(normalizeArabic(k))) return k;
+    }
+
+    return "";
+  }
 
   async function fetchServicesPageCards(pagePath) {
     const urls = [
@@ -2119,9 +2191,13 @@ const CLINIC_TYPE_TO_AR = {
 
       const phone = phones.length ? phones.join(" / ") : "-";
 
-      const clinicType = (card.getAttribute("data-type") || "").trim();
+      // ✅ NEW: أنواع عامة لكل الخدمات (من data-type)
+      const itemTypesRaw = (card.getAttribute("data-type") || "").trim(); // مثال: "car electric"
+      const itemTypes = itemTypesRaw.split(/\s+/).map(t => t.trim()).filter(Boolean);
+
+      // clinics specialty label (للعيادات فقط)
       const specialty = (pagePath === "services/clinics.html")
-        ? (clinicTypeToArabic(clinicType) || addr)
+        ? (clinicTypeToArabic(itemTypesRaw) || addr)
         : addr;
 
       return {
@@ -2131,11 +2207,18 @@ const CLINIC_TYPE_TO_AR = {
         phone,
         category,
         address: addr,
-        clinicType,
+
+        itemTypesRaw,
+        itemTypes,
+        itemTypesNorm: itemTypes.map(t => normalizeArabic(t)),
+
+        // ✅ compatibility (كود الدكاترة/العيادات الحالي)
+        clinicType: itemTypesRaw,
         specialty,
+
         nameNorm: normalizeArabic(title),
         addressNorm: normalizeArabic(addr),
-        clinicTypeNorm: normalizeArabic(clinicType),
+        clinicTypeNorm: normalizeArabic(itemTypesRaw),
         specialtyNorm: normalizeArabic(specialty)
       };
     }).filter(x => x.name);
@@ -2205,12 +2288,12 @@ const CLINIC_TYPE_TO_AR = {
 
 المخطط:
 {
-  "intent": "emergency_numbers" | "gov_procedure" | "gov_list" | "projects_list" | "project_lookup" | "services_category" | "services_lookup" | "unknown",
-  "procedure_title": "",
-  "project_name": "",
-  "project_type": "",
-  "category_hint": "",
-  "service_name": ""
+"intent": "emergency_numbers" | "gov_procedure" | "gov_list" | "projects_list" | "project_lookup" | "services_category" | "services_lookup" | "unknown",
+"procedure_title": "",
+"project_name": "",
+"project_type": "",
+"category_hint": "",
+"service_name": ""
 }
 
 قواعد:
@@ -2261,178 +2344,197 @@ const CLINIC_TYPE_TO_AR = {
   // Main ask handler (NO general chat)
   // =========================================
   async function onAsk(q){
-  // A) Fast handling from local DOM (index.html)
-  if (isEmergencyQueryFast(q)) {
-    updateLocalSummary(q, "طوارئ");
-    return renderEmergencySpecificMarkdown(q);
-  }
-
-  if (isGovQueryFast(q)) {
-    const govMatch = findBestGovProcedureMatch(q);
-    if (govMatch) {
-      updateLocalSummary(q, "إجراءات حكومية");
-      return renderGovProcedureMarkdown(govMatch);
+    // A) Fast handling from local DOM (index.html)
+    if (isEmergencyQueryFast(q)) {
+      updateLocalSummary(q, "طوارئ");
+      return renderEmergencySpecificMarkdown(q);
     }
 
-    const qn = normalizeArabic(q);
-    if (qn.includes("اجراءات") || qn.includes("إجراءات")) {
+    if (isGovQueryFast(q)) {
+      const govMatch = findBestGovProcedureMatch(q);
+      if (govMatch) {
+        updateLocalSummary(q, "إجراءات حكومية");
+        return renderGovProcedureMarkdown(govMatch);
+      }
+
+      const qn = normalizeArabic(q);
+      if (qn.includes("اجراءات") || qn.includes("إجراءات")) {
+        updateLocalSummary(q, "إجراءات حكومية");
+        return renderGovListMarkdown();
+      }
+    }
+
+    // ✅ Hybrid: فلاتر other_services الداخلية (تلقائي + synonyms)
+    const otherMeta = await loadOtherServicesFilters().catch(() => ({ keys: [], labelsByKey: {} }));
+    const otherType = resolveOtherServicesTypeFromTextHybrid(q, otherMeta.keys || []);
+    if (otherType) {
+      updateLocalSummary(q, `خدمات أخرى: ${otherMeta.labelsByKey?.[otherType] || otherType}`);
+      addMessage("ثواني يا كبير… بدوّر في خدمات أخرى 👇", false);
+
+      const allOther = await fetchServicesPageCards("services/other_services.html").catch(() => []);
+      if (!allOther.length) return "معلش يا كبير… مش قادر أحمّل بيانات خدمات أخرى دلوقتي.";
+
+      const wantedTokens = String(otherType).split(/\s+/).map(t => normalizeArabic(t)).filter(Boolean);
+      const filtered = allOther.filter(s => wantedTokens.every(t => (s.itemTypesNorm || []).includes(t)));
+
+      if (!filtered.length) return "معلش يا كبير… مش لاقي نتائج للتصنيف ده في خدمات أخرى دلوقتي.";
+
+      const title = `تمام يا كبير ✅ دي خدمات **${otherMeta.labelsByKey?.[otherType] || otherType}**:`;
+      return renderServicesTable(filtered, title);
+    }
+
+    // ✅ NEW: لو المستخدم كتب "دكتور/طبيب/عيادة" بدون تحديد تخصص => رجّع كل الدكاترة فقط
+    // (استبعاد: مستشفيات/معامل/مراكز)
+    const clinicTypeFromText = resolveClinicTypeFromUserText(q);
+    if (!clinicTypeFromText) {
+      const qNorm = normalizeArabic(q);
+      const doctorHints = ["دكتور","طبيب","اطباء","أطباء","دكاترة","عيادة","عيادات"];
+
+      if (doctorHints.some(k => qNorm.includes(normalizeArabic(k)))) {
+        updateLocalSummary(q, "كل الدكاترة");
+        addMessage("ثواني يا كبير… بجيب لك كل الدكاترة 👇", false);
+
+        const clinicsAll = await fetchServicesPageCards("services/clinics.html").catch(() => []);
+        if (!clinicsAll.length) return "معلش يا كبير… مش قادر أحمّل دليل العيادات دلوقتي.";
+
+        const doctorsOnly = clinicsAll.filter(s => {
+          const tokens = String(s.clinicType || "").split(/\s+/).map(x => normalizeArabic(x)).filter(Boolean);
+
+          // استبعاد غير الدكاترة
+          const excluded = ["hospital", "lab", "multi"];
+          if (tokens.some(t => excluded.includes(t))) return false;
+
+          // السماح بتخصصات الدكاترة فقط
+          const allowed = ["obgyn", "pediatrics", "eye", "dental", "internal", "surgery"];
+          return tokens.some(t => allowed.includes(t));
+        });
+
+        if (!doctorsOnly.length) return "معلش يا كبير… مش لاقي دكاترة دلوقتي.";
+        return renderServicesTable(doctorsOnly, "تمام يا كبير ✅ دي كل الدكاترة المتاحين:");
+      }
+    }
+
+    // ✅ Fast-path: لو كتب تخصص طبي مباشرة (أسنان/باطنة/...) رجّع التخصص فقط
+    const clinicTypeFast = resolveClinicTypeFromUserText(q);
+    if (clinicTypeFast) {
+      updateLocalSummary(q, `خدمات طبية: ${clinicTypeToArabic(clinicTypeFast)}`);
+      addMessage("ثواني يا كبير… بدوّر في العيادات 👇", false);
+
+      const results = await getClinicsByType(clinicTypeFast);
+      if (!results.length) return `معلش يا كبير… مش لاقي نتائج لتخصص **${clinicTypeToArabic(clinicTypeFast)}** دلوقتي.`;
+      return renderServicesTable(results, `تمام يا كبير ✅ دي **${clinicTypeToArabic(clinicTypeFast)}**:`);
+    }
+
+    // B) classify intent
+    const intent = await classifyIntentWithClaude(q);
+
+    // C) projects
+    if (intent.intent === "projects_list") {
+      updateLocalSummary(q, "مشروعات الكنزاوية");
+      const projects = projectsCache?.items || [];
+      if (!projects.length) {
+        const loaded = await fetchProjectsFromProjectsPage().catch(()=>[]);
+        if (!loaded.length) return "معلش يا كبير… مش قادر أحمّل بيانات المشروعات دلوقتي.";
+      }
+      return renderProjectsListMarkdown(projectsCache.items, "تمام يا كبير ✅ دي مشروعات الكنزاوية:");
+    }
+
+    if (intent.intent === "project_lookup") {
+      updateLocalSummary(q, "مشروعات الكنزاوية");
+      const projects = projectsCache?.items || [];
+      if (!projects.length) {
+        const loaded = await fetchProjectsFromProjectsPage().catch(()=>[]);
+        if (!loaded.length) return "معلش يا كبير… مش قادر أحمّل بيانات المشروعات دلوقتي.";
+      }
+
+      let filtered = projectsCache.items;
+      const type = (intent.project_type || "").trim();
+      if (type) filtered = filtered.filter(p => p.type === type);
+
+      const name = (intent.project_name || q).trim();
+      const matches = topProjectMatches(name, filtered, 5);
+
+      if (matches.length === 1) return renderProjectDetailsMarkdown(matches[0]);
+      if (matches.length > 1) return renderProjectsListMarkdown(matches, `لقيت مشروعات قريبة من: **${name}**`);
+      return "معلش يا كبير… مش لاقي مشروع بالاسم ده. قولّي كلمة من الاسم أو النوع (مأكولات/زراعة/...).";
+    }
+
+    // D) services
+    if (intent.intent === "services_category") {
+      const clinicTypeWanted = resolveClinicTypeFromUserText(q) || resolveClinicTypeFromUserText(intent.category_hint || "");
+      if (clinicTypeWanted) {
+        updateLocalSummary(q, `خدمات طبية: ${clinicTypeToArabic(clinicTypeWanted)}`);
+        addMessage("ثواني يا كبير… بدوّر في العيادات 👇", false);
+
+        const results = await getClinicsByType(clinicTypeWanted);
+        if (!results.length) return `معلش يا كبير… مش لاقي نتائج لتخصص **${clinicTypeToArabic(clinicTypeWanted)}** دلوقتي.`;
+        return renderServicesTable(results, `تمام يا كبير ✅ دي **${clinicTypeToArabic(clinicTypeWanted)}**:`);
+      }
+
+      const cat = resolveCategoryFromTextV2(intent.category_hint || q) || resolveCategoryFromTextV2(q);
+      if (!cat) return "معلش يا كبير… حدد سؤالك أكتر .";
+
+      updateLocalSummary(q, cat);
+      addMessage("ثواني يا كبير… بحمّل بيانات الخدمات 👇", false);
+
+      const results = await getServicesByCategory(cat);
+      if (!results.length) return `معلش يا كبير… فئة **${cat}** مش متاحة عندي دلوقتي.`;
+      return renderServicesTable(results, `تمام يا كبير ✅ دي **${cat}**:`);
+    }
+
+    if (intent.intent === "services_lookup") {
+      updateLocalSummary(q, "خدمة");
+      addMessage("ثواني يا كبير… بدوّر في الخدمات 👇", false);
+
+      const all = await ensureAllServicesLoaded();
+      const queryNorm = normalizeArabic((intent.service_name || q).trim());
+
+      const scored = all.map(s => {
+        let score = 0;
+
+        if (s.nameNorm === queryNorm) score += 120;
+        if (s.nameNorm.includes(queryNorm)) score += 90;
+        if (s.addressNorm.includes(queryNorm)) score += 55;
+
+        const toks = queryNorm.split(" ").filter(t => t.length >= 2);
+        toks.forEach(t => {
+          if (s.nameNorm.includes(t)) score += 12;
+          if (s.addressNorm.includes(t)) score += 8;
+        });
+
+        return { s, score };
+      }).filter(x => x.score >= 55).sort((a,b) => b.score - a.score);
+
+      const matches = scored.slice(0, 15).map(x => x.s);
+      if (matches.length) return renderServicesTable(matches, `لقيت الأقرب يا كبير ✅:`);
+      return `معلش يا كبير… مش لاقي خدمة مطابقة.\nجرّب تكتب الاسم بشكل تاني أو قول الفئة.`;
+    }
+
+    // E) gov
+    if (intent.intent === "gov_list") {
       updateLocalSummary(q, "إجراءات حكومية");
       return renderGovListMarkdown();
     }
-  }
 
-  // ✅ NEW: لو المستخدم كتب "دكتور/طبيب/عيادة" بدون تحديد تخصص => رجّع كل الدكاترة فقط
-  // (استبعاد: مستشفيات/معامل/مراكز)
-  const clinicTypeFromText = resolveClinicTypeFromUserText(q);
-  if (!clinicTypeFromText) {
-    const qNorm = normalizeArabic(q);
-    const doctorHints = ["دكتور","طبيب","اطباء","أطباء","دكاترة","عيادة","عيادات"];
-
-    if (doctorHints.some(k => qNorm.includes(normalizeArabic(k)))) {
-      updateLocalSummary(q, "كل الدكاترة");
-      addMessage("ثواني يا كبير… بجيب لك كل الدكاترة 👇", false);
-
-      const clinicsAll = await fetchServicesPageCards("services/clinics.html").catch(() => []);
-      if (!clinicsAll.length) return "معلش يا كبير… مش قادر أحمّل دليل العيادات دلوقتي.";
-
-      const doctorsOnly = clinicsAll.filter(s => {
-        const tokens = String(s.clinicType || "").split(/\s+/).map(x => normalizeArabic(x)).filter(Boolean);
-
-        // استبعاد غير الدكاترة
-        const excluded = ["hospital", "lab", "multi"];
-        if (tokens.some(t => excluded.includes(t))) return false;
-
-        // السماح بتخصصات الدكاترة فقط
-        const allowed = ["obgyn", "pediatrics", "eye", "dental", "internal", "surgery"];
-        return tokens.some(t => allowed.includes(t));
-      });
-
-      if (!doctorsOnly.length) return "معلش يا كبير… مش لاقي دكاترة دلوقتي.";
-      return renderServicesTable(doctorsOnly, "تمام يا كبير ✅ دي كل الدكاترة المتاحين:");
-    }
-  }
-
-  // ✅ Fast-path: لو كتب تخصص طبي مباشرة (أسنان/باطنة/...) رجّع التخصص فقط
-  const clinicTypeFast = resolveClinicTypeFromUserText(q);
-  if (clinicTypeFast) {
-    updateLocalSummary(q, `خدمات طبية: ${clinicTypeToArabic(clinicTypeFast)}`);
-    addMessage("ثواني يا كبير… بدوّر في العيادات 👇", false);
-
-    const results = await getClinicsByType(clinicTypeFast);
-    if (!results.length) return `معلش يا كبير… مش لاقي نتائج لتخصص **${clinicTypeToArabic(clinicTypeFast)}** دلوقتي.`;
-    return renderServicesTable(results, `تمام يا كبير ✅ دي **${clinicTypeToArabic(clinicTypeFast)}**:`);
-  }
-
-  // B) classify intent
-  const intent = await classifyIntentWithClaude(q);
-
-  // C) projects
-  if (intent.intent === "projects_list") {
-    updateLocalSummary(q, "مشروعات الكنزاوية");
-    const projects = projectsCache?.items || [];
-    if (!projects.length) {
-      const loaded = await fetchProjectsFromProjectsPage().catch(()=>[]);
-      if (!loaded.length) return "معلش يا كبير… مش قادر أحمّل بيانات المشروعات دلوقتي.";
-    }
-    return renderProjectsListMarkdown(projectsCache.items, "تمام يا كبير ✅ دي مشروعات الكنزاوية:");
-  }
-
-  if (intent.intent === "project_lookup") {
-    updateLocalSummary(q, "مشروعات الكنزاوية");
-    const projects = projectsCache?.items || [];
-    if (!projects.length) {
-      const loaded = await fetchProjectsFromProjectsPage().catch(()=>[]);
-      if (!loaded.length) return "معلش يا كبير… مش قادر أحمّل بيانات المشروعات دلوقتي.";
+    if (intent.intent === "gov_procedure") {
+      updateLocalSummary(q, "إجراءات حكومية");
+      const match = findBestGovProcedureMatch(intent.procedure_title || q);
+      if (match) return renderGovProcedureMarkdown(match);
+      return "معلش يا كبير… قولّي اسم الإجراء زي: (تغيير عنوان البطاقة) أو (تجديد رخصة السيارة).";
     }
 
-    let filtered = projectsCache.items;
-    const type = (intent.project_type || "").trim();
-    if (type) filtered = filtered.filter(p => p.type === type);
-
-    const name = (intent.project_name || q).trim();
-    const matches = topProjectMatches(name, filtered, 5);
-
-    if (matches.length === 1) return renderProjectDetailsMarkdown(matches[0]);
-    if (matches.length > 1) return renderProjectsListMarkdown(matches, `لقيت مشروعات قريبة من: **${name}**`);
-    return "معلش يا كبير… مش لاقي مشروع بالاسم ده. قولّي كلمة من الاسم أو النوع (مأكولات/زراعة/...).";
-  }
-
-  // D) services
-  if (intent.intent === "services_category") {
-    const clinicTypeWanted = resolveClinicTypeFromUserText(q) || resolveClinicTypeFromUserText(intent.category_hint || "");
-    if (clinicTypeWanted) {
-      updateLocalSummary(q, `خدمات طبية: ${clinicTypeToArabic(clinicTypeWanted)}`);
-      addMessage("ثواني يا كبير… بدوّر في العيادات 👇", false);
-
-      const results = await getClinicsByType(clinicTypeWanted);
-      if (!results.length) return `معلش يا كبير… مش لاقي نتائج لتخصص **${clinicTypeToArabic(clinicTypeWanted)}** دلوقتي.`;
-      return renderServicesTable(results, `تمام يا كبير ✅ دي **${clinicTypeToArabic(clinicTypeWanted)}**:`);
+    // emergency
+    if (intent.intent === "emergency_numbers") {
+      updateLocalSummary(q, "طوارئ");
+      return renderEmergencySpecificMarkdown(q);
     }
 
-    const cat = resolveCategoryFromTextV2(intent.category_hint || q) || resolveCategoryFromTextV2(q);
-    if (!cat) return "معلش يا كبير… قولّي الفئة اللي تقصدها زي: صيدليات / مطاعم / سوبرماركت / مكتبات / عيادات.";
-
-    updateLocalSummary(q, cat);
-    addMessage("ثواني يا كبير… بحمّل بيانات الخدمات 👇", false);
-
-    const results = await getServicesByCategory(cat);
-    if (!results.length) return `معلش يا كبير… فئة **${cat}** مش متاحة عندي دلوقتي.`;
-    return renderServicesTable(results, `تمام يا كبير ✅ دي **${cat}**:`);
+    // unknown
+    return "معلش يا كبير… مش فاهم قصدك. اكتب: (صيدليات) أو (أسنان) أو (أرقام الطوارئ) أو (إجراءات حكومية) أو (مشروعات الكنزاوية).";
   }
-
-  if (intent.intent === "services_lookup") {
-    updateLocalSummary(q, "خدمة");
-    addMessage("ثواني يا كبير… بدوّر في الخدمات 👇", false);
-
-    const all = await ensureAllServicesLoaded();
-    const queryNorm = normalizeArabic((intent.service_name || q).trim());
-
-    const scored = all.map(s => {
-      let score = 0;
-
-      if (s.nameNorm === queryNorm) score += 120;
-      if (s.nameNorm.includes(queryNorm)) score += 90;
-      if (s.addressNorm.includes(queryNorm)) score += 55;
-
-      const toks = queryNorm.split(" ").filter(t => t.length >= 2);
-      toks.forEach(t => {
-        if (s.nameNorm.includes(t)) score += 12;
-        if (s.addressNorm.includes(t)) score += 8;
-      });
-
-      return { s, score };
-    }).filter(x => x.score >= 55).sort((a,b) => b.score - a.score);
-
-    const matches = scored.slice(0, 15).map(x => x.s);
-    if (matches.length) return renderServicesTable(matches, `لقيت الأقرب يا كبير ✅:`);
-    return `معلش يا كبير… مش لاقي خدمة مطابقة.\nجرّب تكتب الاسم بشكل تاني أو قول الفئة.`;
-  }
-
-  // E) gov
-  if (intent.intent === "gov_list") {
-    updateLocalSummary(q, "إجراءات حكومية");
-    return renderGovListMarkdown();
-  }
-
-  if (intent.intent === "gov_procedure") {
-    updateLocalSummary(q, "إجراءات حكومية");
-    const match = findBestGovProcedureMatch(intent.procedure_title || q);
-    if (match) return renderGovProcedureMarkdown(match);
-    return "معلش يا كبير… قولّي اسم الإجراء زي: (تغيير عنوان البطاقة) أو (تجديد رخصة السيارة).";
-  }
-
-  // emergency
-  if (intent.intent === "emergency_numbers") {
-    updateLocalSummary(q, "طوارئ");
-    return renderEmergencySpecificMarkdown(q);
-  }
-
-  // unknown
-  return "معلش يا كبير… مش فاهم قصدك. اكتب: (صيدليات) أو (أسنان) أو (أرقام الطوارئ) أو (إجراءات حكومية) أو (مشروعات الكنزاوية).";
-}
 
   // =========================================
-  // Bind UI events
+  // Bind UI events (launcher + submit)
   // =========================================
   function bind(){
     loadLimitsData();
@@ -2485,7 +2587,7 @@ const CLINIC_TYPE_TO_AR = {
         const reply = await onAsk(q);
 
         isThinking = false;
-        setGarefFace(reply.includes("معلش") ? FACES.SAD : FACES.HAPPY);
+        setGarefFace(String(reply).includes("معلش") ? FACES.SAD : FACES.HAPPY);
         addMessage(reply, false);
         setTimeout(()=>setGarefFace(FACES.IDLE), 2000);
 
@@ -2507,7 +2609,6 @@ const CLINIC_TYPE_TO_AR = {
 })();
 </script>
 
-</script>
 
 <script defer src="https://cdn.jsdelivr.net/npm/twemoji@14.0.2/dist/twemoji.min.js"></script>
 <script>
