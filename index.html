@@ -2261,144 +2261,175 @@ const CLINIC_TYPE_TO_AR = {
   // Main ask handler (NO general chat)
   // =========================================
   async function onAsk(q){
-    // A) Fast handling from local DOM (index.html)
-    if (isEmergencyQueryFast(q)) {
-      updateLocalSummary(q, "طوارئ");
-      return renderEmergencySpecificMarkdown(q);
+  // A) Fast handling from local DOM (index.html)
+  if (isEmergencyQueryFast(q)) {
+    updateLocalSummary(q, "طوارئ");
+    return renderEmergencySpecificMarkdown(q);
+  }
+
+  if (isGovQueryFast(q)) {
+    const govMatch = findBestGovProcedureMatch(q);
+    if (govMatch) {
+      updateLocalSummary(q, "إجراءات حكومية");
+      return renderGovProcedureMarkdown(govMatch);
     }
 
-    if (isGovQueryFast(q)) {
-      const govMatch = findBestGovProcedureMatch(q);
-      if (govMatch) {
-        updateLocalSummary(q, "إجراءات حكومية");
-        return renderGovProcedureMarkdown(govMatch);
-      }
-
-      const qn = normalizeArabic(q);
-      if (qn.includes("اجراءات") || qn.includes("إجراءات")) {
-        updateLocalSummary(q, "إجراءات حكومية");
-        return renderGovListMarkdown();
-      }
-    }
-
-    // ✅ Fast-path: لو كتب تخصص طبي مباشرة (أسنان/باطنة/...) رجّع التخصص فقط
-    const clinicTypeFast = resolveClinicTypeFromUserText(q);
-    if (clinicTypeFast) {
-      updateLocalSummary(q, `خدمات طبية: ${clinicTypeToArabic(clinicTypeFast)}`);
-      addMessage("ثواني يا كبير… بدوّر في العيادات 👇", false);
-
-      const results = await getClinicsByType(clinicTypeFast);
-      if (!results.length) return `معلش يا كبير… مش لاقي نتائج لتخصص **${clinicTypeToArabic(clinicTypeFast)}** دلوقتي.`;
-      return renderServicesTable(results, `تمام يا كبير ✅ دي **${clinicTypeToArabic(clinicTypeFast)}**:`);
-    }
-
-    // B) classify intent
-    const intent = await classifyIntentWithClaude(q);
-
-    // C) projects
-    if (intent.intent === "projects_list") {
-      updateLocalSummary(q, "مشروعات الكنزاوية");
-      const projects = projectsCache?.items || [];
-      if (!projects.length) {
-        const loaded = await fetchProjectsFromProjectsPage().catch(()=>[]);
-        if (!loaded.length) return "معلش يا كبير… مش قادر أحمّل بيانات المشروعات دلوقتي.";
-      }
-      return renderProjectsListMarkdown(projectsCache.items, "تمام يا كبير ✅ دي مشروعات الكنزاوية:");
-    }
-
-    if (intent.intent === "project_lookup") {
-      updateLocalSummary(q, "مشروعات الكنزاوية");
-      const projects = projectsCache?.items || [];
-      if (!projects.length) {
-        const loaded = await fetchProjectsFromProjectsPage().catch(()=>[]);
-        if (!loaded.length) return "معلش يا كبير… مش قادر أحمّل بيانات المشروعات دلوقتي.";
-      }
-
-      let filtered = projectsCache.items;
-      const type = (intent.project_type || "").trim();
-      if (type) filtered = filtered.filter(p => p.type === type);
-
-      const name = (intent.project_name || q).trim();
-      const matches = topProjectMatches(name, filtered, 5);
-
-      if (matches.length === 1) return renderProjectDetailsMarkdown(matches[0]);
-      if (matches.length > 1) return renderProjectsListMarkdown(matches, `لقيت مشروعات قريبة من: **${name}**`);
-      return "معلش يا كبير… مش لاقي مشروع بالاسم ده. قولّي كلمة من الاسم أو النوع (مأكولات/زراعة/...).";
-    }
-
-    // D) services
-    if (intent.intent === "services_category") {
-      const clinicTypeWanted = resolveClinicTypeFromUserText(q) || resolveClinicTypeFromUserText(intent.category_hint || "");
-      if (clinicTypeWanted) {
-        updateLocalSummary(q, `خدمات طبية: ${clinicTypeToArabic(clinicTypeWanted)}`);
-        addMessage("ثواني يا كبير… بدوّر في العيادات 👇", false);
-
-        const results = await getClinicsByType(clinicTypeWanted);
-        if (!results.length) return `معلش يا كبير… مش لاقي نتائج لتخصص **${clinicTypeToArabic(clinicTypeWanted)}** دلوقتي.`;
-        return renderServicesTable(results, `تمام يا كبير ✅ دي **${clinicTypeToArabic(clinicTypeWanted)}**:`);
-      }
-
-      const cat = resolveCategoryFromTextV2(intent.category_hint || q) || resolveCategoryFromTextV2(q);
-      if (!cat) return "معلش يا كبير… قولّي الفئة اللي تقصدها زي: صيدليات / مطاعم / سوبرماركت / مكتبات / عيادات.";
-
-      updateLocalSummary(q, cat);
-      addMessage("ثواني يا كبير… بحمّل بيانات الخدمات 👇", false);
-
-      const results = await getServicesByCategory(cat);
-      if (!results.length) return `معلش يا كبير… فئة **${cat}** مش متاحة عندي دلوقتي.`;
-      return renderServicesTable(results, `تمام يا كبير ✅ دي **${cat}**:`);
-    }
-
-    if (intent.intent === "services_lookup") {
-      updateLocalSummary(q, "خدمة");
-      addMessage("ثواني يا كبير… بدوّر في الخدمات 👇", false);
-
-      const all = await ensureAllServicesLoaded();
-      const queryNorm = normalizeArabic((intent.service_name || q).trim());
-
-      const scored = all.map(s => {
-        let score = 0;
-
-        if (s.nameNorm === queryNorm) score += 120;
-        if (s.nameNorm.includes(queryNorm)) score += 90;
-        if (s.addressNorm.includes(queryNorm)) score += 55;
-
-        const toks = queryNorm.split(" ").filter(t => t.length >= 2);
-        toks.forEach(t => {
-          if (s.nameNorm.includes(t)) score += 12;
-          if (s.addressNorm.includes(t)) score += 8;
-        });
-
-        return { s, score };
-      }).filter(x => x.score >= 55).sort((a,b) => b.score - a.score);
-
-      const matches = scored.slice(0, 15).map(x => x.s);
-      if (matches.length) return renderServicesTable(matches, `لقيت الأقرب يا كبير ✅:`);
-      return `معلش يا كبير… مش لاقي خدمة مطابقة.\nجرّب تكتب الاسم بشكل تاني أو قول الفئة.`;
-    }
-
-    // E) gov
-    if (intent.intent === "gov_list") {
+    const qn = normalizeArabic(q);
+    if (qn.includes("اجراءات") || qn.includes("إجراءات")) {
       updateLocalSummary(q, "إجراءات حكومية");
       return renderGovListMarkdown();
     }
-
-    if (intent.intent === "gov_procedure") {
-      updateLocalSummary(q, "إجراءات حكومية");
-      const match = findBestGovProcedureMatch(intent.procedure_title || q);
-      if (match) return renderGovProcedureMarkdown(match);
-      return "معلش يا كبير… قولّي اسم الإجراء زي: (تغيير عنوان البطاقة) أو (تجديد رخصة السيارة).";
-    }
-
-    // emergency
-    if (intent.intent === "emergency_numbers") {
-      updateLocalSummary(q, "طوارئ");
-      return renderEmergencySpecificMarkdown(q);
-    }
-
-    // unknown
-    return "معلش يا كبير… مش فاهم قصدك. اكتب: (صيدليات) أو (أسنان) أو (أرقام الطوارئ) أو (إجراءات حكومية) أو (مشروعات الكنزاوية).";
   }
+
+  // ✅ NEW: لو المستخدم كتب "دكتور/طبيب/عيادة" بدون تحديد تخصص => رجّع كل الدكاترة فقط
+  // (استبعاد: مستشفيات/معامل/مراكز)
+  const clinicTypeFromText = resolveClinicTypeFromUserText(q);
+  if (!clinicTypeFromText) {
+    const qNorm = normalizeArabic(q);
+    const doctorHints = ["دكتور","طبيب","اطباء","أطباء","دكاترة","عيادة","عيادات"];
+
+    if (doctorHints.some(k => qNorm.includes(normalizeArabic(k)))) {
+      updateLocalSummary(q, "كل الدكاترة");
+      addMessage("ثواني يا كبير… بجيب لك كل الدكاترة 👇", false);
+
+      const clinicsAll = await fetchServicesPageCards("services/clinics.html").catch(() => []);
+      if (!clinicsAll.length) return "معلش يا كبير… مش قادر أحمّل دليل العيادات دلوقتي.";
+
+      const doctorsOnly = clinicsAll.filter(s => {
+        const tokens = String(s.clinicType || "").split(/\s+/).map(x => normalizeArabic(x)).filter(Boolean);
+
+        // استبعاد غير الدكاترة
+        const excluded = ["hospital", "lab", "multi"];
+        if (tokens.some(t => excluded.includes(t))) return false;
+
+        // السماح بتخصصات الدكاترة فقط
+        const allowed = ["obgyn", "pediatrics", "eye", "dental", "internal", "surgery"];
+        return tokens.some(t => allowed.includes(t));
+      });
+
+      if (!doctorsOnly.length) return "معلش يا كبير… مش لاقي دكاترة دلوقتي.";
+      return renderServicesTable(doctorsOnly, "تمام يا كبير ✅ دي كل الدكاترة المتاحين:");
+    }
+  }
+
+  // ✅ Fast-path: لو كتب تخصص طبي مباشرة (أسنان/باطنة/...) رجّع التخصص فقط
+  const clinicTypeFast = resolveClinicTypeFromUserText(q);
+  if (clinicTypeFast) {
+    updateLocalSummary(q, `خدمات طبية: ${clinicTypeToArabic(clinicTypeFast)}`);
+    addMessage("ثواني يا كبير… بدوّر في العيادات 👇", false);
+
+    const results = await getClinicsByType(clinicTypeFast);
+    if (!results.length) return `معلش يا كبير… مش لاقي نتائج لتخصص **${clinicTypeToArabic(clinicTypeFast)}** دلوقتي.`;
+    return renderServicesTable(results, `تمام يا كبير ✅ دي **${clinicTypeToArabic(clinicTypeFast)}**:`);
+  }
+
+  // B) classify intent
+  const intent = await classifyIntentWithClaude(q);
+
+  // C) projects
+  if (intent.intent === "projects_list") {
+    updateLocalSummary(q, "مشروعات الكنزاوية");
+    const projects = projectsCache?.items || [];
+    if (!projects.length) {
+      const loaded = await fetchProjectsFromProjectsPage().catch(()=>[]);
+      if (!loaded.length) return "معلش يا كبير… مش قادر أحمّل بيانات المشروعات دلوقتي.";
+    }
+    return renderProjectsListMarkdown(projectsCache.items, "تمام يا كبير ✅ دي مشروعات الكنزاوية:");
+  }
+
+  if (intent.intent === "project_lookup") {
+    updateLocalSummary(q, "مشروعات الكنزاوية");
+    const projects = projectsCache?.items || [];
+    if (!projects.length) {
+      const loaded = await fetchProjectsFromProjectsPage().catch(()=>[]);
+      if (!loaded.length) return "معلش يا كبير… مش قادر أحمّل بيانات المشروعات دلوقتي.";
+    }
+
+    let filtered = projectsCache.items;
+    const type = (intent.project_type || "").trim();
+    if (type) filtered = filtered.filter(p => p.type === type);
+
+    const name = (intent.project_name || q).trim();
+    const matches = topProjectMatches(name, filtered, 5);
+
+    if (matches.length === 1) return renderProjectDetailsMarkdown(matches[0]);
+    if (matches.length > 1) return renderProjectsListMarkdown(matches, `لقيت مشروعات قريبة من: **${name}**`);
+    return "معلش يا كبير… مش لاقي مشروع بالاسم ده. قولّي كلمة من الاسم أو النوع (مأكولات/زراعة/...).";
+  }
+
+  // D) services
+  if (intent.intent === "services_category") {
+    const clinicTypeWanted = resolveClinicTypeFromUserText(q) || resolveClinicTypeFromUserText(intent.category_hint || "");
+    if (clinicTypeWanted) {
+      updateLocalSummary(q, `خدمات طبية: ${clinicTypeToArabic(clinicTypeWanted)}`);
+      addMessage("ثواني يا كبير… بدوّر في العيادات 👇", false);
+
+      const results = await getClinicsByType(clinicTypeWanted);
+      if (!results.length) return `معلش يا كبير… مش لاقي نتائج لتخصص **${clinicTypeToArabic(clinicTypeWanted)}** دلوقتي.`;
+      return renderServicesTable(results, `تمام يا كبير ✅ دي **${clinicTypeToArabic(clinicTypeWanted)}**:`);
+    }
+
+    const cat = resolveCategoryFromTextV2(intent.category_hint || q) || resolveCategoryFromTextV2(q);
+    if (!cat) return "معلش يا كبير… قولّي الفئة اللي تقصدها زي: صيدليات / مطاعم / سوبرماركت / مكتبات / عيادات.";
+
+    updateLocalSummary(q, cat);
+    addMessage("ثواني يا كبير… بحمّل بيانات الخدمات 👇", false);
+
+    const results = await getServicesByCategory(cat);
+    if (!results.length) return `معلش يا كبير… فئة **${cat}** مش متاحة عندي دلوقتي.`;
+    return renderServicesTable(results, `تمام يا كبير ✅ دي **${cat}**:`);
+  }
+
+  if (intent.intent === "services_lookup") {
+    updateLocalSummary(q, "خدمة");
+    addMessage("ثواني يا كبير… بدوّر في الخدمات 👇", false);
+
+    const all = await ensureAllServicesLoaded();
+    const queryNorm = normalizeArabic((intent.service_name || q).trim());
+
+    const scored = all.map(s => {
+      let score = 0;
+
+      if (s.nameNorm === queryNorm) score += 120;
+      if (s.nameNorm.includes(queryNorm)) score += 90;
+      if (s.addressNorm.includes(queryNorm)) score += 55;
+
+      const toks = queryNorm.split(" ").filter(t => t.length >= 2);
+      toks.forEach(t => {
+        if (s.nameNorm.includes(t)) score += 12;
+        if (s.addressNorm.includes(t)) score += 8;
+      });
+
+      return { s, score };
+    }).filter(x => x.score >= 55).sort((a,b) => b.score - a.score);
+
+    const matches = scored.slice(0, 15).map(x => x.s);
+    if (matches.length) return renderServicesTable(matches, `لقيت الأقرب يا كبير ✅:`);
+    return `معلش يا كبير… مش لاقي خدمة مطابقة.\nجرّب تكتب الاسم بشكل تاني أو قول الفئة.`;
+  }
+
+  // E) gov
+  if (intent.intent === "gov_list") {
+    updateLocalSummary(q, "إجراءات حكومية");
+    return renderGovListMarkdown();
+  }
+
+  if (intent.intent === "gov_procedure") {
+    updateLocalSummary(q, "إجراءات حكومية");
+    const match = findBestGovProcedureMatch(intent.procedure_title || q);
+    if (match) return renderGovProcedureMarkdown(match);
+    return "معلش يا كبير… قولّي اسم الإجراء زي: (تغيير عنوان البطاقة) أو (تجديد رخصة السيارة).";
+  }
+
+  // emergency
+  if (intent.intent === "emergency_numbers") {
+    updateLocalSummary(q, "طوارئ");
+    return renderEmergencySpecificMarkdown(q);
+  }
+
+  // unknown
+  return "معلش يا كبير… مش فاهم قصدك. اكتب: (صيدليات) أو (أسنان) أو (أرقام الطوارئ) أو (إجراءات حكومية) أو (مشروعات الكنزاوية).";
+}
 
   // =========================================
   // Bind UI events
