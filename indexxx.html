@@ -1277,7 +1277,7 @@ renderCarousel();
 <!-- زر فتح المحادثة -->
 <div id="chat-widget-launcher" class="attention">
     <div>
-        <span style="font-size: 30px;">👴</span>
+        <span class="garef-emoji" style="font-size: 30px;">👴</span>
     </div>
     <div class="tooltip-hint">أساعدك ازاي؟</div>
 </div>
@@ -1287,7 +1287,7 @@ renderCarousel();
     <!-- الرأس (Header) -->
     <div class="chat-header">
         <div class="chat-header-info">
-            <div id="garef-avatar-mini">👴</div>
+            <div id="garef-avatar-mini"><span class="garef-emoji">👴</span></div>
             <div class="chat-header-text">
                 <div class="chat-title">عم عارف</div>
                 <div class="chat-subtitle">مساعد بوابة الكنزاوية</div>
@@ -2384,6 +2384,21 @@ renderCarousel();
   document.addEventListener("DOMContentLoaded", bind);
 
 })();
+</script>
+
+</script>
+
+
+<script defer src="https://cdn.jsdelivr.net/npm/twemoji@14.0.2/dist/twemoji.min.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const targets = document.querySelectorAll(".garef-emoji");
+    if (!targets.length || !window.twemoji) return;
+
+    targets.forEach(el => {
+      twemoji.parse(el, { folder: "svg", ext: ".svg" });
+    });
+  });
 </script>
 </body>
 </html>
