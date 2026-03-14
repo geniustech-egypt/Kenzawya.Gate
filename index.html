@@ -13,6 +13,9 @@
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet" />
   <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet" />
   <link rel="stylesheet" href="/visitor-stats.css">
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  
+
   <!-- Google Analytics (keep as-is) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-FX6BSCQ8KQ"></script>
   <script>
@@ -672,6 +675,7 @@ footer.site-footer {
                         <li>الرائد/ باسم ابوالدهب معاون مباحث ح.اكتوبر : 01227188206</li>
                         <li>النقيب/ محمد ابوالخير معاون مباحث ح.اكتوبر : 01221310854</li>
                         <li>شكاوي جهاز مدينة ح. اكتوبر : 15100</li>
+                        <li>شكاوي جهاز مدينة ح. اكتوبر (واتساب) : 01090919155</li>
                         <li>ونش إنقاذ أمان : 15558</li>
                     </ul>
                 </div>
@@ -724,6 +728,7 @@ footer.site-footer {
                 <span>** علي فكرة الايقونات اللي فوق دي ☝️ فيها حاجات انت محتاجها هتعجبك.. جربها 😉</span>
                 <span><span style="color:lightgreen;"> #أخبار خفيفة#</span> 1-تم افتتاح سوبر ماركت سلة SALLA داخل الكمبوند في منطقة النادي</span>                
                 <span>2- تم افتتاح احدث فروع حلواني العبد بأول طريق زويل من ناحية صينية البترول بجوار مطعم مشاوينا </span>
+                <span>3- تم إطلاق النسخة التجريبية من المساعد الذكي للبوابة "عم عارف" هيساعدك في البحث عن الخدمات بشكل أسرع </span>
                 <span style="color:rgb(246, 236, 57);">**تاريخ أخر تحديث للموقع : 14 / 3 / 2026</span>
             </div>
         </div>
@@ -1269,9 +1274,1119 @@ renderCarousel();
   </div>
 </div>
 
+<!-- زر فتح المحادثة -->
+<div id="chat-widget-launcher" class="attention">
+    <div>
+        <span style="font-size: 30px;">👴</span>
+    </div>
+    <div class="tooltip-hint">أساعدك ازاي؟</div>
+</div>
+
+<!-- نافذة المساعد الذكي -->
+<div id="garef-chat-widget">
+    <!-- الرأس (Header) -->
+    <div class="chat-header">
+        <div class="chat-header-info">
+            <div id="garef-avatar-mini">👴</div>
+            <div class="chat-header-text">
+                <div class="chat-title">عم عارف الفرفوش</div>
+                <div class="chat-subtitle">مساعد بوابة الكنزاوية</div>
+            </div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <button onclick="newChat()" class="new-chat-btn" title="بدء محادثة جديدة">
+                <i class="fas fa-plus"></i>
+                <span>محادثة جديدة</span>
+            </button>
+            <button onclick="toggleChat()" class="chat-close-btn">&times;</button>
+        </div>
+    </div>
+
+    <!-- منطقة الشات -->
+    <div id="chatWindow">
+        <!-- الرسالة الترحيبية -->
+        <div class="bot-message">
+            <p style="font-weight: 800; color: #1e3a8a; margin-bottom: 5px;">يا ميت أهلاً بيك</p>
+            <p>أنا <span style="font-weight: bold; color: #ea580c;">عم عارف</span> المساعد الذكي لبوابة الكنزاوية - أقدر أساعدك في البحث عن أي بيانات داخل البوابة بس خلي بالك انا لسه نسخة تجريبية لك بس 15 سؤال يوميا ... اؤمرني حابب تدور على إيه النهاردة؟</p>
+        </div>
+    </div>
+
+    <!-- منطقة الإدخال -->
+    <div class="chat-input-area">
+        <form id="chatForm">
+            <input type="text" id="userInput" placeholder="اسأل عن بيانات اي خدمة او معلومة علي البوابة.." autocomplete="off">
+            <button type="submit" class="chat-send-btn">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- ✅ المكتبات بالترتيب الصحيح -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+<!-- ✅ استبدل الجزء التالي بالكامل داخل سكربت عم عارف (كما أرسلته) -->
+
+<script>
+// ===== عم عارف | مساعد بوابة الكنزاوية (نسخة كاملة بدون اختصار)
+// ✅ المطلوب في هذه النسخة:
+// 1) رجوع خدمات فولدر services (فئات + بحث باسم خدمة) + جدول (اسم + تليفون فقط)
+// 2) الإبقاء على:
+//    - طوارئ من index.html (لو سأل عن خدمة طوارئ معينة نعرضها فقط)
+//    - إجراءات حكومية من index.html (نطبع كل الخطوات بالكامل)
+//    - مشروعات الكنزاوية من kenzawya-pj.html
+// 3) ✅ إلغاء "كلام عام" (لا يوجد fallback general_chat إطلاقًا)
+// 4) Limits: 5 أسئلة / 5 دقائق + 15 سؤال يوميًا + cooldown
+// 5) حفظ المحادثة UI + حفظ سياق مختصر (لـ intent فقط)
+// 6) Claude دائمًا لفهم النية (intent) — لكن الرد النهائي من الداتا فقط
+(function () {
+  "use strict";
+
+  // =========================================
+  // Repo info (for raw fetching fallbacks)
+  // =========================================
+  const repoOwner = "geniustech-egypt";
+  const repoName  = "Kenzawya.Gate";
+
+  // =========================================
+  // Claude endpoint/model
+  // =========================================
+  const CLAUDE_ENDPOINT = "https://claude-proxy.bannonahussein.workers.dev";
+  const CLAUDE_MODEL    = "claude-haiku-4-5-20251001";
+
+  // =========================================
+  // State
+  // =========================================
+  let allGateData = [];      // services parsed from repo html pages
+  let isThinking = false;
+
+  // Projects cache (kenzawya-pj.html)
+  let projectsCache = null;  // { items: Project[], loadedAt: number }
+
+  // Conversation history for Claude (short)
+  let conversationHistory = [];
+  const MAX_HISTORY = 50;
+
+  // Faces
+  const FACES = {
+    IDLE:"👴",
+    THINKING:"🤔",
+    HAPPY:"😊",
+    WINK:"😉",
+    SAD:"😕",
+    WARNING:"⚠️"
+  };
+
+  // =========================================
+  // Limits
+  // =========================================
+  const LIMITS = {
+    MESSAGES_PER_5MIN: 5,
+    DAILY_LIMIT: 15,
+    COOLDOWN_SECONDS: 2
+  };
+
+  const USAGE_KEY = "garef_usage_v1";
+  let messageTimestamps = []; // timestamps in last 5 minutes
+  let lastMessageTime = 0;
+  let dailyCount = 0;
+
+  // =========================================
+  // Local storage keys
+  // =========================================
+  const CHAT_MESSAGES_KEY = "garef_chat_messages";   // UI messages (persisted)
+  const CONV_HISTORY_KEY  = "garef_conversation";    // short context (persisted 1 hour)
+  const SUMMARY_KEY       = "garef_conv_summary_v1"; // tiny summary
+
+  // =========================================
+  // DOM helper
+  // =========================================
+  function $(id){ return document.getElementById(id); }
+
+  // =========================================
+  // Normalize Arabic (consistent matching)
+  // =========================================
+  function normalizeArabic(text) {
+    if (!text) return "";
+    return String(text)
+      .replace(/[أإآ]/g,"ا")
+      .replace(/ى/g,"ي")
+      .replace(/ة/g,"ه")
+      .replace(/َ|ً|ُ|ٌ|ِ|ٍ|ْ|ّ/g,"")
+      .replace(/\s+/g," ")
+      .trim()
+      .toLowerCase();
+  }
+
+  // =========================================
+  // Summary (token saving)
+  // =========================================
+  function loadLocalSummary(){
+    return localStorage.getItem(SUMMARY_KEY) || "";
+  }
+
+  function saveLocalSummary(text){
+    try { localStorage.setItem(SUMMARY_KEY, text || ""); } catch(e){}
+  }
+
+  function updateLocalSummary(fullUserQuery, tag){
+    const u = (fullUserQuery || "").trim();
+    const t = (tag || "").trim();
+    if (!u && !t) return;
+
+    let summary = `آخر سؤال: ${u.slice(0, 90)}`;
+    if (t) summary += ` | آخر موضوع: ${t.slice(0, 40)}`;
+    summary = summary.slice(0, 180);
+    saveLocalSummary(summary);
+  }
+
+  // =========================================
+  // Limits persistence + checks
+  // =========================================
+  function loadLimitsData() {
+    try {
+      const saved = localStorage.getItem(USAGE_KEY);
+      if (!saved) return;
+
+      const data = JSON.parse(saved);
+      const today = new Date().toDateString();
+
+      if (data.date === today) {
+        dailyCount = data.count || 0;
+        messageTimestamps = Array.isArray(data.timestamps) ? data.timestamps : [];
+        lastMessageTime = data.lastMessageTime || 0;
+      } else {
+        resetDailyLimit();
+      }
+    } catch (e) {}
+  }
+
+  function saveLimitsData() {
+    try {
+      localStorage.setItem(USAGE_KEY, JSON.stringify({
+        date: new Date().toDateString(),
+        count: dailyCount,
+        timestamps: messageTimestamps,
+        lastMessageTime
+      }));
+    } catch (e) {}
+  }
+
+  function resetDailyLimit() {
+    dailyCount = 0;
+    messageTimestamps = [];
+    lastMessageTime = 0;
+    saveLimitsData();
+  }
+
+  function cleanOldTimestamps() {
+    const now = Date.now();
+    messageTimestamps = messageTimestamps.filter(t => t > now - 300000); // 5 minutes
+  }
+
+  function checkLimits() {
+    const now = Date.now();
+    cleanOldTimestamps();
+
+    if (dailyCount >= LIMITS.DAILY_LIMIT) {
+      return {
+        allowed: false,
+        message: `معلش يا كبير 😔\nإنت وصلت للحد اليومي (${LIMITS.DAILY_LIMIT} سؤال).\nارجعلي بكرة وأنا تحت أمرك.`
+      };
+    }
+
+    const timeSince = (now - lastMessageTime) / 1000;
+    if (timeSince < LIMITS.COOLDOWN_SECONDS) {
+      return {
+        allowed: false,
+        message: `ثواني بس يا كبير… 🙏\nاستنى ${Math.ceil(LIMITS.COOLDOWN_SECONDS - timeSince)} ثانية.`
+      };
+    }
+
+    if (messageTimestamps.length >= LIMITS.MESSAGES_PER_5MIN) {
+      const mins = Math.ceil((messageTimestamps[0] + 300000 - now) / 60000);
+      return {
+        allowed: false,
+        message: `بالراحة عليا يا معلم 😅\nوصلت ${LIMITS.MESSAGES_PER_5MIN} أسئلة في 5 دقايق.\nاستنى ${mins} دقيقة وارجعلي.`
+      };
+    }
+
+    return { allowed: true };
+  }
+
+  function recordMessage() {
+    const now = Date.now();
+    messageTimestamps.push(now);
+    lastMessageTime = now;
+    dailyCount++;
+    saveLimitsData();
+  }
+
+  // =========================================
+  // UI: face
+  // =========================================
+  function setGarefFace(face){
+    const el = $("garef-avatar-mini");
+    if (el) el.innerText = face;
+  }
+
+  // =========================================
+  // UI: Chat widget open/close + new chat
+  // =========================================
+  window.toggleChat = function () {
+    const widget   = $("garef-chat-widget");
+    const launcher = $("chat-widget-launcher");
+    if (!widget || !launcher) return;
+
+    const opening = !widget.classList.contains("active");
+    widget.classList.toggle("active");
+
+    if (opening) {
+      launcher.classList.remove("attention");
+      localStorage.setItem("garef_opened", "true");
+
+      const restored = loadChatMessages();
+      loadConversationHistory();
+
+      const cw = $("chatWindow");
+      if (!restored && cw && cw.children.length === 0) {
+        cw.innerHTML = `<div class="bot-message">
+          <p style="font-weight:800;color:#1e3a8a;margin-bottom:6px;">يا ميت أهلاً يا كبير!</p>
+          <p>أنا <strong style="color:#ea580c;">عم عارف</strong> 👴… تحت أمرك.</p>
+        </div>`;
+        saveChatMessages();
+      }
+
+      // background loads
+      if (allGateData.length === 0) fetchAllGateData().catch(()=>{});
+      if (!projectsCache?.items?.length) fetchProjectsFromProjectsPage().catch(()=>{});
+    }
+  };
+
+  window.newChat = function () {
+    const cw = $("chatWindow");
+    if (!cw) return;
+
+    cw.innerHTML = "";
+    conversationHistory = [];
+    saveConversationHistory();
+
+    localStorage.removeItem(SUMMARY_KEY);
+    localStorage.removeItem(CHAT_MESSAGES_KEY);
+
+    cw.innerHTML = `<div class="bot-message">
+      <p style="font-weight:800;color:#1e3a8a;margin-bottom:6px;">يا ميت أهلاً يا كبير!</p>
+      <p>أنا <strong style="color:#ea580c;">عم عارف</strong> 👴… تحت أمرك.</p>
+      <p style="margin:0;">اسألني عن: خدمات / طوارئ / إجراءات / مشروعات.</p>
+    </div>`;
+
+    saveChatMessages();
+    setGarefFace(FACES.IDLE);
+  };
+
+  // =========================================
+  // Markdown renderer
+  // =========================================
+  function renderBotMarkdown(text) {
+    let html = (typeof marked !== "undefined")
+      ? marked.parse(text)
+      : String(text || "").replace(/\n/g,"<br>");
+
+    html = html
+      .replace(/<table>/g,'<div class="table-wrapper"><table class="garef-table">')
+      .replace(/<\/table>/g,"</table></div>");
+
+    return html;
+  }
+
+  // =========================================
+  // Chat UI messages + persistence
+  // =========================================
+  function addMessage(text, isUser = false) {
+    const cw = $("chatWindow");
+    if (!cw) return;
+
+    const div = document.createElement("div");
+    div.className = isUser ? "user-message" : "bot-message";
+    div[isUser ? "innerText" : "innerHTML"] = isUser ? text : renderBotMarkdown(text);
+    cw.appendChild(div);
+    cw.scrollTo({ top: cw.scrollHeight, behavior: "smooth" });
+
+    saveChatMessages();
+  }
+
+  function saveChatMessages() {
+    try {
+      const chatWindow = $("chatWindow");
+      if (!chatWindow) return;
+
+      const messages = [];
+      chatWindow.querySelectorAll(".user-message, .bot-message").forEach(msg => {
+        messages.push({
+          type: msg.classList.contains("user-message") ? "user" : "bot",
+          content: msg.innerHTML
+        });
+      });
+
+      localStorage.setItem(CHAT_MESSAGES_KEY, JSON.stringify(messages));
+    } catch (e) {}
+  }
+
+  function loadChatMessages() {
+    try {
+      const saved = localStorage.getItem(CHAT_MESSAGES_KEY);
+      if (!saved) return false;
+
+      const messages = JSON.parse(saved);
+      const chatWindow = $("chatWindow");
+      if (!chatWindow) return false;
+
+      chatWindow.innerHTML = "";
+      messages.forEach(msg => {
+        const div = document.createElement("div");
+        div.className = msg.type === "user" ? "user-message" : "bot-message";
+        div.innerHTML = msg.content;
+        chatWindow.appendChild(div);
+      });
+
+      return true;
+    } catch (e) {}
+    return false;
+  }
+
+  function saveConversationHistory() {
+    try {
+      localStorage.setItem(CONV_HISTORY_KEY, JSON.stringify({
+        history: conversationHistory,
+        timestamp: Date.now()
+      }));
+    } catch (e) {}
+  }
+
+  function loadConversationHistory() {
+    try {
+      const saved = localStorage.getItem(CONV_HISTORY_KEY);
+      if (!saved) return false;
+
+      const data = JSON.parse(saved);
+      const hourAgo = Date.now() - 60 * 60 * 1000;
+
+      if (data.timestamp > hourAgo) {
+        conversationHistory = Array.isArray(data.history) ? data.history : [];
+        return true;
+      }
+    } catch (e) {}
+    return false;
+  }
+
+  // =========================================
+  // Emergency numbers (index.html DOM)
+  // =========================================
+  function extractEmergencyNumbersFromDOM() {
+    const list = [];
+    const ul = document.querySelector("#emergency-content ul");
+    if (!ul) return list;
+
+    ul.querySelectorAll("li").forEach(li => {
+      const t = (li.textContent || "").trim();
+      if (!t) return;
+
+      const parts = t.split(/[:：]/);
+      if (parts.length >= 2) {
+        const label = parts.slice(0, -1).join(":").trim();
+        const value = parts[parts.length - 1].trim();
+        list.push({
+          label,
+          value,
+          labelNorm: normalizeArabic(label),
+          valueNorm: normalizeArabic(value)
+        });
+      } else {
+        list.push({
+          label: t,
+          value: "",
+          labelNorm: normalizeArabic(t),
+          valueNorm: ""
+        });
+      }
+    });
+
+    return list;
+  }
+
+  function renderEmergencyMarkdownAll(limit = 60) {
+    const items = extractEmergencyNumbersFromDOM().slice(0, limit);
+    if (!items.length) return "معلش يا كبير… مش لاقي أرقام الطوارئ دلوقتي.";
+
+    let out = `تمام يا كبير ✅ دي أرقام الطوارئ:\n\n`;
+    items.forEach(x => {
+      out += `• ${x.label}${x.value ? `: **${x.value}**` : ""}\n`;
+    });
+    return out.trim();
+  }
+
+  function findEmergencyMatches(query, items, limit = 3) {
+    const q = normalizeArabic(query);
+    if (!q) return [];
+
+    const scored = items.map(it => {
+      let score = 0;
+
+      if (it.labelNorm === q) score += 100;
+      if (it.labelNorm.includes(q)) score += 80;
+      if (q.includes(it.labelNorm) && it.labelNorm.length >= 3) score += 65;
+
+      const toks = q.split(" ").filter(t => t.length >= 2);
+      toks.forEach(t => { if (it.labelNorm.includes(t)) score += 18; });
+
+      if ((q.includes("غاز") || q.includes("ناتجاس")) && it.labelNorm.includes("غاز")) score += 25;
+      if ((q.includes("كهربا") || q.includes("كهرباء")) && it.labelNorm.includes("كهرب")) score += 25;
+      if ((q.includes("مياه") || q.includes("ميه") || q.includes("مية")) && it.labelNorm.includes("ميا")) score += 25;
+      if ((q.includes("شرطه") || q.includes("شرطة") || q.includes("نجده") || q.includes("نجدة")) && it.labelNorm.includes("شرط")) score += 25;
+      if ((q.includes("مطافي") || q.includes("مطافئ") || q.includes("حريق")) && it.labelNorm.includes("مطاف")) score += 25;
+      if ((q.includes("ونش") || q.includes("انقاذ") || q.includes("إنقاذ")) && it.labelNorm.includes("ونش")) score += 25;
+
+      return { it, score };
+    })
+    .filter(x => x.score >= 35)
+    .sort((a,b) => b.score - a.score);
+
+    return scored.slice(0, limit).map(x => x.it);
+  }
+
+  function renderEmergencySpecificMarkdown(query) {
+    const items = extractEmergencyNumbersFromDOM();
+    if (!items.length) return "معلش يا كبير… مش لاقي أرقام الطوارئ دلوقتي.";
+
+    const matches = findEmergencyMatches(query, items, 3);
+    if (!matches.length) return renderEmergencyMarkdownAll(30);
+
+    if (matches.length === 1) {
+      const x = matches[0];
+      return `تمام يا كبير ✅\n**${x.label}**: **${x.value || "غير متاح"}**`;
+    }
+
+    let out = "تمام يا كبير ✅ أقرب أرقام:\n\n";
+    matches.forEach(x => {
+      out += `• ${x.label}: **${x.value || "غير متاح"}**\n`;
+    });
+    return out.trim();
+  }
+
+  function isEmergencyQueryFast(query) {
+    const q = normalizeArabic(query);
+
+    const hints = [
+      "طوارئ","الطوارئ","نجده","نجدة","اسعاف","إسعاف","شرطة","مطافي","مطافئ","حريق",
+      "غاز","ناتجاس","كهربا","كهرباء","مياه","ميه","مية","ونش","انقاذ","إنقاذ","شكاوي","شكاوى"
+    ];
+
+    if (!hints.some(k => q.includes(normalizeArabic(k)))) return false;
+
+    return (q.includes("رقم") || q.includes("ارقام") || q.includes("أرقام") || q.includes("طوارئ") || q.includes("الطوارئ"));
+  }
+
+  // =========================================
+  // Government procedures (index.html DOM) — ALL steps
+  // =========================================
+  function extractGovProceduresFromDOM() {
+    const items = [];
+    document.querySelectorAll("#government-procedures .accordion-item").forEach(it => {
+      const header = it.querySelector(".accordion-header");
+      const title = (header?.childNodes?.[0]?.textContent || header?.textContent || "").trim();
+
+      const steps = [];
+      it.querySelectorAll(".accordion-content ol li").forEach(li => {
+        const s = (li.textContent || "").trim();
+        if (s) steps.push(s);
+      });
+
+      if (title && steps.length) items.push({ title, steps, titleNorm: normalizeArabic(title) });
+    });
+    return items;
+  }
+
+  function renderGovProcedureMarkdown(item) {
+    if (!item) return "معلش يا كبير… مش لاقي الإجراء ده.";
+
+    let out = `تمام يا كبير ✅ **${item.title}**\n\n`;
+    item.steps.forEach((s, i) => {
+      out += `${i+1}) ${s}\n`;
+    });
+    return out.trim();
+  }
+
+  function findBestGovProcedureMatch(query) {
+    const q = normalizeArabic(query);
+    const all = extractGovProceduresFromDOM();
+    if (!all.length || !q) return null;
+
+    const qTokens = q.split(" ").filter(t => t.length >= 2);
+    let best = null;
+    let bestScore = 0;
+
+    all.forEach(item => {
+      let score = 0;
+      if (item.titleNorm.includes(q)) score += 50;
+      qTokens.forEach(tok => { if (item.titleNorm.includes(tok)) score += 10; });
+      if (score > bestScore) { bestScore = score; best = item; }
+    });
+
+    return bestScore >= 20 ? best : null;
+  }
+
+  function renderGovListMarkdown() {
+    const all = extractGovProceduresFromDOM();
+    if (!all.length) return "معلش يا كبير… مش لاقي إجراءات حكومية دلوقتي.";
+
+    let out = "تمام يا كبير ✅ الإجراءات الحكومية اللي عندي:\n\n";
+    all.forEach(x => { out += `• ${x.title}\n`; });
+    out += "\nقولّي عنوان الإجراء بالظبط أو جزء منه.";
+    return out.trim();
+  }
+
+  function isGovQueryFast(query) {
+    const q = normalizeArabic(query);
+    const hints = [
+      "اجراءات","إجراءات","حكوميه","حكومية","بطاقه","بطاقة","عنوان",
+      "سجل","مدني","رخصه","رخصة","عداد","تليفون","التليفون","ارضي","الأرضي"
+    ];
+    return hints.some(k => q.includes(normalizeArabic(k)));
+  }
+
+  // =========================================
+  // Projects (kenzawya-pj.html)
+  // =========================================
+  async function fetchProjectsFromProjectsPage() {
+    if (projectsCache?.items?.length) return projectsCache.items;
+
+    const urls = [
+      "kenzawya-pj.html",
+      `https://raw.githubusercontent.com/${repoOwner}/${repoName}/main/kenzawya-pj.html`
+    ];
+
+    let html = "";
+    for (const u of urls) {
+      try {
+        const res = await fetch(u, { cache: "no-store" });
+        if (!res.ok) continue;
+        html = await res.text();
+        if (html) break;
+      } catch (e) {}
+    }
+
+    if (!html) return [];
+
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, "text/html");
+
+    const cards = Array.from(doc.querySelectorAll(".project-card"));
+    const items = cards.map(card => {
+      const name = (card.querySelector("h3")?.textContent || "").trim();
+      const desc = (card.querySelector(".project-body p")?.textContent || "").trim();
+      const type = (card.getAttribute("data-type") || "").trim();
+
+      const phoneEl = card.querySelector('a.contact-btn.phone .num') || card.querySelector('a.contact-btn.phone');
+      let phone = (phoneEl?.textContent || "").trim().replace(/\s+/g, "");
+
+      const wa = card.querySelector('a.contact-btn.wa')?.getAttribute("href") || "";
+      const waGroup = card.querySelector('a.contact-btn.wa-group')?.getAttribute("href") || "";
+      const fb = card.querySelector('a.contact-btn.fb')?.getAttribute("href") || "";
+
+      return {
+        name,
+        desc,
+        type,
+        phone,
+        wa,
+        waGroup,
+        fb,
+        nameNorm: normalizeArabic(name),
+        descNorm: normalizeArabic(desc)
+      };
+    }).filter(x => x.name);
+
+    projectsCache = { items, loadedAt: Date.now() };
+    return items;
+  }
+
+  function projectTypeLabel(type) {
+    const map = {
+      food: "مأكولات",
+      agri: "زراعة",
+      medical: "طبية",
+      clothes: "ملابس",
+      shoes_bags: "أحذية/شنط",
+      sports: "رياضية",
+      home: "منزلية",
+      handmade: "أكسسوار",
+      kids: "ترفيه أطفال",
+      other: "أخرى"
+    };
+    return map[type] || "أخرى";
+  }
+
+  function renderProjectsListMarkdown(items, title) {
+    const list = (items || []).slice(0, 15);
+    if (!list.length) return "معلش يا كبير… مش لاقي مشروعات مطابقة.";
+
+    let out = `${title}\n\n`;
+    list.forEach(p => {
+      out += `• **${p.name}** (${projectTypeLabel(p.type)}) — ${p.phone ? `**${p.phone}**` : "رقم غير متاح"}\n`;
+    });
+    out += `\n(لو عايز تفاصيل مشروع معين قول اسمه.)`;
+    return out.trim();
+  }
+
+  function renderProjectDetailsMarkdown(p) {
+    if (!p) return "معلش يا كبير… مش لاقي المشروع ده.";
+
+    let out = `تمام يا كبير ✅ **${p.name}**\n`;
+    out += `• النوع: ${projectTypeLabel(p.type)}\n`;
+    if (p.phone) out += `• التليفون: **${p.phone}**\n`;
+    if (p.wa) out += `• واتساب: ${p.wa}\n`;
+    if (p.waGroup) out += `• جروب واتساب: ${p.waGroup}\n`;
+    if (p.fb) out += `• فيسبوك: ${p.fb}\n`;
+    if (p.desc) out += `\n${p.desc}\n`;
+    return out.trim();
+  }
+
+  function scoreProjectMatch(queryNorm, p) {
+    if (!p?.nameNorm) return 0;
+
+    if (p.nameNorm === queryNorm) return 100;
+    if (p.nameNorm.includes(queryNorm)) return 85;
+
+    const toks = queryNorm.split(" ").filter(t => t.length >= 2);
+    let hits = 0;
+    toks.forEach(t => {
+      if (p.nameNorm.includes(t)) hits += 2;
+      else if (p.descNorm.includes(t)) hits += 1;
+    });
+    return hits * 10;
+  }
+
+  function topProjectMatches(query, projects, limit = 5) {
+    const q = normalizeArabic(query);
+    const scored = projects
+      .map(p => ({ p, score: scoreProjectMatch(q, p) }))
+      .filter(x => x.score >= 30)
+      .sort((a,b) => b.score - a.score);
+
+    return scored.slice(0, limit).map(x => x.p);
+  }
+
+  // =========================================
+  // Services: fetch from repo pages
+  // =========================================
+  async function fetchAllGateData() {
+    const treeUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/git/trees/main?recursive=1`;
+    const treeRes = await fetch(treeUrl);
+    if (!treeRes.ok) throw new Error(`API: ${treeRes.status}`);
+
+    const treeData = await treeRes.json();
+    if (!treeData?.tree) return;
+
+    // Load only services folder + a few html files (safer and faster)
+    const htmlFiles = treeData.tree
+      .filter(f => f.type === "blob" && f.path.endsWith(".html") && (f.path.startsWith("services/")))
+      .slice(0, 200);
+
+    const parser = new DOMParser();
+    const combined = [];
+
+    for (const file of htmlFiles) {
+      const url = `https://raw.githubusercontent.com/${repoOwner}/${repoName}/main/${file.path}`;
+      try {
+        const res = await fetch(url);
+        if (!res.ok) continue;
+
+        const html = await res.text();
+        const doc = parser.parseFromString(html, "text/html");
+
+        const services = [];
+        doc.querySelectorAll(".service-card").forEach(card => {
+          const titleEl = card.querySelector(".service-title, h3, h2, .title, h4");
+          if (!titleEl) return;
+
+          const ratingBlock = card.querySelector("[data-service-id]");
+          const id = ratingBlock?.getAttribute("data-service-id");
+          if (!id) return;
+
+          const name = titleEl.textContent.trim();
+          const phoneMatch = card.textContent.match(/01[0-9]{9}/);
+          const phone = phoneMatch ? phoneMatch[0] : "-";
+
+          // category by path
+          let category = "";
+          const fp = file.path;
+          if (fp.includes("pharmacies")) category = "صيدليات";
+          else if (fp.includes("clinics")) category = "خدمات طبية";
+          else if (fp.includes("supermarket")) category = "سوبرماركت";
+          else if (fp.includes("restaurants")) category = "مطاعم وحلويات";
+          else if (fp.includes("vegetables")) category = "خضار وفواكه";
+          else if (fp.includes("meat")) category = "دواجن ولحوم";
+          else if (fp.includes("cleaning")) category = "تنظيف ملابس";
+          else if (fp.includes("milk")) category = "ألبان ومخبوزات";
+          else if (fp.includes("grocery")) category = "عطارة وتسالي";
+          else if (fp.includes("bookstore")) category = "مكتبات";
+          else if (fp.includes("general_services")) category = "خدمات عامة";
+          else if (fp.includes("other_services")) category = "خدمات أخرى";
+
+          services.push({
+            name,
+            id,
+            page: file.path,
+            phone,
+            category,
+            nameNorm: normalizeArabic(name)
+          });
+        });
+
+        combined.push({ path: file.path, services });
+      } catch (e) {}
+    }
+
+    allGateData = combined;
+  }
+
+  function getAllServices(){
+    return allGateData.flatMap(d => d.services || []);
+  }
+
+  // =========================================
+  // Services matching + category resolution
+  // =========================================
+  function scoreServiceMatch(queryNorm, service) {
+    const nameNorm = service?.nameNorm || normalizeArabic(service?.name || "");
+    if (!nameNorm) return 0;
+
+    if (nameNorm === queryNorm) return 100;
+    if (nameNorm.includes(queryNorm)) return 85;
+    if (queryNorm.includes(nameNorm) && nameNorm.length >= 4) return 70;
+
+    const qTokens = queryNorm.split(" ").filter(t => t.length >= 2);
+    if (!qTokens.length) return 0;
+
+    let hits = 0;
+    qTokens.forEach(t => { if (nameNorm.includes(t)) hits++; });
+    return Math.round((hits / qTokens.length) * 60);
+  }
+
+  function topServiceMatches(rawQuery, allServices, limit = 5) {
+    const q = normalizeArabic(rawQuery);
+    const scored = allServices
+      .map(s => ({ s, score: scoreServiceMatch(q, s) }))
+      .filter(x => x.score >= 55)
+      .sort((a,b) => b.score - a.score);
+
+    return scored.slice(0, limit).map(x => x.s);
+  }
+
+  // Resolve Arabic category queries (singular/plural mapping)
+  function resolveCategoryFromText(raw) {
+    const q = normalizeArabic(raw);
+
+    // singular -> plural categories used in our data
+    const map = [
+      { keys: ["صيدليه","صيدلية","صيدليات"], category: "صيدليات" },
+      { keys: ["عياده","عيادة","عيادات","دكتور","دكاتره","دكاترة","طبيب","اطباء","أطباء"], category: "خدمات طبية" },
+      { keys: ["سوبر","سوبرماركت","سوبر ماركت","بقاله","بقالة"], category: "سوبرماركت" },
+      { keys: ["مطعم","مطاعم","حلويات","حلواني","حلواني"], category: "مطاعم وحلويات" },
+      { keys: ["خضار","خضروات","فواكه","فاكهه","فاكهة"], category: "خضار وفواكه" },
+      { keys: ["لحمه","لحمة","لحوم","دواجن","فراخ","جزار"], category: "دواجن ولحوم" },
+      { keys: ["مغسله","مغسلة","تنظيف","دراي","دراي كلين","درايكلين"], category: "تنظيف ملابس" },
+      { keys: ["لبان","ألبان","مخبوزات","عيش","مخبز","فرن"], category: "ألبان ومخبوزات" },
+      { keys: ["عطاره","عطارة","تسالي","تسالى","مكسرات"], category: "عطارة وتسالي" },
+      { keys: ["مكتبه","مكتبة","مكتبات","كتب"], category: "مكتبات" },
+      { keys: ["خدمات عامه","خدمات عامة","عامه","عامة"], category: "خدمات عامة" },
+      { keys: ["اخري","اخرى","أخرى"], category: "خدمات أخرى" }
+    ];
+
+    for (const row of map) {
+      for (const k of row.keys) {
+        if (q.includes(normalizeArabic(k))) return row.category;
+      }
+    }
+    return "";
+  }
+
+  // =========================================
+  // Services table rendering (name + phone only)
+  // =========================================
+  function buildServiceUrl(page, id) {
+    if (!page) return "#";
+    if (!id) return page;
+    const joiner = page.includes("?") ? "&" : "?";
+    return `${page}${joiner}id=${encodeURIComponent(id)}`;
+  }
+
+  function mdCell(v){ return String(v ?? "").replace(/\|/g,"｜").trim(); }
+
+  function renderServicesTable(services, titleText) {
+    const list = (services || []).slice(0, 15);
+    if (!list.length) return `${titleText}\n\nمعلش يا كبير… مش لاقي نتائج.`;
+
+    let out = `${titleText}\n\n| الخدمة | التليفون |\n|---|---|\n`;
+    list.forEach(s => {
+      const url = buildServiceUrl(s.page, s.id);
+      out += `| [${mdCell(s.name)}](${url}) | ${mdCell(s.phone||"-")} |\n`;
+    });
+    out += `\n*اضغط على اسم الخدمة للفتح.*`;
+    return out;
+  }
+
+  // =========================================
+  // Intent classifier (ALWAYS ON) — no general chat response
+  // =========================================
+  async function classifyIntentWithClaude(userQuery) {
+    const summary = loadLocalSummary();
+    const historyTiny = conversationHistory.slice(-2)
+      .map(m => `${m.role === "User" ? "U" : "A"}:${String(m.content || "").slice(0, 90)}`)
+      .join(" | ");
+
+    const sys = `أنت مصنف نية فقط (Intent Classifier).
+أعد JSON فقط بدون شرح أو نص إضافي.
+
+المخطط:
+{
+  "intent": "emergency_numbers" | "gov_procedure" | "gov_list" | "projects_list" | "project_lookup" | "services_category" | "services_lookup" | "unknown",
+  "procedure_title": "",
+  "project_name": "",
+  "project_type": "",
+  "category_hint": "",
+  "service_name": ""
+}
+
+قواعد:
+- لو السؤال عن أرقام الطوارئ => emergency_numbers
+- لو السؤال عن إجراء حكومي محدد => gov_procedure (procedure_title)
+- لو السؤال عن الإجراءات الحكومية بشكل عام => gov_list
+- لو السؤال عن مشروعات الكنزاوية بشكل عام => projects_list
+- لو السؤال عن مشروع محدد => project_lookup (project_name) وقد يذكر project_type
+- لو السؤال عن فئة خدمات (صيدليات/مطاعم/مكتبات...) => services_category (category_hint)
+- لو السؤال عن اسم خدمة محددة داخل الخدمات => services_lookup (service_name)
+- لو غير واضح => unknown
+- لا تكتب أي كلام خارج JSON.`;
+
+    try {
+      const res = await fetch(CLAUDE_ENDPOINT, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: CLAUDE_MODEL,
+          max_tokens: 260,
+          temperature: 0,
+          system:
+            sys +
+            (summary ? `\nملخص محلي: ${summary}\n` : "") +
+            (historyTiny ? `\nآخر سياق صغير: ${historyTiny}\n` : ""),
+          messages: [{ role: "user", content: userQuery }]
+        })
+      });
+
+      if (!res.ok) throw new Error(`Worker: ${res.status}`);
+
+      const data = await res.json();
+      const txt = data.content?.[0]?.text || "{}";
+
+      const m = txt.match(/\{[\s\S]*\}/);
+      if (!m) return { intent: "unknown" };
+
+      const obj = JSON.parse(m[0]);
+      if (!obj || !obj.intent) return { intent: "unknown" };
+      return obj;
+    } catch (e) {
+      console.warn("Intent classify failed:", e);
+      return { intent: "unknown" };
+    }
+  }
+
+  // =========================================
+  // Main ask handler (NO general chat)
+  // =========================================
+  async function onAsk(q){
+    // A) Fast handling from local DOM (index.html) without tokens
+    if (isEmergencyQueryFast(q)) {
+      updateLocalSummary(q, "طوارئ");
+      return renderEmergencySpecificMarkdown(q);
+    }
+
+    if (isGovQueryFast(q)) {
+      const govMatch = findBestGovProcedureMatch(q);
+      if (govMatch) {
+        updateLocalSummary(q, "إجراءات حكومية");
+        return renderGovProcedureMarkdown(govMatch);
+      }
+
+      const qn = normalizeArabic(q);
+      if (qn.includes("اجراءات") || qn.includes("إجراءات")) {
+        updateLocalSummary(q, "إجراءات حكومية");
+        return renderGovListMarkdown();
+      }
+    }
+
+    // B) Ensure datasets are loaded
+    if (allGateData.length === 0) {
+      addMessage("ثواني يا كبير… بحمّل بيانات الخدمات 👇", false);
+      await fetchAllGateData().catch(()=>{});
+    }
+    if (!projectsCache?.items?.length) {
+      await fetchProjectsFromProjectsPage().catch(()=>{});
+    }
+
+    const servicesAll = getAllServices();
+
+    // C) ALWAYS classify intent
+    const intent = await classifyIntentWithClaude(q);
+
+    // D) Dispatch based on intent (responses strictly from data)
+    if (intent.intent === "emergency_numbers") {
+      updateLocalSummary(q, "طوارئ");
+      return renderEmergencySpecificMarkdown(q);
+    }
+
+    if (intent.intent === "gov_list") {
+      updateLocalSummary(q, "إجراءات حكومية");
+      return renderGovListMarkdown();
+    }
+
+    if (intent.intent === "gov_procedure") {
+      updateLocalSummary(q, "إجراءات حكومية");
+      const match = findBestGovProcedureMatch(intent.procedure_title || q);
+      if (match) return renderGovProcedureMarkdown(match);
+      return "معلش يا كبير… قولّي اسم الإجراء زي: (تغيير عنوان البطاقة) أو (تجديد رخصة السيارة).";
+    }
+
+    if (intent.intent === "projects_list") {
+      updateLocalSummary(q, "مشروعات الكنزاوية");
+      const projects = projectsCache?.items || [];
+      if (!projects.length) return "معلش يا كبير… مش قادر أحمّل بيانات المشروعات دلوقتي.";
+      return renderProjectsListMarkdown(projects, "تمام يا كبير ✅ دي مشروعات الكنزاوية:");
+    }
+
+    if (intent.intent === "project_lookup") {
+      updateLocalSummary(q, "مشروعات الكنزاوية");
+      const projects = projectsCache?.items || [];
+      if (!projects.length) return "معلش يا كبير… مش قادر أحمّل بيانات المشروعات دلوقتي.";
+
+      let filtered = projects;
+      const type = (intent.project_type || "").trim();
+      if (type) filtered = filtered.filter(p => p.type === type);
+
+      const name = (intent.project_name || q).trim();
+      const matches = topProjectMatches(name, filtered, 5);
+
+      if (matches.length === 1) return renderProjectDetailsMarkdown(matches[0]);
+
+      if (matches.length > 1) {
+        return renderProjectsListMarkdown(matches, `لقيت مشروعات قريبة من: **${name}**`);
+      }
+
+      return "معلش يا كبير… مش لاقي مشروع بالاسم ده. قولّي كلمة من الاسم أو النوع (مأكولات/زراعة/...).";
+    }
+
+    if (intent.intent === "services_category") {
+      // category resolution by hint OR by text
+      const cat = resolveCategoryFromText(intent.category_hint || q) || resolveCategoryFromText(q);
+      if (!cat) return "معلش يا كبير… قولّي الفئة اللي تقصدها زي: صيدليات / مطاعم / سوبرماركت / مكتبات.";
+
+      updateLocalSummary(q, cat);
+      const results = servicesAll.filter(s => s.category === cat);
+      if (!results.length) return `معلش يا كبير… فئة **${cat}** مش متاحة عندي دلوقتي.`;
+      return renderServicesTable(results, `تمام يا كبير ✅ دي **${cat}**:`);
+    }
+
+    if (intent.intent === "services_lookup") {
+      updateLocalSummary(q, "خدمة");
+      const name = (intent.service_name || q).trim();
+      const matches = topServiceMatches(name, servicesAll, 5);
+      if (matches.length) return renderServicesTable(matches, `لقيت الأقرب يا كبير ✅:`);
+      return `معلش يا كبير… مش لاقي خدمة باسم قريب من **${name}**.\nجرّب تكتب الاسم بشكل تاني أو قول الفئة.`;
+    }
+
+    // unknown
+    return "معلش يا كبير… مش فاهم قصدك. اكتب: (صيدليات) أو (أرقام الطوارئ) أو (إجراءات حكومية) أو (مشروعات الكنزاوية).";
+  }
+
+  // =========================================
+  // Bind UI events
+  // =========================================
+  function bind(){
+    loadLimitsData();
+
+    const launcher = $("chat-widget-launcher");
+    const form = $("chatForm");
+    const input = $("userInput");
+
+    // Launcher click
+    if (launcher) {
+      launcher.style.pointerEvents = "auto";
+      launcher.addEventListener("click", function(e){
+        e.preventDefault();
+        e.stopPropagation();
+        window.toggleChat();
+      }, {capture:true});
+    }
+
+    // Restore UI chat + history
+    loadChatMessages();
+    loadConversationHistory();
+
+    // Submit handler
+    if (form) {
+      form.addEventListener("submit", async function(e){
+        e.preventDefault();
+
+        const q = (input?.value || "").trim();
+        if (!q || isThinking) return;
+
+        // enforce limits BEFORE calling any AI/network
+        const check = checkLimits();
+        if (!check.allowed) {
+          addMessage(q, true);
+          addMessage(check.message, false);
+          setGarefFace(FACES.WARNING);
+          setTimeout(()=>setGarefFace(FACES.IDLE), 2000);
+          input.value = "";
+          return;
+        }
+
+        recordMessage();
+
+        addMessage(q, true);
+        input.value = "";
+
+        isThinking = true;
+        setGarefFace(FACES.THINKING);
+
+        const reply = await onAsk(q);
+
+        isThinking = false;
+        setGarefFace(reply.includes("معلش") ? FACES.SAD : FACES.HAPPY);
+        addMessage(reply, false);
+        setTimeout(()=>setGarefFace(FACES.IDLE), 2000);
+
+        // Save minimal context (for intent only)
+        conversationHistory.push({ role:"User", content:q });
+        conversationHistory.push({ role:"Model", content: reply });
+
+        if (conversationHistory.length > MAX_HISTORY * 2) {
+          conversationHistory = conversationHistory.slice(-MAX_HISTORY * 2);
+        }
+
+        saveConversationHistory();
+      });
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", bind);
+
+})();
+</script>
 </body>
 </html>
-
 
 
 
