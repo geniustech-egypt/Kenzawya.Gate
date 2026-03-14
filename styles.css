@@ -2714,3 +2714,46 @@ mark {
   opacity: .7;
   cursor: not-allowed;
 }
+
+/* ===========================
+   Fix: Chat launcher emoji rendering (mobile)
+   Keep the exact icon from index.html (👴)
+   =========================== */
+
+#chat-widget-launcher > div {
+  /* حافظ على نفس القياسات على كل الأجهزة */
+  width: 60px;
+  height: 60px;
+}
+
+#chat-widget-launcher > div > span {
+  /* أهم جزء: تثبيت طريقة عرض الإيموجي */
+  font-size: 30px !important;
+  line-height: 1 !important;
+  display: block !important;
+
+  /* اختياري لكنه مفيد: يمنع أي transform غريب على النص */
+  transform: none !important;
+
+  /* خلي الإيموجي يعتمد خطوط الإيموجي القياسية قدر الإمكان */
+  font-family: "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif !important;
+
+  /* تحسين وضوح */
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* موبايل: نفس الشكل بدون تغيير */
+@media (max-width: 600px){
+  #chat-widget-launcher {
+    bottom: 20px;
+    left: 20px;
+  }
+  #chat-widget-launcher > div {
+    width: 60px;
+    height: 60px;
+  }
+  #chat-widget-launcher > div > span {
+    font-size: 30px !important;
+  }
+}
