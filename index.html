@@ -2367,7 +2367,7 @@ renderCarousel();
 
     if (intent.intent === "services_category") {
       const cat = resolveCategoryFromText(intent.category_hint || q) || resolveCategoryFromText(q);
-      if (!cat) return "معلش يا كبير… قولّي الفئة ال��ي تقصدها زي: صيدليات / مطاعم / سوبرماركت / مكتبات.";
+      if (!cat) return "معلش يا كبير… قولّي الفئة اللي تقصدها زي: صيدليات / مطاعم / سوبرماركت / مكتبات.";
 
       // ✅ NEW: لو الفئة "خدمات طبية" ونص المستخدم فيه تخصص من اللي في clinics.html
       // نفلتر على clinicType فقط (وبالتالي يرجع التخصص المطلوب فقط)
