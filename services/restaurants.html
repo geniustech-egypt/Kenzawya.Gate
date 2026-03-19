@@ -1172,6 +1172,47 @@
         <div class="all-comments"></div>
     </div>
 </div>
+<div class="service-card">
+    <div class="service-title">ع الشواية</div>
+    <div class="service-address">شارع المشروع مول صن جيت امام مساكن دهشور وبجوار مدرسة كابيتال</div>
+    <div class="service-phone">
+        <i class="fa-solid fa-phone-volume"></i>
+        <a href="tel:01110060025">01110060025</a> /
+        <a href="tel:01222235190">01222235190</a> / 
+        <a href="tel:01055119300">01055119300</a>
+    </div>
+    <div class="star-rating-comment" data-service-id="252">
+        <div class="star-rating">
+            <span class="star" data-value="1">★</span>
+            <span class="star" data-value="2">★</span>
+            <span class="star" data-value="3">★</span>
+            <span class="star" data-value="4">★</span>
+            <span class="star" data-value="5">★</span>
+        </div>
+        <textarea class="comment-text" placeholder="اكتب تعليقك عن المطعم..."></textarea>
+        <button class="submit-rating">إرسال التقييم</button>
+        <div class="all-comments"></div>
+    </div>
+</div><div class="service-card">
+    <div class="service-title">بيتزا ومشويات المهندس</div>
+    <div class="service-address">مول دجلة جاردنز عمارات 1185 دهشور - سنتر ب جيش </div>
+    <div class="service-phone">
+        <i class="fa-solid fa-phone-volume"></i>
+        <a href="tel:01141067607">01141067607</a>
+    </div>
+    <div class="star-rating-comment" data-service-id="253">
+        <div class="star-rating">
+            <span class="star" data-value="1">★</span>
+            <span class="star" data-value="2">★</span>
+            <span class="star" data-value="3">★</span>
+            <span class="star" data-value="4">★</span>
+            <span class="star" data-value="5">★</span>
+        </div>
+        <textarea class="comment-text" placeholder="اكتب تعليقك عن المطعم..."></textarea>
+        <button class="submit-rating">إرسال التقييم</button>
+        <div class="all-comments"></div>
+    </div>
+</div>
 
                 <div class="service-card">
                     <div class="service-title">مطعم الشبراوي الدمشقي</div>
@@ -1275,7 +1316,7 @@
 </div>
 <div class="service-card">
     <div class="service-title">حلواني اكسبشن</div>
-    <div class="service-address">مول كمبوند باراديس</div>
+    <div class="service-address">صينية البترول أول طريق الحي الايطالي بجوار بنزينة موبيل</div>
     <div class="service-phone">
         <i class="fa-solid fa-phone-volume"></i>
         <a href="tel:01011198306">01011198306</a> /
@@ -1382,6 +1423,7 @@
     </div>
 </div>
 
+
 <div class="service-card">
     <div class="service-title">حلواني المدينة المنورة</div>
     <div class="service-address">طريق الواحات مدخل الفردوس جيش امام هيلتون دريم مول</div>
@@ -1429,8 +1471,46 @@
     });
     </script>
 
+    <script>
+document.addEventListener('DOMContentLoaded', function() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const serviceParam = urlParams.get('service');
+  
+  if (serviceParam) {
+    // ابحث عن الكارت الذي يحتوي على اسم الخدمة
+    const cards = document.querySelectorAll('.service-card');
+    let targetCard = null;
+    
+    for (const card of cards) {
+      const cardText = card.textContent.toLowerCase();
+      if (cardText.includes(serviceParam.toLowerCase())) {
+        targetCard = card;
+        break;
+      }
+    }
+    
+    if (targetCard) {
+      // انتقل إلى الكارت مع تأثير بصري
+      setTimeout(() => {
+        targetCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        targetCard.style.transition = 'all 0.5s ease';
+        targetCard.style.backgroundColor = '#fff3cd';
+        targetCard.style.transform = 'scale(1.02)';
+        targetCard.style.boxShadow = '0 8px 24px rgba(255, 193, 7, 0.5)';
+        targetCard.style.border = '3px solid #ffc107';
+        
+        setTimeout(() => {
+          targetCard.style.backgroundColor = '';
+          targetCard.style.transform = '';
+          targetCard.style.boxShadow = '';
+          targetCard.style.border = '';
+        }, 3000);
+      }, 500); // تأخير قليل لضمان تحميل الصفحة
+    }
+  }
+});
+</script>
 </body>
 </html>
-
 
 
