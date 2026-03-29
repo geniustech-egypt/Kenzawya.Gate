@@ -1,0 +1,28 @@
+{
+  "background_color": "#ffffff",
+  "description": "بوابة الكنزاوية — دليل خدمات ومرافق كمبوند كنز: عيادات، مطاعم، سوبرماركت، خرائط، مواصلات وأخبار الكمبوند.",
+  "dir": "ltr",
+  "display": "standalone",
+  "name": "بوابة الكنزاوية",
+  "orientation": "any",
+  "scope": "/",
+  "short_name": "بوابة الكنزاوية",
+  "start_url": "/",
+  "theme_color": "#ffffff",
+  "icons": [
+    {
+      "src": "https://geniustech-egypt.github.io/Kenzawya.Gate/kenz.jpg",
+      "type": "image/png",
+      "sizes": "200x91",
+      "isSquare": false,
+      "isPng": true,
+      "isWebp": false,
+      "isJpg": true,
+      "width": 200,
+      "is512x512": false,
+      "is256x256": false,
+      "is192x192": false
+    }
+  ],
+  "id": "kenzawya"
+}
