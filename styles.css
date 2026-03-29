@@ -53,20 +53,22 @@ a:hover {
 }
 
 /* طبقة زينة رمضان فوق الهيدر (فوانيس + نجوم) */
+/*
 .header::after {
   content: "";
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
-  height: 120px;                 /* ارتفاع شريط الزينة الافتراضي */
-  background-image: url('ramadan-decor.png'); /* عدّل المسار لو مختلف */
-  background-repeat: repeat-x;   /* تكرار أفقي */
+  height: 120px;
+  background-image: url('ramadan-decor.png');
+  background-repeat: repeat-x;
   background-position: center top;
-  background-size: auto 120px;   /* ارتفاع الصورة = 120px، العرض حسب نسبتها ويتكرر */
-  pointer-events: none;          /* لا يمنع الضغط على العناصر تحته */
-  z-index: 1;                    /* تحت محتوى الهيدر، فوق الخلفية */
+  background-size: auto 120px;
+  pointer-events: none;
+  z-index: 1;
 }
+*/
 
 /* تأكد أن عناصر الهيدر فوق الزينة */
 .header > * {
