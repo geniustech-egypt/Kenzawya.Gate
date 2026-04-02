@@ -15,6 +15,13 @@ const ads = [
     type: "facebook"
   },
   {
+    title: "جميع خدمات صيانة السيارات (ميكانيكا-عفشة-كهرباء-سمكرة-دهان) وتوفير قطع الغيار ",
+    image: "fixoo.jpeg",  
+    url: "https://www.facebook.com/profile.php?id=61587892844276",
+    phone: "01143741206", 
+    type: "facebook"
+  },
+  {
     title: "كسر أرفف وأدراج ثلاجتك مهما كان نوعها وأحنا نوفرلك غيرها بسعر مناسب والتوصيل لعندك بمصاريف شحن بسيطة ",
     image: "makka.jpeg", // رابط صورة الشعار أو الغلاف
     url: "https://www.facebook.com/groups/126761025839298/?ref=share&mibextid=KtfwRi",
