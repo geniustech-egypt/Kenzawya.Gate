@@ -674,8 +674,10 @@ footer.site-footer {
                         <li>المقدم/ مصطفي عرفة رئيس مباحث ح.اكتوبر : 01003192105</li>
                         <li>الرائد/ باسم ابوالدهب معاون مباحث ح.اكتوبر : 01227188206</li>
                         <li>النقيب/ محمد ابوالخير معاون مباحث ح.اكتوبر : 01221310854</li>
-                        <li>شكاوي جهاز مدينة ح. اكتوبر : 15100</li>
-                        <li>شكاوي جهاز مدينة ح. اكتوبر (واتساب) : 01090919155</li>
+                        <li>شكاوي جهاز مدينة ح. اكتوبر : <a href="tel:15100">15100</a></li>
+                        <li>شكاوي جهاز مدينة ح. اكتوبر (واتساب) : <a href="https://wa.me/201006473316" target="_blank" rel="noopener">01006473316</a></li>
+                        <li>منظومة الشكاوي الحكومية الموحدة : <a href="tel:16528">16528</a></li>
+                        <li>منظومة الشكاوي الحكومية الموحدة (واتساب) : <a href="https://wa.me/201555516528" target="_blank" rel="noopener">01555516528</a> - <a href="https://wa.me/201555525444" target="_blank" rel="noopener">01555525444</a></li>
                         <li>ونش إنقاذ أمان : 15558</li>
                     </ul>
                 </div>
@@ -2247,6 +2249,52 @@ renderCarousel();
     return "";
   }
 
+  // يُبقي ملف البيانات الخاص بكل صفحة ظاهراً في بحث الصفحة الرئيسية أيضاً.
+  async function loadAddedServices(pageKey) {
+    const dataPath = `services/data/${pageKey}.js`;
+    const urls = [
+      dataPath,
+      `https://raw.githubusercontent.com/${repoOwner}/${repoName}/main/${dataPath}`
+    ];
+
+    let source = "";
+    for (const u of urls) {
+      try {
+        const res = await fetch(u, { cache: "no-store" });
+        if (!res.ok) continue;
+        source = await res.text();
+        if (source) break;
+      } catch (e) {}
+    }
+    if (!source) return [];
+
+    // ملف البيانات مكتوب كـ JavaScript لكي يتم تحميله فوراً في صفحة الخدمات،
+    // لكن محتوى المصفوفة JSON خالص حتى يمكن قراءته بأمان هنا.
+    const assignment = source.indexOf('window.servicesPageData');
+    const start = source.indexOf('[', assignment);
+    const end = source.lastIndexOf('];');
+    if (assignment < 0 || start < 0 || end < start) return [];
+    try {
+      const data = JSON.parse(source.slice(start, end + 1));
+      return Array.isArray(data) ? data : [];
+    } catch (e) {
+      console.warn(`تعذر قراءة ${dataPath}`, e);
+      return [];
+    }
+  }
+
+  function stableAddedServiceId(service, phones, pageKey) {
+    const value = `${pageKey}|${service.title}|${phones.join('|')}`;
+    const hash = seed => {
+      let result = seed;
+      for (let index = 0; index < value.length; index += 1) {
+        result = Math.imul(result ^ value.charCodeAt(index), 16777619);
+      }
+      return (result >>> 0).toString(36);
+    };
+    return `svc_${hash(2166136261)}_${hash(2166136261 ^ 0x9e3779b9)}`;
+  }
+
   async function fetchServicesPageCards(pagePath) {
     const urls = [
       pagePath,
@@ -2313,6 +2361,33 @@ renderCarousel();
         specialtyNorm: normalizeArabic(specialty)
       };
     }).filter(x => x.name);
+
+    const pageKey = pagePath.replace(/^services\//, '').replace(/\.html$/, '');
+    const added = await loadAddedServices(pageKey);
+    const knownIds = new Set(items.map(item => String(item.id)));
+    added.forEach(service => {
+      const name = String(service?.title ?? '').trim();
+      const address = String(service?.address ?? '').trim();
+      const itemTypesRaw = String(service?.type || 'other').trim();
+      const itemTypes = itemTypesRaw.split(/\s+/).filter(Boolean);
+      const phones = Array.isArray(service?.phones) ? service.phones : [service?.phone];
+      const cleanedPhones = phones.map(x => String(x ?? '').replace(/[^0-9+]/g, '')).filter(Boolean);
+      const id = String(service?.id ?? '').trim() || stableAddedServiceId(service, cleanedPhones, pageKey);
+      if (!/^[A-Za-z0-9_-]+$/.test(id) || !name || knownIds.has(id)) return;
+      const phone = cleanedPhones.join(' / ') || '-';
+      const specialty = (pagePath === "services/clinics.html")
+        ? (clinicTypeToArabic(itemTypesRaw) || address)
+        : address;
+
+      items.push({
+        name, page: pagePath, id, phone, category, address,
+        itemTypesRaw, itemTypes, itemTypesNorm: itemTypes.map(t => normalizeArabic(t)),
+        clinicType: itemTypesRaw, specialty,
+        nameNorm: normalizeArabic(name), addressNorm: normalizeArabic(address),
+        clinicTypeNorm: normalizeArabic(itemTypesRaw), specialtyNorm: normalizeArabic(specialty)
+      });
+      knownIds.add(id);
+    });
 
     return items;
   }

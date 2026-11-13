@@ -58,16 +58,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const allRatingsRef = ref(database, 'ratings');
         onValue(allRatingsRef, (snapshot) => {
             const allRatings = snapshot.val() || {};
-            groups.forEach(group => {
-                group.forEach(id => {
-                    const oldLikesDiv = document.getElementById(`old-likes-${id}`);
-                    if (!oldLikesDiv) return;
-                    const likeSpan = oldLikesDiv.querySelector('.like-count');
-                    const dislikeSpan = oldLikesDiv.querySelector('.dislike-count');
-                    const data = allRatings[id] || { likes: 0, dislikes: 0 };
-                    if (likeSpan) likeSpan.textContent = data.likes || 0;
-                    if (dislikeSpan) dislikeSpan.textContent = data.dislikes || 0;
-                });
+            // Use the cards actually rendered on this page so new services work
+            // without having to add their IDs to a hard-coded list.
+            document.querySelectorAll('.old-likes-info[id^="old-likes-"]').forEach(oldLikesDiv => {
+                const id = oldLikesDiv.id.replace(/^old-likes-/, '');
+                const likeSpan = oldLikesDiv.querySelector('.like-count');
+                const dislikeSpan = oldLikesDiv.querySelector('.dislike-count');
+                const data = allRatings[id] || { likes: 0, dislikes: 0 };
+                if (likeSpan) likeSpan.textContent = data.likes || 0;
+                if (dislikeSpan) dislikeSpan.textContent = data.dislikes || 0;
             });
         });
     }

@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>إضافة خدمة جديدة | بوابة الكنزاوية</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root { color-scheme: light; }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; background: #f3f8fc; color: #17324d; font-family: Cairo, sans-serif; }
+    main { width: min(720px, calc(100% - 32px)); margin: 42px auto; background: #fff; border-radius: 18px; padding: 28px; box-shadow: 0 10px 32px rgba(27, 79, 120, .13); }
+    h1 { margin: 0 0 8px; color: #2567a1; font-size: 1.6rem; }
+    .intro { margin: 0 0 24px; color: #567; line-height: 1.75; }
+    .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+    label { display: grid; gap: 7px; font-weight: 700; font-size: .93rem; }
+    .wide { grid-column: 1 / -1; }
+    input, select, textarea, button { font: inherit; }
+    input, select, textarea { width: 100%; border: 1px solid #c9d9e7; border-radius: 9px; padding: 10px 12px; color: #17324d; background: #fff; }
+    textarea { min-height: 90px; resize: vertical; direction: ltr; text-align: left; }
+    .hint { margin: 6px 0 0; color: #718396; font-size: .79rem; font-weight: 400; }
+    .actions { display: flex; gap: 10px; margin-top: 22px; flex-wrap: wrap; }
+    button { border: 0; border-radius: 9px; padding: 10px 17px; cursor: pointer; font-weight: 700; background: #2567a1; color: #fff; }
+    button.secondary { background: #e9f1f8; color: #2567a1; }
+    #message { min-height: 24px; margin: 12px 0 0; color: #19723d; font-size: .9rem; }
+    @media (max-width: 580px) { main { margin: 16px auto; padding: 21px; } .grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>إضافة خدمة جديدة</h1>
+    <p class="intro">اختر الصفحة أولًا. يُضبط نوع الخدمة تلقائيًا، وستحصل على السجل الجاهز لملف بيانات تلك الصفحة فقط.</p>
+
+    <form id="service-form">
+      <div class="grid">
+        <label>
+          الصفحة
+          <select id="page" required></select>
+        </label>
+        <label>
+          النوع
+          <select id="type" required></select>
+          <span class="hint" id="type-hint"></span>
+        </label>
+        <label class="wide">
+          اسم الخدمة
+          <input id="title" required placeholder="مثال: صيدلية النور">
+        </label>
+        <label class="wide">
+          العنوان
+          <input id="address" required placeholder="مثال: شارع المنتزه، بجوار البوابة الرئيسية">
+        </label>
+        <label class="wide">
+          أرقام الهاتف
+          <input id="phones" required inputmode="tel" placeholder="01012345678, 01112345678">
+          <span class="hint">افصل بين الأرقام بفاصلة.</span>
+        </label>
+        <label class="wide">
+          السجل الجاهز للإضافة إلى ملف بيانات الصفحة
+          <textarea id="output" readonly aria-label="السجل الجاهز"></textarea>
+        </label>
+      </div>
+      <div class="actions">
+        <button type="submit">إنشاء السجل</button>
+        <button type="button" class="secondary" id="copy">نسخ السجل</button>
+      </div>
+      <p id="message" aria-live="polite"></p>
+    </form>
+  </main>
+
+  <script>
+    const pages = [
+      { value: 'bookstore', label: 'مكتبات', types: ['other'] },
+      { value: 'cleaning', label: 'تنظيف ملابس', types: ['other'] },
+      { value: 'clinics', label: 'عيادات ومستشفيات', types: ['multi', 'dental', 'eye', 'eye hospital', 'hospital', 'internal', 'lab', 'obgyn', 'pediatrics', 'surgery'] },
+      { value: 'general_services', label: 'خدمات عامة', types: ['other'] },
+      { value: 'grocery', label: 'عطارة وتسالي', types: ['other'] },
+      { value: 'meat', label: 'دواجن ولحوم', types: ['other'] },
+      { value: 'milk', label: 'ألبان ومخبوزات', types: ['other'] },
+      { value: 'other_services', label: 'خدمات أخرى', types: ['other', 'mechanic', 'car electric', 'beauty', 'pet_clinic'] },
+      { value: 'pharmacies', label: 'صيدليات', types: ['other'] },
+      { value: 'restaurants', label: 'مطاعم وحلويات', types: ['other'] },
+      { value: 'supermarket', label: 'سوبر ماركت', types: ['other'] },
+      { value: 'vegetables', label: 'خضروات وفواكه', types: ['other'] }
+    ];
+    const typeLabels = {
+      other: 'أخرى', multi: 'عيادة متعددة التخصصات', dental: 'أسنان', eye: 'عيون',
+      'eye hospital': 'مستشفى عيون', hospital: 'مستشفى', internal: 'باطنة', lab: 'معمل تحاليل',
+      obgyn: 'نساء وتوليد', pediatrics: 'أطفال', surgery: 'جراحة', mechanic: 'ميكانيكي سيارات',
+      'car electric': 'كهرباء سيارات', beauty: 'صالونات تجميل', pet_clinic: 'عيادة بيطرية'
+    };
+    const pageSelect = document.getElementById('page');
+    const typeSelect = document.getElementById('type');
+    const typeHint = document.getElementById('type-hint');
+    const output = document.getElementById('output');
+    const message = document.getElementById('message');
+
+    pages.forEach(page => pageSelect.add(new Option(page.label, page.value)));
+    function refreshTypes() {
+      const selected = pages.find(page => page.value === pageSelect.value);
+      typeSelect.replaceChildren(...selected.types.map(type => new Option(typeLabels[type] || type, type)));
+      typeSelect.disabled = selected.types.length === 1;
+      typeHint.textContent = selected.types.length === 1
+        ? 'تم تحديد النوع تلقائيًا لهذه الصفحة.'
+        : 'اختر التخصص المناسب؛ تم اختيار القيمة الافتراضية تلقائيًا.';
+      output.value = '';
+      message.textContent = '';
+    }
+    pageSelect.addEventListener('change', refreshTypes);
+    refreshTypes();
+
+    document.getElementById('service-form').addEventListener('submit', event => {
+      event.preventDefault();
+      const phones = document.getElementById('phones').value.split(',')
+        .map(phone => phone.replace(/[^0-9+]/g, '')).filter(Boolean);
+      if (!phones.length) {
+        message.textContent = 'أدخل رقم هاتف صحيحًا واحدًا على الأقل.';
+        return;
+      }
+      const service = {
+        type: typeSelect.value,
+        title: document.getElementById('title').value.trim(),
+        address: document.getElementById('address').value.trim(),
+        phones
+      };
+      output.value = JSON.stringify(service, null, 2);
+      message.textContent = `تم إنشاء السجل. ألصقه داخل data/${pageSelect.value}.js؛ أضف فاصلة بينه وبين السجل السابق فقط.`;
+    });
+
+    document.getElementById('copy').addEventListener('click', async () => {
+      if (!output.value) return;
+      try {
+        await navigator.clipboard.writeText(output.value);
+        message.textContent = `تم النسخ. ألصقه داخل window.servicesPageData في data/${pageSelect.value}.js.`;
+      } catch (error) {
+        output.select();
+        message.textContent = 'حددنا النص؛ انسخه يدويًا باستخدام Ctrl + C.';
+      }
+    });
+  </script>
+</body>
+</html>
