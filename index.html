@@ -1960,6 +1960,28 @@ renderCarousel();
     "services/vegetables.html"
   ];
 
+  // Discover public service pages automatically, so newly added categories
+  // are included in the assistant search without changing this list.
+  async function discoverServicesPages() {
+    try {
+      const endpoint = `https://api.github.com/repos/${repoOwner}/${repoName}/git/trees/main?recursive=1`;
+      const response = await fetch(endpoint, { cache: "no-store" });
+      if (!response.ok) throw new Error(`GitHub returned ${response.status}`);
+
+      const payload = await response.json();
+      const pages = (payload.tree || [])
+        .filter(entry => entry.type === "blob" && /^services\/.+\.html$/i.test(entry.path))
+        .filter(entry => !/(^|\/)service_data_editor\.html$/i.test(entry.path))
+        .map(entry => entry.path)
+        .sort((a, b) => a.localeCompare(b));
+
+      return pages.length ? pages : SERVICES_PAGES;
+    } catch (error) {
+      console.warn("Could not discover service pages for the assistant.", error);
+      return SERVICES_PAGES;
+    }
+  }
+
   let servicesCardsCache = null; // { items: ServiceItem[], loadedAt:number }
 
   function categoryFromServicesPath(path) {
@@ -2396,7 +2418,8 @@ renderCarousel();
     if (servicesCardsCache?.items?.length) return servicesCardsCache.items;
 
     const all = [];
-    for (const p of SERVICES_PAGES) {
+    const servicePages = await discoverServicesPages();
+    for (const p of servicePages) {
       const cards = await fetchServicesPageCards(p).catch(() => []);
       all.push(...cards);
     }
@@ -2419,6 +2442,53 @@ renderCarousel();
     });
   }
 
+  const SERVICE_LOOKUP_WORDS = [
+    "بيانات", "تفاصيل", "رقم", "ارقام", "تليفون", "هاتف", "عنوان",
+    "موقع", "تواصل", "معلومات", "اريد", "عايز", "محتاج", "عن", "الخاصة"
+  ];
+  const SPECIFIC_SERVICE_HINTS = [
+    "بيانات", "تفاصيل", "رقم", "ارقام", "تليفون", "هاتف", "عنوان", "موقع", "تواصل", "معلومات"
+  ].map(normalizeArabic);
+
+  function serviceSearchTerms(query) {
+    let normalized = normalizeArabic(query).replace(/[^\p{L}\p{N}\s]/gu, " ");
+    SERVICE_LOOKUP_WORDS.forEach(word => {
+      const normalizedWord = normalizeArabic(word).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      normalized = normalized.replace(new RegExp(`(^|\\s)${normalizedWord}(?=\\s|$)`, "g"), " ");
+    });
+    return normalized.split(/\s+/).filter(word => word.length >= 2);
+  }
+
+  function isSpecificServiceRequest(query) {
+    const normalized = normalizeArabic(query);
+    return SPECIFIC_SERVICE_HINTS.some(hint => normalized.includes(hint));
+  }
+
+  async function findServiceMatches(query, limit = 15) {
+    const all = await ensureAllServicesLoaded();
+    const terms = serviceSearchTerms(query);
+    const queryNorm = terms.join(" ");
+    if (!queryNorm) return [];
+
+    return all.map(service => {
+      let score = 0;
+      if (service.nameNorm === queryNorm) score += 250;
+      else if (service.nameNorm.includes(queryNorm)) score += 160;
+      else if (queryNorm.includes(service.nameNorm)) score += 100;
+
+      if (terms.every(term => service.nameNorm.includes(term))) score += 110;
+      terms.forEach(term => {
+        if (service.nameNorm.includes(term)) score += 24;
+        if (service.addressNorm.includes(term)) score += 8;
+      });
+
+      return { service, score };
+    }).filter(result => result.score >= 80)
+      .sort((a, b) => b.score - a.score)
+      .slice(0, limit)
+      .map(result => result.service);
+  }
+
   function buildServiceUrlV2(page, serviceName) {
     if (!page) return "#";
     const joiner = page.includes("?") ? "&" : "?";
@@ -2431,10 +2501,10 @@ renderCarousel();
     const list = (services || []).slice(0, 15);
     if (!list.length) return `${titleText}\n\nمعلش يا كبير… مش لاقي نتائج.`;
 
-    let out = `${titleText}\n\n| الخدمة | التليفون |\n|---|---|\n`;
+    let out = `${titleText}\n\n| الخدمة | التليفون | العنوان |\n|---|---|---|\n`;
     list.forEach(s => {
       const url = buildServiceUrlV2(s.page, s.name);
-      out += `| [${mdCell(s.name)}](${url}) | ${mdCell(s.phone||"-")} |\n`;
+      out += `| [${mdCell(s.name)}](${url}) | ${mdCell(s.phone||"-")} | ${mdCell(s.address||"-")} |\n`;
     });
     out += `\n*اضغط على اسم الخدمة للفتح.*`;
     return out;
@@ -2527,6 +2597,18 @@ renderCarousel();
       if (qn.includes("اجراءات") || qn.includes("إجراءات")) {
         updateLocalSummary(q, "إجراءات حكومية");
         return renderGovListMarkdown();
+      }
+    }
+
+    // A name plus a request for data (for example: "بيانات صيدلية المجد")
+    // is a direct lookup, not a request to show the entire service category.
+    const directServiceTerms = serviceSearchTerms(q);
+    const categoryMentioned = resolveCategoryFromTextV2(q);
+    if (isSpecificServiceRequest(q) || (categoryMentioned && directServiceTerms.length >= 2)) {
+      const directMatches = await findServiceMatches(q, 5).catch(() => []);
+      if (directMatches.length) {
+        updateLocalSummary(q, `خدمة: ${directMatches[0].name}`);
+        return renderServicesTable(directMatches, "لقيت بيانات الخدمة يا كبير ✅:");
       }
     }
 
@@ -2656,26 +2738,7 @@ renderCarousel();
       updateLocalSummary(q, "خدمة");
       addMessage("ثواني يا كبير… بدوّر في الخدمات 👇", false);
 
-      const all = await ensureAllServicesLoaded();
-      const queryNorm = normalizeArabic((intent.service_name || q).trim());
-
-      const scored = all.map(s => {
-        let score = 0;
-
-        if (s.nameNorm === queryNorm) score += 120;
-        if (s.nameNorm.includes(queryNorm)) score += 90;
-        if (s.addressNorm.includes(queryNorm)) score += 55;
-
-        const toks = queryNorm.split(" ").filter(t => t.length >= 2);
-        toks.forEach(t => {
-          if (s.nameNorm.includes(t)) score += 12;
-          if (s.addressNorm.includes(t)) score += 8;
-        });
-
-        return { s, score };
-      }).filter(x => x.score >= 55).sort((a,b) => b.score - a.score);
-
-      const matches = scored.slice(0, 15).map(x => x.s);
+      const matches = await findServiceMatches(intent.service_name || q);
       if (matches.length) return renderServicesTable(matches, `لقيت الأقرب يا كبير ✅:`);
       return `معلش يا كبير… مش لاقي خدمة مطابقة.\nجرّب تكتب الاسم بشكل تاني أو قول الفئة.`;
     }
