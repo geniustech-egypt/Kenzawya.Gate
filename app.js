@@ -580,6 +580,9 @@ document.querySelectorAll('.star-rating-comment[data-project-id]').forEach(block
     }
 
     /* ====== الوضع الجديد (صفحات منفصلة) ====== */
+    // Fallback for local/offline use.  The list used in production is discovered
+    // from the repository below, so adding a new HTML service page no longer
+    // requires editing this file.
     const SERVICE_PAGES = [
         { url: 'services/pharmacies.html'   , selector: '.service-card' },
         { url: 'services/supermarket.html'  , selector: '.service-card' },
@@ -595,19 +598,68 @@ document.querySelectorAll('.star-rating-comment[data-project-id]').forEach(block
         { url: 'services/general_services.html',selector: '.service-card' }
     ];
 
+    const SERVICES_REPOSITORY = {
+        owner: 'geniustech-egypt',
+        name: 'Kenzawya.Gate',
+        branch: 'main'
+    };
+
+    function isSearchableServicePage(path){
+        // Administrative/helper pages are not service categories and must not
+        // appear in the public search index.
+        return /^services\/.+\.html$/i.test(path) &&
+            !/(^|\/)service_data_editor\.html$/i.test(path);
+    }
+
+    async function discoverServicePages(){
+        const fallback = SERVICE_PAGES.map(page => page.url);
+        try {
+            const { owner, name, branch } = SERVICES_REPOSITORY;
+            const endpoint = `https://api.github.com/repos/${owner}/${name}/git/trees/${branch}?recursive=1`;
+            const response = await fetch(endpoint, { cache: 'no-store' });
+            if (!response.ok) throw new Error(`GitHub returned ${response.status}`);
+
+            const payload = await response.json();
+            const discovered = (payload.tree || [])
+                .filter(entry => entry.type === 'blob' && isSearchableServicePage(entry.path))
+                .map(entry => entry.path)
+                .sort((a, b) => a.localeCompare(b));
+
+            return discovered.length ? discovered : fallback;
+        } catch (error) {
+            console.warn('Could not discover service pages; using fallback list.', error);
+            return fallback;
+        }
+    }
+
+    function readServicesDataScript(source){
+        const assignment = source.indexOf('window.servicesPageData');
+        const start = source.indexOf('[', assignment);
+        const end = source.lastIndexOf('];');
+        if (assignment < 0 || start < 0 || end < start) return [];
+        try {
+            const data = JSON.parse(source.slice(start, end + 1));
+            return Array.isArray(data) ? data : [];
+        } catch (error) {
+            console.warn('Could not read service data file.', error);
+            return [];
+        }
+    }
+
     let servicesData = [];
     let pagesLoaded = false;
 
     async function loadAllServices(){
         if (pagesLoaded) return;
         const parser = new DOMParser();
-        for (const p of SERVICE_PAGES){
+        const servicePages = await discoverServicePages();
+        for (const url of servicePages){
             try{
-                const res = await fetch(p.url);
+                const res = await fetch(url);
                 if(!res.ok) continue;
                 const html = await res.text();
                 const doc = parser.parseFromString(html,'text/html');
-                const cards = doc.querySelectorAll(p.selector);
+                const cards = doc.querySelectorAll('.service-card');
                 cards.forEach(card=>{
                     const titleEl = card.querySelector('.service-title');
                     const ratingBlock = card.querySelector('.star-rating-comment');
@@ -617,12 +669,35 @@ document.querySelectorAll('.star-rating-comment[data-project-id]').forEach(block
                     servicesData.push({
                         nameOriginal: name,
                         nameNorm: normalizeArabic(name),
-                        url: sid ? `${p.url}?id=${sid}` : p.url,
+                        url: sid ? `${url}?id=${sid}` : url,
                         serviceId: sid || null
                     });
                 });
+
+                // Some category pages render recently added services from a
+                // data/*.js file.  Index those entries too, not only cards
+                // physically present in the HTML source.
+                const dataScript = Array.from(doc.querySelectorAll('script[src]'))
+                    .map(script => script.getAttribute('src'))
+                    .find(src => /(?:^|\/)data\/.+\.js(?:$|[?#])/i.test(src || ''));
+                if (dataScript) {
+                    const dataUrl = new URL(dataScript, new URL(url, window.location.href)).href;
+                    const dataResponse = await fetch(dataUrl);
+                    if (dataResponse.ok) {
+                        readServicesDataScript(await dataResponse.text()).forEach(service => {
+                            const name = String(service?.title || '').trim();
+                            if (!name) return;
+                            servicesData.push({
+                                nameOriginal: name,
+                                nameNorm: normalizeArabic(name),
+                                url,
+                                serviceId: null
+                            });
+                        });
+                    }
+                }
             }catch(e){
-                console.warn('Failed to load', p.url, e);
+                console.warn('Failed to load', url, e);
             }
         }
         pagesLoaded = true;
