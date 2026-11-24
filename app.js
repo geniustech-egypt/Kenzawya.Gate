@@ -646,6 +646,32 @@ document.querySelectorAll('.star-rating-comment[data-project-id]').forEach(block
         }
     }
 
+    // Keep the identifier used by the search index identical to the identifier
+    // created by services/service_data_renderer.js. This lets a result from a
+    // data/*.js file open as one card, just like an HTML-authored service.
+    function getAddedServiceId(pageUrl, service){
+        const page = String(pageUrl || '').split('/').pop().replace(/\.html(?:[?#].*)?$/i, '');
+        const phones = (Array.isArray(service?.phones) ? service.phones : [service?.phone])
+            .map(phone => String(phone ?? '').replace(/[^0-9+]/g, ''))
+            .filter(Boolean);
+        const manualId = String(service?.id ?? '').trim();
+
+        // The renderer deliberately skips invalid manual identifiers, so do
+        // not add a search result that cannot be displayed on the target page.
+        if (manualId && !/^[A-Za-z0-9_-]+$/.test(manualId)) return null;
+        if (manualId) return manualId;
+
+        const value = `${page}|${String(service?.title ?? '')}|${phones.join('|')}`;
+        const hash = seed => {
+            let result = seed;
+            for (let index = 0; index < value.length; index += 1) {
+                result = Math.imul(result ^ value.charCodeAt(index), 16777619);
+            }
+            return (result >>> 0).toString(36);
+        };
+        return `svc_${hash(2166136261)}_${hash(2166136261 ^ 0x9e3779b9)}`;
+    }
+
     let servicesData = [];
     let pagesLoaded = false;
 
@@ -686,12 +712,13 @@ document.querySelectorAll('.star-rating-comment[data-project-id]').forEach(block
                     if (dataResponse.ok) {
                         readServicesDataScript(await dataResponse.text()).forEach(service => {
                             const name = String(service?.title || '').trim();
-                            if (!name) return;
+                            const serviceId = getAddedServiceId(url, service);
+                            if (!name || !serviceId) return;
                             servicesData.push({
                                 nameOriginal: name,
                                 nameNorm: normalizeArabic(name),
-                                url,
-                                serviceId: null
+                                url: `${url}?id=${encodeURIComponent(serviceId)}`,
+                                serviceId
                             });
                         });
                     }
